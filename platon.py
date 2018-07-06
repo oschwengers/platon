@@ -49,6 +49,7 @@ if( args.verbose ): print( '\tPLATON_HOME: ' + PLATON_HOME )
 
 genomePath = os.path.abspath( args.genome )
 if( not os.access( genomePath, os.R_OK ) ): sys.exit( 'ERROR: genome file not readable!' )
+if( os.stat( genomePath ).st_size == 0 ): sys.exit( 'ERROR: genome file is empty!' )
 if( args.verbose ): print( '\tgenome path: ' + genomePath )
 
 outputPath = os.path.abspath(args.output) if args.output else os.getcwd()
@@ -68,38 +69,43 @@ contigs = {}
 rawContigs = []
 filteredDraftGenomePath = tmpPath + '/genome.fasta'
 with open( filteredDraftGenomePath, 'w' ) as fh:
-    for record in SeqIO.parse( genomePath, 'fasta' ):
+    try:
+        for record in SeqIO.parse( genomePath, 'fasta' ):
+            contig = {
+                'id': record.id,
+                'length': len(record.seq),
+                'sequence': str(record.seq),
+                'orfs': {},
+                'inc_types': [],
+                'mobilization_hits': [],
+                'replication_hits': [],
+                'conjugation_hits': [],
+                'rrnas': [],
+                'plasmid_hits': []
+            }
+            rawContigs.append(contig)
 
-        contig = {
-            'id': record.id,
-            'length': len(record.seq),
-            'sequence': str(record.seq),
-            'orfs': {},
-            'inc_types': [],
-            'mobilization_hits': [],
-            'replication_hits': [],
-            'conjugation_hits': [],
-            'rrnas': [],
-            'plasmid_hits': []
-        }
+            # read coverage from contig names if they were assembled with SPAdes
+            match = re.fullmatch( SPADES_CONTIG_PATTERN, record.id )
+            contig['coverage'] = 0 if (match is None) else float( match.group(1) )
 
-        rawContigs.append(contig)
+            # only include contigs with reasonable lengths
+            if( contig['length'] >= 1000  and  contig['length'] < 500000 ):
+                contigs[ record.id ] = contig
+                fh.write( '>' + contig['id'] + '\n' )
+                fh.write( contig['sequence'] + '\n' )
+            else:
+                if( args.verbose ):
+                    if( contig['length'] < 1000 ):
+                        print( '\texclude contig \'%s\', too short (%d)' % (contig['id'], contig['length']) )
+                    elif( contig['length'] >= 500000 ):
+                        print( '\texclude contig \'%s\', too long (%d)' % (contig['id'], contig['length']) )
+    except:
+        sys.exit( 'ERROR: wrong genome file format!' )
 
-        # read coverage from contig names if they were assembled with SPAdes
-        match = re.fullmatch( SPADES_CONTIG_PATTERN, record.id )
-        contig['coverage'] = 0 if (match is None) else float( match.group(1) )
 
-        # only include contigs with reasonable lengths
-        if( contig['length'] >= 1000  and  contig['length'] < 500000 ):
-            contigs[ record.id ] = contig
-            fh.write( '>' + contig['id'] + '\n' )
-            fh.write( contig['sequence'] + '\n' )
-        else:
-            if( args.verbose ):
-                if( contig['length'] < 1000 ):
-                    print( '\texclude contig \'%s\', too short (%d)' % (contig['id'], contig['length']) )
-                elif( contig['length'] >= 500000 ):
-                    print( '\texclude contig \'%s\', too long (%d)' % (contig['id'], contig['length']) )
+if( len(rawContigs) == 0 ):
+    sys.exit(0)
 
 
 # predict ORFs
