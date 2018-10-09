@@ -15,31 +15,31 @@ Author: Oliver Schwengers (oliver.schwengers@computational.bio.uni-giessen.de)
 
 ## Description
 Platon classifies contigs from short read assemblies as plasmid or chromosome
-contigs, i.e. they originated from a plasmid or a chromosome, respectively.
-Therefore, Platon computes mean protein scores (MPS) for each contig and tests
+contigs, i.e. they either originate from a plasmid or a chromosome, respectively.
+Therefore, Platon computes mean protein scores (**MPS**) for each contig and tests
 them against certain thresholds. Contigs below a sensitivity threshold get
 classified as chromosome, contigs above a specifivity threshold get classified
-as plasmid. Contigs which protein score lies in between these boundaries get
+as plasmid. Contigs which protein score lies in between these thresholds get
 comprehensively characterized and finally classified based on a simple set of
-rules exploiting aforementioned information.
+rules.
 
 In detail Platon conducts three analysis steps. First, it predicts open reading
 frames and looks up the coding sequences against a database of marker genes.
-These are based on the NCBI RefSeq bacterial nonredundant protein clusters to
-which we automatically assigned individual protein scores capturing the
-probability on which kind of replicon a certain protein is rather to be found
-on, i.e. on a plasmid or a chromosome. Platon then calculates the MPS for
-each contig and either classifies them as chromosome if the MPS is below a
-sensitivity cutoff (counting for 95 % sensitivity) or as plasmid if the MPS is
-above a specificity cutoff, counting for 99.99 % specificity.
+These are based on the NCBI RefSeq PCLA clusters to which we automatically
+assigned individual protein scores capturing the probability on which kind of
+replicon a certain protein is rather to be found on, i.e. on a plasmid or a
+chromosome. Platon then calculates the **MPS** for each contig and either
+classifies them as chromosome if the **MPS** is below a sensitivity cutoff
+(counting for 95 % sensitivity) or as plasmid if the **MPS** is above a
+specificity cutoff, counting for 99.99 % specificity.
 These threshold have been calculated by Monte Carlo simulations of artifical
 contigs created from closed RefSeq chromosome and plasmid sequences. In a second
 step contigs passing the sensitivity filter get comprehensivley characterized.
-Hereby, Platon tries to circularize the contig sequences, searches for rRNA and
-replication  genes as well as incompatibility group DNA probes and finally
-performs a BLAST search against a plasmid database.
+Hereby, Platon tries to circularize the contig sequences, searches for rRNA,
+replication, mobilization and conjugation genes as well as incompatibility group
+DNA probes and finally performs a BLAST search against a plasmid database.
 In a third step, Platon finally classifies all remaining contigs based on a
-decision tree of simple rules exploiting all available information.
+decision tree of simple rules exploiting all information at hand.
 
 
 ## Input & Output
@@ -87,7 +87,8 @@ rm db.tar.gz
 mv db $PLATON_HOME
 ```
 
-Alternatively, just use the Docker image (oschwengers/platon) in order to ease the setup process.
+Alternatively, just use the Docker image (oschwengers/platon) in order to ease
+the setup process.
 
 
 ## Usage
@@ -138,9 +139,10 @@ platon.sh <PLATON_DB> <genome>
 
 
 ## Databases
-Platon depends on custom databases based on NCBI RefSeq nonredundant proteins (NRP),
-NRP clusters, RefSeq Plasmid database, PlasmidFinder db as well as custom HMM models.
-These databases (RefSeq release 87) can be downloaded here: (zipped 1.7, unzipped 2.4 Gb)
+Platon depends on custom databases based on NCBI RefSeq nonredundant proteins
+(NRP), PCLA clusters, RefSeq Plasmid database, PlasmidFinder db as well as custom
+HMM models. These databases (RefSeq release 90) can be downloaded here:
+(zipped x.y, unzipped x.y Gb)
 `www.lorem.ipsum`
 
 The latest versions can be built using a custom shell script:
@@ -165,7 +167,7 @@ Platon depends on the following tools and packages:
 - MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
 - INFERNAL (1.1.2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
 
-Platon has been tested against aforementioned versions.
+Platon has been tested with aforementioned software versions.
 
 
 ## Citation
