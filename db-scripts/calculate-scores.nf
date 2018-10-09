@@ -8,7 +8,7 @@ import java.nio.file.*
 protClusterMapping = Paths.get( params.protClusterMapping ).toRealPath()
 plasmidsPath       = Paths.get( params.plasmids ).toRealPath()
 chromosomesPath    = Paths.get( params.chromosomes ).toRealPath()
-nrpcDBFile         = file(params.nrpcDB)
+nrpcDB             = Paths.get(params.nrpcDB).toRealPath().toString() - '.inf' // workaround as ghostz expects data base name which is not a valid file name
 
 
 final def proteinInfo = [:]
@@ -73,7 +73,7 @@ process blastProts {
     set val(type), file('output.tsv') into chBlastResults
 
     """
-    ghostz aln -i orf.faa -o output.tsv -d ${nrpcDBFile} -b 1 -F F -a ${task.cpus}
+    ghostz aln -i orf.faa -o output.tsv -d ${nrpcDB} -b 1 -F F -a ${task.cpus}
     """
 }
 

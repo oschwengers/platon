@@ -9,7 +9,7 @@ import java.nio.file.*
 proteinScoresPath = Paths.get( params.protein_scores ).toRealPath()
 plasmidsPath      = Paths.get( params.plasmids ).toRealPath()
 chromosomesPath   = Paths.get( params.chromosomes ).toRealPath()
-nrpcDBFile        = file(params.nrpcDB)
+nrpcDB            = Paths.get(params.nrpcDB).toRealPath().toString() - '.inf' // workaround as ghostz expects data base name which is not a valid file name
 
 
 // Constants
@@ -81,7 +81,7 @@ process analyzeSubSeq {
     """
     echo '>${id}\n${subSequence}' > seq.fasta
     prodigal -i seq.fasta -a orfs.faa -p meta
-    ghostz aln -i orfs.faa -o ghostz.out -d ${nrpcDBFile} -b 1 -a ${task.cpus}
+    ghostz aln -i orfs.faa -o ghostz.out -d ${nrpcDB} -b 1 -a ${task.cpus}
     """
 }
 
@@ -169,4 +169,3 @@ chBlast.map( {
 .toSortedList( { a, b -> a.split('\t')[0] as float <=> b.split('\t')[0] as float } )
 .flatten()
 .collectFile( sort: false, name: 'protein-score-metrics.tsv', storeDir: '.' , newLine: true )
-//.collectFile( sort: false, name: Paths.get('./protein-score-metrics.tsv'), newLine: true )

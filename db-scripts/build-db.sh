@@ -107,7 +107,7 @@ nextflow run $PLATON_HOME/db-scripts/calculate-scores.nf \
     --plasmids ./plasmids.fna \
     --chromosomes ./chromosomes.fna \
     --protClusterMapping ./PCLA_proteins.txt \
-    --nrpcDB ./refseq-bacteria-nrpc-reps
+    --nrpcDB ./refseq-bacteria-nrpc-reps.inf
 rm -rf work .nextflow* refseq-bacteria-nrpc-reps.faa
 cut -f 1,2,3,10 protein-scores-full.tsv > protein-scores.tsv
 
@@ -118,7 +118,7 @@ nextflow run $PLATON_HOME/db-scripts/test-scores.nf \
     --plasmids ./plasmids.fna \
     --chromosomes ./chromosomes.fna \
     --protein_scores ./protein-scores.tsv \
-    --nrpcDB ./refseq-bacteria-nrpc-reps
+    --nrpcDB ./refseq-bacteria-nrpc-reps.inf
 rm -rf work .nextflow* plasmids.fna chromosomes.fna PCLA_proteins.txt
 
 cd ..
