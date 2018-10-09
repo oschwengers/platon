@@ -152,6 +152,51 @@ def search_rrnas( tmpPath, contig ):
 
 
 
+# search for amr genes
+def search_amr_genes( tmpPath, contigs, filteredProteinsPath ):
+
+    outPath = tmpPath + '/amr.hmm.out'
+    sp.check_call( [ PLATON_HOME + '/share/hmmscan',
+            '--noali',
+            '--cpu', '1',
+            '--cut_tc',
+            '--tblout', outPath,
+            PLATON_HOME + '/db/ncbifam-amr',
+            filteredProteinsPath
+        ],
+        cwd = tmpPath,
+        stdout = fhFNULL,
+        stderr = sp.STDOUT
+    )
+
+    hits = set()
+    with open( outPath, 'r' ) as fh:
+        for line in fh:
+            if( line[0] != '#' ):
+                print( '\tline: ' + line )
+                cols = line.rstrip().split()
+                if( not cols[2] in hits ):
+                    tmp = cols[2].rsplit('_', 1 )
+                    contigId = tmp[0]
+                    contig = contigs[ contigId ]
+                    orf = contig['orfs'][tmp[1]]
+                    hit = {
+                        'type': cols[0],
+                        'hmm-id': cols[1],
+                        'start': orf['start'],
+                        'end': orf['end'],
+                        'strand': orf['strand'],
+                        'bitscore': float(cols[5]),
+                        'evalue': float(cols[4])
+                    }
+                    hits.add( cols[2] )
+                    contig['amr_hits'].append(hit)
+
+    return
+
+
+
+
 # search for reference plasmid hits
 def search_reference_plasmids( tmpPath, contig ):
 

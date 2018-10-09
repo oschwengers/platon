@@ -77,6 +77,7 @@ with open( filteredDraftGenomePath, 'w' ) as fh:
                 'sequence': str(record.seq),
                 'orfs': {},
                 'inc_types': [],
+                'amr_hits': [],
                 'mobilization_hits': [],
                 'replication_hits': [],
                 'conjugation_hits': [],
@@ -146,14 +147,14 @@ sp.check_call( [ PLATON_HOME + '/share/ghostz',
 # parse ghostz output
 noProteinsIdentified = 0
 with open( outPath, 'r' ) as fh:
-        for line in fh:
-            cols = line.split( '\t' )
-            locus = cols[0].split( ' ' )[0].rpartition( '_' )
-            if( float(cols[2]) >= MIN_PROTEIN_IDENTITY ):
-                contig = contigs[ locus[0] ]
-                orf = contig['orfs'][ locus[2] ]
-                orf['protein_id'] = cols[1]
-                noProteinsIdentified += 1
+    for line in fh:
+        cols = line.split( '\t' )
+        locus = cols[0].split( ' ' )[0].rpartition( '_' )
+        if( float(cols[2]) >= MIN_PROTEIN_IDENTITY ):
+            contig = contigs[ locus[0] ]
+            orf = contig['orfs'][ locus[2] ]
+            orf['protein_id'] = cols[1]
+            noProteinsIdentified += 1
 if( args.verbose ): print( '\tfound %d marker proteins' % (noProteinsIdentified) )
 
 
@@ -217,7 +218,7 @@ for cId, contig in scoredContigs.items():
 # init thread pool to parallize io bound analyses
 with ThreadPoolExecutor( max_workers=args.threads ) as tpe:
     # start search for replication, mobilization and conjugation genes
-    for fn in (search_replication_genes, search_mobilization_genes, search_conjugation_genes):
+    for fn in (search_replication_genes, search_mobilization_genes, search_conjugation_genes, search_amr_genes):
         tpe.submit( fn, tmpPath, scoredContigs, filteredProteinsPath )
     # analyse contigs
     for cId, contig in scoredContigs.items():
@@ -225,6 +226,22 @@ with ThreadPoolExecutor( max_workers=args.threads ) as tpe:
         tpe.submit( search_inc_type, tmpPath, contig )
         tpe.submit( search_rrnas, tmpPath, contig )
         tpe.submit( search_reference_plasmids, tmpPath, contig )
+
+
+# lookup AMR genes
+amr_genes = {}
+with open( PLATON_HOME + '/db/ncbifam-amr.tsv', 'r' ) as fh:
+    for line in fh:
+        cols = line.split( '\t' )
+        amr_genes[ cols[0] ] = {
+            'gene': cols[4],
+            'product': cols[8]
+        }
+for cId, contig in scoredContigs.items():
+    for hit in contig['amr_hits']:
+        amr_gene = amr_genes[ hit['hmm-id'] ]
+        hit[ 'gene' ] = amr_gene['gene']
+        hit[ 'product' ] = amr_gene['product']
 
 
 # remove tmp dir
@@ -242,14 +259,14 @@ if( '.' in prefix ): prefix = prefix.split('.')[0]
 
 
 # print results to tsv file and STDOUT
-header = 'ID\tLength\tCoverage\t# ORFs\tProtein Score\tCircular\tInc Type(s)\t# Replication\t# Mobilization\t# Conjugation\t# rRNAs\t# Plasmid Hits'
+header = 'ID\tLength\tCoverage\t# ORFs\tProtein Score\tCircular\tInc Type(s)\t# Replication\t# Mobilization\t# Conjugation\t# AMRs\t# rRNAs\t# Plasmid Hits'
 print( header )
 outPath = outputPath + '/' + prefix + '.tsv'
 with open( outPath, 'w' ) as fh:
     fh.write( header + '\n' )
     for cId in sorted(filteredContigs, key=lambda k: -filteredContigs[k]['length']):
         c = filteredContigs[cId]
-        line = '%s\t%d\t%4.1f\t%d\t%3.1f\t%s\t%s\t%d\t%d\t%d\t%d\t%d' % (c['id'], c['length'], c['coverage'], len(c['orfs']), c['protein_score'], 'yes' if c['is_circular'] else 'no', c['inc_types'][0]['type'] if len(c['inc_types'])>0 else '-', len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['rrnas']), len(c['plasmid_hits']))
+        line = '%s\t%d\t%4.1f\t%d\t%3.1f\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d' % (c['id'], c['length'], c['coverage'], len(c['orfs']), c['protein_score'], 'yes' if c['is_circular'] else 'no', c['inc_types'][0]['type'] if len(c['inc_types'])>0 else '-', len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits']))
         print( line )
         fh.write( line + '\n' )
 
