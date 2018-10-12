@@ -41,14 +41,14 @@ mv NCBIfam-AMR.tsv ncbifam-amr.tsv
 printf "\n4/10: download RefSeq reference plasmids...\n"
 wget -q -O refseq-plasmids-raw.tsv ftp://ftp.ncbi.nlm.nih.gov/genomes/GENOME_REPORTS/plasmids.txt
 grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f1,5,6,8,9,10,11,12,15 > refseq-plasmids.tsv
-mkdir refseq-plasmids
-cd refseq-plasmids
+mkdir refseq-plasmids-dir
+cd refseq-plasmids-dir
 wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/refseq/release/plasmid/plasmid.*.1.genomic.fna.gz
 cd ..
-gzip -dc refseq-plasmids/plasmid.*.1.genomic.fna.gz | seqtk seq -CU > plasmids
-makeblastdb -dbtype nucl -in plasmids -title 'RefSeq Plasmids'
-mv plasmids plasmids.fna
-rm -r refseq-plasmids-raw.tsv refseq-plasmids
+gzip -dc refseq-plasmids-dir/plasmid.*.1.genomic.fna.gz | seqtk seq -CU > refseq-plasmids
+makeblastdb -dbtype nucl -in refseq-plasmids -title 'RefSeq Plasmids'
+mv refseq-plasmids refseq-plasmids.fna
+rm -r refseq-plasmids-raw.tsv refseq-plasmids-dir
 
 
 # download RefSeq nonredundant proteins and clusters
@@ -91,7 +91,7 @@ for type in replication mobilization conjugation; do
     hmmpress ${type}
     rm -rf work .nextflow* ${type}.tsv ${type}
 done
-rm refseq-bacteria-nrp.trimmed.faa clusters-proteins.faa PCLA_clusters.txt clusters-proteins.faa clusters.lst clusters-proteins.lst
+rm refseq-bacteria-nrp.trimmed.faa PCLA_clusters.txt clusters-proteins.faa clusters.lst clusters-proteins.lst
 
 
 # download RefSeq chromosomes
@@ -104,22 +104,22 @@ rm -rf work .nextflow* nf-tmp
 # calculate protein scores
 printf "\n9/10: calculate protein scores...\n"
 nextflow run $PLATON_HOME/db-scripts/calculate-scores.nf \
-    --plasmids ./plasmids.fna \
-    --chromosomes ./chromosomes.fna \
+    --plasmids ./refseq-plasmids.fna \
+    --chromosomes ./refseq-chromosomes.fna \
     --protClusterMapping ./PCLA_proteins.txt \
     --nrpcDB ./refseq-bacteria-nrpc-reps.inf
-rm -rf work .nextflow* refseq-bacteria-nrpc-reps.faa
+rm -rf work .nextflow* PCLA_proteins.txt
 cut -f 1,2,3,10 protein-scores-full.tsv > protein-scores.tsv
 
 
 # calculate protein score cutoffs
 printf "\n10/10: calculate protein score cutoffs...\n"
 nextflow run $PLATON_HOME/db-scripts/test-scores.nf \
-    --plasmids ./plasmids.fna \
-    --chromosomes ./chromosomes.fna \
+    --plasmids ./refseq-plasmids.fna \
+    --chromosomes ./refseq-chromosomes.fna \
     --protein_scores ./protein-scores.tsv \
     --nrpcDB ./refseq-bacteria-nrpc-reps.inf
-rm -rf work .nextflow* plasmids.fna chromosomes.fna PCLA_proteins.txt
+rm -rf work .nextflow* refseq-plasmids.fna refseq-chromosomes.fna
 
 cd ..
 mv db $PLATON_HOME/

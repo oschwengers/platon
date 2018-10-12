@@ -6,10 +6,7 @@ final int MAX_PLASMID_LENGTH = 1_000_000
 final int MIN_CHROMOSOME_LENGTH = 1_000_000
 
 
-db = 'refseq'
-
-
-Channel.fromPath( "ftp://ftp.ncbi.nlm.nih.gov/genomes/${db}/bacteria/assembly_summary.txt" )
+Channel.fromPath( "ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt" )
     .splitCsv( skip: 2, sep: '\t'  )
     .filter( { (it[11].toLowerCase() == 'complete genome') } )
     .map( { return [ it[0], it[7], it[19] ] } )
@@ -60,4 +57,4 @@ process deflate {
 chFasta.splitFasta( by: 1, record: [id: true, desc: true, seqString: true ] )
     .filter( { rec -> (rec.seqString.length() > MIN_CHROMOSOME_LENGTH)  &&  !rec.desc.toLowerCase().contains( 'plasmid' ) } )
     .map( { rec -> ">${rec.id} ${rec.desc}\n${rec.seqString}\n" } )
-    .collectFile( sort: false, name: 'chromosomes.fna', storeDir: '.', tempDir: './nf-tmp' )
+    .collectFile( sort: false, name: 'refseq-chromosomes.fna', storeDir: '.', tempDir: './nf-tmp' )

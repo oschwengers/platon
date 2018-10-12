@@ -142,7 +142,7 @@ platon.sh <PLATON_DB> <genome>
 Platon depends on custom databases based on NCBI RefSeq nonredundant proteins
 (NRP), PCLA clusters, RefSeq Plasmid database, PlasmidFinder db as well as custom
 HMM models. These databases (RefSeq release 90) can be downloaded here:
-(zipped x.y, unzipped x.y Gb)
+(zipped 1.8, unzipped 2.5 Gb)
 `www.lorem.ipsum`
 
 The latest versions can be built using a custom shell script:
