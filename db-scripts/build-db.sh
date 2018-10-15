@@ -114,6 +114,7 @@ cut -f 1,2,3,10 protein-scores-full.tsv > protein-scores.tsv
 
 # calculate protein score cutoffs
 printf "\n10/10: calculate protein score cutoffs...\n"
+export NXF_OPTS="-Xms32G -Xmx64G"
 nextflow run $PLATON_HOME/db-scripts/test-scores.nf \
     --plasmids ./refseq-plasmids.fna \
     --chromosomes ./refseq-chromosomes.fna \
