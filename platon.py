@@ -33,8 +33,8 @@ args = parser.parse_args()
 
 
 # global constants
-MIN_PROTEIN_IDENTITY = 80.0
-MIN_PROTEIN_SCORE_THRESHOLD = -18.4  # counts for sensitivity => 99 %
+MIN_PROTEIN_IDENTITY = 90.0
+MIN_PROTEIN_SCORE_THRESHOLD = -6.8  # counts for sensitivity => 99 %
 PROTEIN_SCORE_PENALTY = -1.0
 SPADES_CONTIG_PATTERN = re.compile( 'NODE_\d+_length_\d+_cov_(\d+\.\d+)' )
 

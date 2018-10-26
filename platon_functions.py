@@ -4,8 +4,8 @@ import subprocess as sp
 
 
 # global constants
-PROTEIN_SCORE_CONSERVATIVE_THRESHOLD = -1  # counts for specificity >= 95 %
-PROTEIN_SCORE_TRUSTED_THRESHOLD = 1.4  # counts for specificity >= 99.99 %
+PROTEIN_SCORE_CONSERVATIVE_THRESHOLD = -0.9  # counts for specificity >= 95 %
+PROTEIN_SCORE_TRUSTED_THRESHOLD = -0.5  # counts for specificity >= 99.99 %
 
 
 # read environment variables and set helper variables
