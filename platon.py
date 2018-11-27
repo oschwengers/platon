@@ -28,7 +28,7 @@ parser.add_argument( 'genome', metavar='<genome>', help='draft genome in fasta f
 parser.add_argument( '--threads', '-t', action='store', type=int, default=mp.cpu_count(), help='number of threads to use (default = number of available CPUs)' )
 parser.add_argument( '--verbose', '-v', action='store_true', help='print verbose information' )
 parser.add_argument( '--output', '-o', help='output directory (default = current working directory)' )
-parser.add_argument( '--version', '-V', action='version', version='%(prog)s 0.1' )
+parser.add_argument( '--version', '-V', action='version', version='%(prog)s 0.2' )
 args = parser.parse_args()
 
 
