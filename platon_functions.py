@@ -173,7 +173,6 @@ def search_amr_genes( tmpPath, contigs, filteredProteinsPath ):
     with open( outPath, 'r' ) as fh:
         for line in fh:
             if( line[0] != '#' ):
-                print( '\tline: ' + line )
                 cols = line.rstrip().split()
                 if( not cols[2] in hits ):
                     tmp = cols[2].rsplit('_', 1 )
