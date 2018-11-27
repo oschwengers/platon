@@ -156,7 +156,7 @@ def search_rrnas( tmpPath, contig ):
 def search_amr_genes( tmpPath, contigs, filteredProteinsPath ):
 
     outPath = tmpPath + '/amr.hmm.out'
-    sp.check_call( [ PLATON_HOME + '/share/hmmscan',
+    sp.check_call( [ PLATON_HOME + '/share/hmmsearch',
             '--noali',
             '--cpu', '1',
             '--cut_tc',
@@ -174,21 +174,21 @@ def search_amr_genes( tmpPath, contigs, filteredProteinsPath ):
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.rstrip().split()
-                if( not cols[2] in hits ):
-                    tmp = cols[2].rsplit('_', 1 )
+                if( not cols[0] in hits ):
+                    tmp = cols[0].rsplit('_', 1 )
                     contigId = tmp[0]
                     contig = contigs[ contigId ]
                     orf = contig['orfs'][tmp[1]]
                     hit = {
-                        'type': cols[0],
-                        'hmm-id': cols[1],
+                        'type': cols[2],
+                        'hmm-id': cols[3],
                         'start': orf['start'],
                         'end': orf['end'],
                         'strand': orf['strand'],
                         'bitscore': float(cols[5]),
                         'evalue': float(cols[4])
                     }
-                    hits.add( cols[2] )
+                    hits.add( cols[0] )
                     contig['amr_hits'].append(hit)
 
     return
@@ -315,7 +315,7 @@ def predict_orfs( tmpPath, contigs, filteredDraftGenomePath ):
 def search_replication_genes( tmpPath, contigs, filteredProteinsPath ):
 
     outPath = tmpPath + '/rep.hmm.out'
-    sp.check_call( [ PLATON_HOME + '/share/hmmscan',
+    sp.check_call( [ PLATON_HOME + '/share/hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
@@ -333,20 +333,20 @@ def search_replication_genes( tmpPath, contigs, filteredProteinsPath ):
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.rstrip().split()
-                if( not cols[2] in hits ):
-                    tmp = cols[2].rsplit('_', 1 )
+                if( not cols[0] in hits ):
+                    tmp = cols[0].rsplit('_', 1 )
                     contigId = tmp[0]
                     contig = contigs[ contigId ]
                     orf = contig['orfs'][tmp[1]]
                     hit = {
-                        'type': cols[0],
+                        'type': cols[2],
                         'start': orf['start'],
                         'end': orf['end'],
                         'strand': orf['strand'],
                         'bitscore': float(cols[5]),
                         'evalue': float(cols[4])
                     }
-                    hits.add( cols[2] )
+                    hits.add( cols[0] )
                     contig['replication_hits'].append(hit)
 
     return
@@ -358,7 +358,7 @@ def search_replication_genes( tmpPath, contigs, filteredProteinsPath ):
 def search_mobilization_genes( tmpPath, contigs, filteredProteinsPath ):
 
     outPath = tmpPath + '/mob.hmm.out'
-    sp.check_call( [ PLATON_HOME + '/share/hmmscan',
+    sp.check_call( [ PLATON_HOME + '/share/hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
@@ -376,20 +376,20 @@ def search_mobilization_genes( tmpPath, contigs, filteredProteinsPath ):
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.rstrip().split()
-                if( not cols[2] in hits ):
-                    tmp = cols[2].rsplit('_', 1 )
+                if( not cols[0] in hits ):
+                    tmp = cols[0].rsplit('_', 1 )
                     contigId = tmp[0]
                     contig = contigs[ contigId ]
                     orf = contig['orfs'][tmp[1]]
                     hit = {
-                        'type': cols[0],
+                        'type': cols[2],
                         'start': orf['start'],
                         'end': orf['end'],
                         'strand': orf['strand'],
                         'bitscore': float(cols[5]),
                         'evalue': float(cols[4])
                     }
-                    hits.add( cols[2] )
+                    hits.add( cols[0] )
                     contig['mobilization_hits'].append(hit)
 
     return
@@ -401,7 +401,7 @@ def search_mobilization_genes( tmpPath, contigs, filteredProteinsPath ):
 def search_conjugation_genes( tmpPath, contigs, filteredProteinsPath ):
 
     outPath = tmpPath + '/conj.hmm.out'
-    sp.check_call( [ PLATON_HOME + '/share/hmmscan',
+    sp.check_call( [ PLATON_HOME + '/share/hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
@@ -419,20 +419,20 @@ def search_conjugation_genes( tmpPath, contigs, filteredProteinsPath ):
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.rstrip().split()
-                if( not cols[2] in hits ):
-                    tmp = cols[2].rsplit('_', 1 )
+                if( not cols[0] in hits ):
+                    tmp = cols[0].rsplit('_', 1 )
                     contigId = tmp[0]
                     contig = contigs[ contigId ]
                     orf = contig['orfs'][tmp[1]]
                     hit = {
-                        'type': cols[0],
+                        'type': cols[2],
                         'start': orf['start'],
                         'end': orf['end'],
                         'strand': orf['strand'],
                         'bitscore': float(cols[5]),
                         'evalue': float(cols[4])
                     }
-                    hits.add( cols[2] )
+                    hits.add( cols[0] )
                     contig['conjugation_hits'].append(hit)
 
     return
