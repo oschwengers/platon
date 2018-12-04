@@ -106,6 +106,12 @@ with open( filteredDraftGenomePath, 'w' ) as fh:
 
 
 if( len(rawContigs) == 0 ):
+    print( 'Error: input file contains no valid contigs.' )
+    sys.exit(1)
+
+if( len(contigs) == 0 ):
+    if( args.verbose ):
+        print( 'No potential plasmid contigs found. Please, check contig lengths. Maybe you passed a finished or pseudo genome?' )
     sys.exit(0)
 
 
