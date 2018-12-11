@@ -27,6 +27,7 @@ parser = argparse.ArgumentParser( prog='platon',
 parser.add_argument( 'genome', metavar='<genome>', help='draft genome in fasta format' )
 parser.add_argument( '--threads', '-t', action='store', type=int, default=mp.cpu_count(), help='number of threads to use (default = number of available CPUs)' )
 parser.add_argument( '--verbose', '-v', action='store_true', help='print verbose information' )
+parser.add_argument( '--characterize', '-c', action='store_true', help='don\'t filter anything; just characterize all contigs' )
 parser.add_argument( '--output', '-o', help='output directory (default = current working directory)' )
 parser.add_argument( '--version', '-V', action='version', version='%(prog)s 0.2' )
 args = parser.parse_args()
@@ -54,6 +55,8 @@ if( args.verbose ): print( '\tgenome path: ' + genomePath )
 
 outputPath = os.path.abspath(args.output) if args.output else os.getcwd()
 if( args.verbose ): print( '\toutput path: ' + outputPath )
+
+if( args.verbose ): print( '\tcharacterize: ' + str(args.characterize) )
 
 tmpPath = tempfile.mkdtemp()
 if( args.verbose ): print( '\ttmp path: ' + tmpPath )
@@ -91,7 +94,7 @@ with open( filteredDraftGenomePath, 'w' ) as fh:
             contig['coverage'] = 0 if (match is None) else float( match.group(1) )
 
             # only include contigs with reasonable lengths
-            if( contig['length'] >= 1000  and  contig['length'] < 500000 ):
+            if( args.characterize  or  contig['length'] >= 1000  and  contig['length'] < 500000 ):
                 contigs[ record.id ] = contig
                 fh.write( '>' + contig['id'] + '\n' )
                 fh.write( contig['sequence'] + '\n' )
@@ -124,13 +127,14 @@ if( args.verbose ):
 
 
 # exclude contigs without ORFs
-tmpContigs = {}
-for contig in filter( lambda k: len(k['orfs']) > 0, contigs.values() ):
-    tmpContigs[ contig['id'] ] = contig
-if( args.verbose ):
-    noRemovedContigs = len(contigs) - len(tmpContigs)
-    print( '\tremoved %d contig(s), no ORFs found' % (noRemovedContigs) )
-contigs = tmpContigs
+if( not args.characterize ):
+    tmpContigs = {}
+    for contig in filter( lambda k: len(k['orfs']) > 0, contigs.values() ):
+        tmpContigs[ contig['id'] ] = contig
+    if( args.verbose ):
+        noRemovedContigs = len(contigs) - len(tmpContigs)
+        print( '\tremoved %d contig(s), no ORFs found' % (noRemovedContigs) )
+    contigs = tmpContigs
 
 
 # find marker genes
@@ -195,11 +199,15 @@ for contig in contigs.values():
 
 # filter contigs based on conservative protein score threshold
 # MIN_PROTEIN_SCORE_THRESHOLD and execute per contig analyses in parallel
-scoredContigs = { k:v for (k,v) in contigs.items() if v['protein_score'] >= MIN_PROTEIN_SCORE_THRESHOLD }
-if( args.verbose ):
-    noExcludedContigs = len(contigs) - len(scoredContigs)
-    print( '\texcluded %d contigs by min protein score threshold (%2.1f)' % (noExcludedContigs, MIN_PROTEIN_SCORE_THRESHOLD) )
-    print( 'analyze contigs...' )
+scoredContigs = None
+if( args.characterize ):
+    scoredContigs = contigs
+else:
+    scoredContigs = { k:v for (k,v) in contigs.items() if v['protein_score'] >= MIN_PROTEIN_SCORE_THRESHOLD }
+    if( args.verbose ):
+        noExcludedContigs = len(contigs) - len(scoredContigs)
+        print( '\texcluded %d contigs by min protein score threshold (%2.1f)' % (noExcludedContigs, MIN_PROTEIN_SCORE_THRESHOLD) )
+        print( 'analyze contigs...' )
 
 
 # extract proteins from potential plasmid contigs for subsequent analyses
@@ -256,7 +264,11 @@ fhFNULL.close()
 
 
 # filter contigs
-filteredContigs = {k:v for (k,v) in scoredContigs.items() if filter_contig(v) }
+filteredContigs = None
+if( args.characterize ):
+    filteredContigs = scoredContigs
+else:
+    filteredContigs = {k:v for (k,v) in scoredContigs.items() if filter_contig(v) }
 
 
 # get file prefix
