@@ -70,42 +70,38 @@ fhFNULL = open( os.devnull, 'w' )
 if( args.verbose ): print( 'parse draft genome...' )
 contigs = {}
 rawContigs = []
-filteredDraftGenomePath = tmpPath + '/genome.fasta'
-with open( filteredDraftGenomePath, 'w' ) as fh:
-    try:
-        for record in SeqIO.parse( genomePath, 'fasta' ):
-            contig = {
-                'id': record.id,
-                'length': len(record.seq),
-                'sequence': str(record.seq),
-                'orfs': {},
-                'inc_types': [],
-                'amr_hits': [],
-                'mobilization_hits': [],
-                'replication_hits': [],
-                'conjugation_hits': [],
-                'rrnas': [],
-                'plasmid_hits': []
-            }
-            rawContigs.append(contig)
+try:
+    for record in SeqIO.parse( genomePath, 'fasta' ):
+        contig = {
+            'id': record.id,
+            'length': len(record.seq),
+            'sequence': str(record.seq),
+            'orfs': {},
+            'inc_types': [],
+            'amr_hits': [],
+            'mobilization_hits': [],
+            'replication_hits': [],
+            'conjugation_hits': [],
+            'rrnas': [],
+            'plasmid_hits': []
+        }
+        rawContigs.append(contig)
 
-            # read coverage from contig names if they were assembled with SPAdes
-            match = re.fullmatch( SPADES_CONTIG_PATTERN, record.id )
-            contig['coverage'] = 0 if (match is None) else float( match.group(1) )
+        # read coverage from contig names if they were assembled with SPAdes
+        match = re.fullmatch( SPADES_CONTIG_PATTERN, record.id )
+        contig['coverage'] = 0 if (match is None) else float( match.group(1) )
 
-            # only include contigs with reasonable lengths
-            if( args.characterize  or  contig['length'] >= 1000  and  contig['length'] < 500000 ):
-                contigs[ record.id ] = contig
-                fh.write( '>' + contig['id'] + '\n' )
-                fh.write( contig['sequence'] + '\n' )
-            else:
-                if( args.verbose ):
-                    if( contig['length'] < 1000 ):
-                        print( '\texclude contig \'%s\', too short (%d)' % (contig['id'], contig['length']) )
-                    elif( contig['length'] >= 500000 ):
-                        print( '\texclude contig \'%s\', too long (%d)' % (contig['id'], contig['length']) )
-    except:
-        sys.exit( 'ERROR: wrong genome file format!' )
+        # only include contigs with reasonable lengths
+        if( args.characterize  or  contig['length'] >= 1000  and  contig['length'] < 500000 ):
+            contigs[ record.id ] = contig
+        else:
+            if( args.verbose ):
+                if( contig['length'] < 1000 ):
+                    print( '\texclude contig \'%s\', too short (%d)' % (contig['id'], contig['length']) )
+                elif( contig['length'] >= 500000 ):
+                    print( '\texclude contig \'%s\', too long (%d)' % (contig['id'], contig['length']) )
+except:
+    sys.exit( 'ERROR: wrong genome file format!' )
 
 
 if( len(rawContigs) == 0 ):
@@ -120,7 +116,7 @@ if( len(contigs) == 0 ):
 
 # predict ORFs
 if( args.verbose ): print( 'predict ORFs...' )
-proteinsPath = predict_orfs( tmpPath, contigs, filteredDraftGenomePath )
+proteinsPath = predict_orfs( tmpPath, contigs, genomePath )
 if( args.verbose ):
     noOrfs = ft.reduce( lambda x,y: x+y , map(lambda k: len(contigs[k]['orfs']), contigs))
     print( '\tfound %d ORFs' % noOrfs )
@@ -161,10 +157,11 @@ with open( outPath, 'r' ) as fh:
         cols = line.split( '\t' )
         locus = cols[0].split( ' ' )[0].rpartition( '_' )
         if( float(cols[2]) >= MIN_PROTEIN_IDENTITY ):
-            contig = contigs[ locus[0] ]
-            orf = contig['orfs'][ locus[2] ]
-            orf['protein_id'] = cols[1]
-            noProteinsIdentified += 1
+            contig = contigs.get(locus[0], None)
+            if( contig is not None ):
+                orf = contig['orfs'][ locus[2] ]
+                orf['protein_id'] = cols[1]
+                noProteinsIdentified += 1
 if( args.verbose ): print( '\tfound %d marker proteins' % (noProteinsIdentified) )
 
 

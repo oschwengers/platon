@@ -303,7 +303,7 @@ def predict_orfs( tmpPath, contigs, filteredDraftGenomePath ):
                     'strand': cols[6],
                     'id': orfId
                 }
-                contig = contigs[ cols[0] ]
+                contig = contigs.get(cols[0], None)
                 if( contig is not None ):
                     contig['orfs'][ orfId ] = orf
     return proteinsPath
