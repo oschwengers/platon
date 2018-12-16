@@ -38,6 +38,7 @@ MIN_PROTEIN_IDENTITY = 90.0
 MIN_PROTEIN_SCORE_THRESHOLD = -6.8  # counts for sensitivity => 99 %
 PROTEIN_SCORE_PENALTY = -1.0
 SPADES_CONTIG_PATTERN = re.compile( 'NODE_\d+_length_\d+_cov_(\d+\.\d+)' )
+HEADER = 'ID\tLength\tCoverage\t# ORFs\tProtein Score\tCircular\tInc Type(s)\t# Replication\t# Mobilization\t# Conjugation\t# AMRs\t# rRNAs\t# Plasmid Hits'
 
 
 # check parameters & environment variables
@@ -109,6 +110,7 @@ if( len(rawContigs) == 0 ):
     sys.exit(1)
 
 if( len(contigs) == 0 ):
+    print( HEADER )
     if( args.verbose ):
         print( 'No potential plasmid contigs found. Please, check contig lengths. Maybe you passed a finished or pseudo genome?' )
     sys.exit(0)
@@ -274,11 +276,10 @@ if( '.' in prefix ): prefix = prefix.split('.')[0]
 
 
 # print results to tsv file and STDOUT
-header = 'ID\tLength\tCoverage\t# ORFs\tProtein Score\tCircular\tInc Type(s)\t# Replication\t# Mobilization\t# Conjugation\t# AMRs\t# rRNAs\t# Plasmid Hits'
-print( header )
+print( HEADER )
 outPath = outputPath + '/' + prefix + '.tsv'
 with open( outPath, 'w' ) as fh:
-    fh.write( header + '\n' )
+    fh.write( HEADER + '\n' )
     for cId in sorted(filteredContigs, key=lambda k: -filteredContigs[k]['length']):
         c = filteredContigs[cId]
         line = '%s\t%d\t%4.1f\t%d\t%3.1f\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d' % (c['id'], c['length'], c['coverage'], len(c['orfs']), c['protein_score'], 'yes' if c['is_circular'] else 'no', c['inc_types'][0]['type'] if len(c['inc_types'])>0 else '-', len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits']))
