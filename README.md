@@ -53,15 +53,15 @@ Contigs classified as plasmid sequences are printed as tab separated values to
 - Contig ID
 - Length
 - Coverage
-- # ORFs
+- \# ORFs
 - Protein Score
 - Circularity
 - Incompatibility Type(s)
-- # Replication Genes
-- # Mobilization Genes
-- # Conjugation Genes
-- # rRNA Genes
-- # Plasmid Database Hits
+- \# Replication Genes
+- \# Mobilization Genes
+- \# Conjugation Genes
+- \# rRNA Genes
+- \# Plasmid Database Hits
 
 Additionally, Platon writes the following files into the output directory:
 - `<prefix>`.plasmid.fasta: contigs classified as plasmids or plasmodal origin
