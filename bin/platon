@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(dirname $(realpath $0))
+PLATON_PATH=$(realpath "${SCRIPT_DIR}/..")
+export PYTHONPATH="${PLATON_PATH}:${PYTHONPATH}"
+python3 -m platon.platon "$@"

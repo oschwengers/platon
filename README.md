@@ -1,32 +1,33 @@
-# Platon: PLAsmid conTig extractiON.
+# Platon: Plasmid contig classification and characterization.
 Author: Oliver Schwengers (oliver.schwengers@computational.bio.uni-giessen.de)
 
 
 ## Contents
-- Description
-- Input & Output
-- Installation
-- Usage
-- Examples
-- Databases
-- Dependencies
-- Citation
+- [Description](#description)
+- [Input/Output](#inputoutput)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Examples](#examples)
+- [Database](#database)
+- [Dependencies](#dependencies)
+- [Citation](#citation)
+
 
 
 ## Description
-Platon classifies contigs from short read assemblies as plasmid or chromosome
-contigs, i.e. they either originate from a plasmid or a chromosome, respectively.
-Therefore, Platon computes mean protein scores (**MPS**) for each contig and tests
+Platon classifies contigs from bacterial WGS short read assemblies as plasmid or
+chromosome contigs, i.e. they either originate from a plasmid or a chromosome, respectively.
+Therefore, Platon takes advantage of pre-computed protein distribution statistics
+and computes mean protein scores (**MPS**) for each contig and finally tests
 them against certain thresholds. Contigs below a sensitivity threshold get
 classified as chromosome, contigs above a specifivity threshold get classified
 as plasmid. Contigs which protein score lies in between these thresholds get
-comprehensively characterized and finally classified based on a simple set of
-rules.
+comprehensively characterized and finally classified following an heuristic approach.
 
 In detail Platon conducts three analysis steps. First, it predicts open reading
-frames and looks up the coding sequences against a database of marker genes.
+frames and searches the coding sequences against a database of marker genes.
 These are based on the NCBI RefSeq PCLA clusters to which we automatically
-assigned individual protein scores capturing the probability on which kind of
+pre-computed individual protein scores capturing the probability on which kind of
 replicon a certain protein is rather to be found on, i.e. on a plasmid or a
 chromosome. Platon then calculates the **MPS** for each contig and either
 classifies them as chromosome if the **MPS** is below a sensitivity cutoff
@@ -38,16 +39,17 @@ step contigs passing the sensitivity filter get comprehensivley characterized.
 Hereby, Platon tries to circularize the contig sequences, searches for rRNA,
 replication, mobilization and conjugation genes as well as incompatibility group
 DNA probes and finally performs a BLAST search against a plasmid database.
-In a third step, Platon finally classifies all remaining contigs based on a
-decision tree of simple rules exploiting all information at hand.
+In a third step, Platon finally classifies all remaining contigs based on an heuristic
+approach, i.e. a decision tree of simple rules exploiting all information at hand.
 
 
-## Input & Output
-Input:
+## Input/Output
+
+### Input
 Platon accepts draft genomes in fasta format. If contigs have been assembled with
 SPAdes, Platon is able to extract the coverage information stored in contigs names.
 
-Output:
+### Output
 Contigs classified as plasmid sequences are printed as tab separated values to
 `STDOUT` comprising the following columns:
 - Contig ID
@@ -72,20 +74,62 @@ All files are prefixed (`<prefix>`) as the input genome fasta file.
 
 
 ## Installation
-To setup PLaton just do the following:
+Platon can be installed/used in 3 different ways.
+
+Additionally, a separate database must be downloaded which we provide for download
+as a zipped tarball:
+https://s3.computational.bio.uni-giessen.de/swift/v1/platon/db.tar.gz
+
+### GitHub
 1. clone the latest version of the repository
-2. set PLATON_HOME environment variable pointing to the repository directory
-3. download and extract the databases or create them locally (discouraged)
+2. download and extract the database
 
 Example:
 ```
 git clone git@github.com:oschwengers/platon.git
-export PLATON_HOME=./platon
 wget db `path`
 tar -xzf db.tar.gz
 rm db.tar.gz
-mv db $PLATON_HOME
+platon/bin/platon --db ./db ...
 ```
+
+If you move the extracted database directory into the platon directory, PLATON will
+automatically recognise it. In this case, the database path doesn't need to be specified:
+```
+git clone git@github.com:oschwengers/platon.git
+wget https://s3.computational.bio.uni-giessen.de/swift/v1/platon/db.tar.gz
+tar -xzf db.tar.gz
+rm db.tar.gz
+mv db $PLATON_HOME
+platon/bin/platon ...
+```
+
+### Pip
+1. install PLATON per pip
+2. download and extract the database
+
+Example:
+```
+pip3 install cb-platon
+wget https://s3.computational.bio.uni-giessen.de/swift/v1/platon/db.tar.gz
+tar -xzf db.tar.gz
+rm db.tar.gz
+platon --db ./db ...
+```
+
+
+### Docker
+1. download our Docker shell wrapper script
+2. download and extract the database
+```
+wget https://raw.githubusercontent.com/oschwengers/platon/master/platon-docker.sh
+wget https://s3.computational.bio.uni-giessen.de/swift/v1/platon/db.tar.gz
+tar -xzf db.tar.gz
+rm db.tar.gz
+platon-docker.sh ./db <genome>
+```
+
+
 
 Alternatively, just use the Docker image (oschwengers/platon) in order to ease
 the setup process.
@@ -98,7 +142,7 @@ usage: platon [-h] [--threads THREADS] [--verbose] [--output OUTPUT]
               [--version]
               <genome>
 
-PLAsmid conTig extractiON
+Plasmid contig classification and characterization
 
 positional arguments:
   <genome>              draft genome in fasta format
@@ -117,58 +161,39 @@ optional arguments:
 ## Examples
 Simple:
 ```
-platon.py ecoli.fasta
+platon ecoli.fasta
 ```
 
 Expert: writing results to `results` directory with verbose output using 8 threads:
 ```
-platon.py --output ./results --verbose --threads 8 ecoli.fasta
-```
-
-With Docker:
-```
-docker pull oschwengers/platon:latest
-docker run --rm -v <PLATON_DB>:/platon/db -v <DATA_DIR>:/data oschwengers/platon:latest <genome>
+platon --output ./results --verbose --threads 8 ecoli.fasta
 ```
 
 With Docker shell script:
 ```
-docker pull oschwengers/platon:latest
-platon.sh <PLATON_DB> <genome>
+platon-docker.sh <PLATON_DB> <genome>
 ```
 
-
-## Databases
-Platon depends on custom databases based on NCBI RefSeq nonredundant proteins
+## Database
+Platon depends on a custom database based on NCBI RefSeq nonredundant proteins
 (NRP), PCLA clusters, RefSeq Plasmid database, PlasmidFinder db as well as custom
 HMM models. These databases (RefSeq release 90) can be downloaded here:
 (zipped 1.8, unzipped 2.5 Gb)
 `www.lorem.ipsum`
 
-The latest versions can be built using a custom shell script:
-```
-export PLATON_HOME=<PLATON_DIR>
-sh build-db.sh
-```
-
-Example:
-```
-git clone git@github.com:oschwengers/platon.git
-export PLATON_HOME=./platon
-sh build-db.sh
-```
-
 ## Dependencies
-Platon depends on the following tools and packages:
-- Python (3.5.2) and BioPython (1.71)
+Platon was developed and tested on Python 3.5.
+It depends on BioPython (1.71).
+
+Additionally, it depends on the following 3rd party executables:
 - Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
 - Ghostz (1.0.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4393512> <http://www.bi.cs.titech.ac.jp/ghostz>
 - Blast+ (2.7.1) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
 - MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
 - INFERNAL (1.1.2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
 
-Platon has been tested with aforementioned software versions.
+Platon has been tested against aforementioned software versions.
 
 
 ## Citation
-Manuscript is in preparation.
+A manuscript is in preparation... stay tuned!

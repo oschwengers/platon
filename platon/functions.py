@@ -1,36 +1,31 @@
 
 import os
+import sys
+import tempfile
 import subprocess as sp
 
+from platon.constants import *
 
 # global constants
-PROTEIN_SCORE_CONSERVATIVE_THRESHOLD = -0.9  # counts for specificity >= 95 %
-PROTEIN_SCORE_TRUSTED_THRESHOLD = -0.5  # counts for specificity >= 99.99 %
-
-
-# read environment variables and set helper variables
-PLATON_HOME = os.path.abspath( os.getenv( 'PLATON_HOME', None ) )
-
-fhFNULL = open( os.devnull, 'w' )
 
 
 # test for circularity
-def test_circularity( tmpPath, contig ):
+def test_circularity( config, contig ):
 
     contigSplitPosition = int(contig['length'] / 2)
 
-    contigFragmentAPath = tmpPath + '/' + contig['id'] + '-a.fasta'
+    contigFragmentAPath = config['tmp'] + '/' + contig['id'] + '-a.fasta'
     with open( contigFragmentAPath, 'w' ) as fh:
         fh.write( '>a\n')
         fh.write( contig['sequence'][:contigSplitPosition] + '\n ')
 
-    contigFragmentBPath = tmpPath + '/' + contig['id'] + '-b.fasta'
+    contigFragmentBPath = config['tmp'] + '/' + contig['id'] + '-b.fasta'
     contigFragmentBSequence = contig['sequence'][contigSplitPosition:]
     with open( contigFragmentBPath, 'w' ) as fh:
         fh.write( '>b\n ')
         fh.write( contigFragmentBSequence + '\n ')
 
-    sp.check_call( [ PLATON_HOME + '/share/nucmer',
+    sp.check_call( ['nucmer',
             '-f', # only forward strand
             '-l', '40', # increase min match length to 40 bp
             '--threads=1',
@@ -38,14 +33,15 @@ def test_circularity( tmpPath, contig ):
             contigFragmentBPath,
             contigFragmentAPath
         ],
-        cwd = tmpPath,
-        stdout = fhFNULL,
+        cwd = config['tmp'],
+        env = config['env'],
+        stdout = sp.DEVNULL,
         stderr = sp.STDOUT
     )
 
     contig['is_circular'] = False
     hasMatch = False
-    with open( tmpPath + '/' + contig['id'] + '.delta', 'r' ) as fh:
+    with open( config['tmp'] + '/' + contig['id'] + '.delta', 'r' ) as fh:
         for line in fh:
             line = line.rstrip()
             if( line[0] == '>' ):
@@ -80,12 +76,12 @@ def test_circularity( tmpPath, contig ):
 
 
 # search for inc type signatures
-def search_inc_type( tmpPath, contig ):
+def search_inc_type( config, contig ):
 
-    contigPath = tmpPath + '/' + contig['id'] + '.fasta'
-    outPath = tmpPath + '/' + contig['id'] + '.inc.blast.out'
-    sp.check_call( [ PLATON_HOME + '/share/blastn',
-            '-query', PLATON_HOME + '/db/inc-types.fasta',
+    contigPath = config['tmp'] + '/' + contig['id'] + '.fasta'
+    outPath = config['tmp'] + '/' + contig['id'] + '.inc.blast.out'
+    sp.check_call( [ 'blastn',
+            '-query', config['db'] + '/inc-types.fasta',
             '-subject', contigPath,
             '-num_threads', '1',
             '-perc_identity', '80',
@@ -93,8 +89,9 @@ def search_inc_type( tmpPath, contig ):
             '-outfmt', '6 qseqid sstart send sstrand pident qcovs',
             '-out', outPath
         ],
-        cwd = tmpPath,
-        stdout = fhFNULL,
+        cwd = config['tmp'],
+        env = config['env'],
+        stdout = sp.DEVNULL,
         stderr = sp.STDOUT
     )
 
@@ -117,20 +114,21 @@ def search_inc_type( tmpPath, contig ):
 
 
 # search for rRNAs
-def search_rrnas( tmpPath, contig ):
+def search_rrnas( config, contig ):
 
-    contigPath = tmpPath + '/' + contig['id'] + '.fasta'
-    outPath = tmpPath + '/' + contig['id'] + '.rrna.cmscan.tsv'
-    sp.check_call( [ PLATON_HOME + '/share/cmscan',
+    contigPath = config['tmp'] + '/' + contig['id'] + '.fasta'
+    outPath = config['tmp'] + '/' + contig['id'] + '.rrna.cmscan.tsv'
+    sp.check_call( [ 'cmscan',
             '--noali',
             '--cut_tc',
             '--cpu', '1',
             '--tblout', outPath,
-            PLATON_HOME + '/db/rRNA',
+            config['db'] + '/rRNA',
             contigPath,
         ],
-        cwd = tmpPath,
-        stdout = fhFNULL,
+        cwd = config['tmp'],
+        env = config['env'],
+        stdout = sp.DEVNULL,
         stderr = sp.STDOUT
     )
 
@@ -153,19 +151,20 @@ def search_rrnas( tmpPath, contig ):
 
 
 # search for amr genes
-def search_amr_genes( tmpPath, contigs, filteredProteinsPath ):
+def search_amr_genes( config, contigs, filteredProteinsPath ):
 
-    outPath = tmpPath + '/amr.hmm.out'
-    sp.check_call( [ PLATON_HOME + '/share/hmmsearch',
+    outPath = config['tmp'] + '/amr.hmm.out'
+    sp.check_call( [ 'hmmsearch',
             '--noali',
             '--cpu', '1',
             '--cut_tc',
             '--tblout', outPath,
-            PLATON_HOME + '/db/ncbifam-amr',
+            config['db'] + '/ncbifam-amr',
             filteredProteinsPath
         ],
-        cwd = tmpPath,
-        stdout = fhFNULL,
+        cwd = config['tmp'],
+        env = config['env'],
+        stdout = sp.DEVNULL,
         stderr = sp.STDOUT
     )
 
@@ -197,18 +196,18 @@ def search_amr_genes( tmpPath, contigs, filteredProteinsPath ):
 
 
 # search for reference plasmid hits
-def search_reference_plasmids( tmpPath, contig ):
+def search_reference_plasmids( config, contig ):
 
     # reduce blastn word size to overcome segmentation faults due to too many
     # HSPs. As filtered contigs are at least 1k bp long, word size cannot be
     # smaller than 10.
     blastWordSize = int( contig['length'] / 100 )
 
-    contigPath = tmpPath + '/' + contig['id'] + '.fasta'
-    outPath = tmpPath + '/' + contig['id'] + '.refplas.blast.out'
-    sp.check_call( [ PLATON_HOME + '/share/blastn',
+    contigPath = config['tmp'] + '/' + contig['id'] + '.fasta'
+    outPath = config['tmp'] + '/' + contig['id'] + '.refplas.blast.out'
+    sp.check_call( [ 'blastn',
             '-query', contigPath,
-            '-db', PLATON_HOME + '/db/refseq-plasmids',
+            '-db', config['db'] + '/refseq-plasmids',
             '-num_threads', '1',
             '-culling_limit', '1',
             '-perc_identity', '80',
@@ -216,8 +215,9 @@ def search_reference_plasmids( tmpPath, contig ):
             '-outfmt', '6 sseqid qstart qend sstart send slen length nident',
             '-out', outPath
         ],
-        cwd = tmpPath,
-        stdout = fhFNULL,
+        cwd = config['tmp'],
+        env = config['env'],
+        stdout = sp.DEVNULL,
         stderr = sp.STDOUT
     )
 
@@ -276,18 +276,19 @@ def filter_contig( contig ):
 
 
 # predict ORFs
-def predict_orfs( tmpPath, contigs, filteredDraftGenomePath ):
-    proteinsPath = tmpPath + '/proteins.faa'
-    gffPath = tmpPath + '/prodigal.gff'
-    sp.check_call( [ PLATON_HOME + '/share/prodigal',
+def predict_orfs( config, contigs, filteredDraftGenomePath ):
+    proteinsPath = config['tmp'] + '/proteins.faa'
+    gffPath = config['tmp'] + '/prodigal.gff'
+    sp.check_call( [ 'prodigal',
             '-i', filteredDraftGenomePath,
             '-a', proteinsPath,
             '-c', # closed ends
             '-f', 'gff', # GFF output
             '-o', gffPath # prodigal output
         ],
-        cwd = tmpPath,
-        stdout = fhFNULL,
+        cwd = config['tmp'],
+        env = config['env'],
+        stdout = sp.DEVNULL,
         stderr = sp.STDOUT
     )
 
@@ -312,19 +313,20 @@ def predict_orfs( tmpPath, contigs, filteredDraftGenomePath ):
 
 
 # search for replication genes
-def search_replication_genes( tmpPath, contigs, filteredProteinsPath ):
+def search_replication_genes( config, contigs, filteredProteinsPath ):
 
-    outPath = tmpPath + '/rep.hmm.out'
-    sp.check_call( [ PLATON_HOME + '/share/hmmsearch',
+    outPath = config['tmp'] + '/rep.hmm.out'
+    sp.check_call( [ 'hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
             '--tblout', outPath,
-            PLATON_HOME + '/db/replication',
+            config['db'] + '/replication',
             filteredProteinsPath
         ],
-        cwd = tmpPath,
-        stdout = fhFNULL,
+        cwd = config['tmp'],
+        env = config['env'],
+        stdout = sp.DEVNULL,
         stderr = sp.STDOUT
     )
 
@@ -355,19 +357,20 @@ def search_replication_genes( tmpPath, contigs, filteredProteinsPath ):
 
 
 # search for mobilization genes
-def search_mobilization_genes( tmpPath, contigs, filteredProteinsPath ):
+def search_mobilization_genes( config, contigs, filteredProteinsPath ):
 
-    outPath = tmpPath + '/mob.hmm.out'
-    sp.check_call( [ PLATON_HOME + '/share/hmmsearch',
+    outPath = config['tmp'] + '/mob.hmm.out'
+    sp.check_call( [ 'hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
             '--tblout', outPath,
-            PLATON_HOME + '/db/mobilization',
+            config['db'] + '/mobilization',
             filteredProteinsPath
         ],
-        cwd = tmpPath,
-        stdout = fhFNULL,
+        cwd = config['tmp'],
+        env = config['env'],
+        stdout = sp.DEVNULL,
         stderr = sp.STDOUT
     )
 
@@ -398,19 +401,20 @@ def search_mobilization_genes( tmpPath, contigs, filteredProteinsPath ):
 
 
 # search for conjugation genes
-def search_conjugation_genes( tmpPath, contigs, filteredProteinsPath ):
+def search_conjugation_genes( config, contigs, filteredProteinsPath ):
 
-    outPath = tmpPath + '/conj.hmm.out'
-    sp.check_call( [ PLATON_HOME + '/share/hmmsearch',
+    outPath = config['tmp'] + '/conj.hmm.out'
+    sp.check_call( [ 'hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
             '--tblout', outPath,
-            PLATON_HOME + '/db/conjugation',
+            config['db'] + '/conjugation',
             filteredProteinsPath
         ],
-        cwd = tmpPath,
-        stdout = fhFNULL,
+        cwd = config['tmp'],
+        env = config['env'],
+        stdout = sp.DEVNULL,
         stderr = sp.STDOUT
     )
 
@@ -434,5 +438,102 @@ def search_conjugation_genes( tmpPath, contigs, filteredProteinsPath ):
                     }
                     hits.add( cols[0] )
                     contig['conjugation_hits'].append(hit)
+
+    return
+
+def setup_configuration():
+
+    config = {
+        'env': os.environ.copy(),
+        'tmp': tempfile.mkdtemp(),
+        'bundled-binaries': False
+    }
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
+#    print( '__file__=' + __file__ )
+#    print( 'base_dir=' + base_dir )
+    share_dir = os.path.join( base_dir, 'share' )
+    if( os.access( share_dir, os.R_OK & os.X_OK ) ):
+        config['env']["PATH"] = share_dir + ':' + config['env']["PATH"]
+        config['bundled-binaries'] = True
+
+    db_path = os.path.join( base_dir, 'db' )
+    if( os.access( db_path, os.R_OK & os.X_OK ) ):
+        config['db'] = db_path
+
+    return config
+
+def test_binaries():
+
+    # test prodigal
+    try:
+        sp.check_call( [ 'prodigal',
+                '-v'
+            ],
+            stdout = sp.DEVNULL,
+            stderr = sp.STDOUT
+        )
+    except FileNotFoundError:
+        sys.exit( 'ERROR: \'prodigal\' not executable!' )
+    except:
+        pass
+
+    # test ghostz
+    try:
+        sp.check_call( ['ghostz'],
+            stdout = sp.DEVNULL,
+            stderr = sp.STDOUT
+        )
+    except FileNotFoundError:
+        sys.exit( 'ERROR: \'ghostz\' not executable!' )
+    except:
+        pass
+
+    # test blastn
+    try:
+        sp.check_call( [ 'blastn',
+                '-version'
+            ],
+            stdout = sp.DEVNULL,
+            stderr = sp.STDOUT
+        )
+    except FileNotFoundError:
+        sys.exit( 'ERROR: \'blastn\' not executable!' )
+    except:
+        pass
+
+    # test hmmsearch
+    try:
+        sp.check_call( ['hmmsearch'],
+            stdout = sp.DEVNULL,
+            stderr = sp.STDOUT
+        )
+    except FileNotFoundError:
+        sys.exit( 'ERROR: \'hmmsearch\' not executable!' )
+    except:
+        pass
+
+    # test nucmer
+    try:
+        sp.check_call( ['nucmer',
+                '-V'
+            ],
+            stdout = sp.DEVNULL,
+            stderr = sp.STDOUT
+        )
+    except FileNotFoundError:
+        sys.exit( 'ERROR: \'nucmer\' not executable!' )
+    except:
+        pass
+
+    # test cmscan
+    try:
+        sp.check_call( ['cmscan'],
+            stdout = sp.DEVNULL,
+            stderr = sp.STDOUT
+        )
+    except FileNotFoundError:
+        sys.exit( 'ERROR: \'cmscan\' not executable!' )
+    except:
+        pass
 
     return
