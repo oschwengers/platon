@@ -10,26 +10,10 @@ git config --global user.name "Your Name Comes Here"
 git config --global user.email you@yourdomain.example.com
 ```
 
-## Use the Gitflow workflow
-We adopted a slightly changed version of the **Gitflow** workflow using two major branches:
-- `master`: tested and tagged versions
-- `development`: collection branch for small fixes (one liner) and merge target for bigger fixes, enhancements and new features separated in distinct branches
-
-All fixes, enhancements and new features are stored in distinct branches named by their type and a short descriptive name:
-- `fix`
-- `enhancement`
-- `feature`
-
-**Examples**:
-- `fix-report-layout`
-- `enhancement-code-reviews`
-- `feature-new-taxonomic-classification`
-
-
 ## Make sure that your branch contains clean commits
 - Follow the common sense guidelines for writing good commit messages (see below).
 - Make separate commits for separate changes. If you cannot describe what the commit does in one sentence, it is probably a mix of changes and should be separated into several commits.
-- Do not merge `master` or `development` into your branch. Instead use `git rebase`. If you need to resolve merge conflicts or include the latest changes.
+- Do not merge `master` into your branch. Instead use `git rebase`. If you need to resolve merge conflicts or include the latest changes.
 
 ## Check your coding style
 - Make sure your contributions and changes follow the coding and indentation style of the code surrounding your changes.
