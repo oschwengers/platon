@@ -76,8 +76,7 @@ All files are prefixed (`<prefix>`) as the input genome fasta file.
 ## Installation
 Platon can be installed/used in 3 different ways.
 
-Additionally, a separate database must be downloaded which we provide for download
-as a zipped tarball:
+In addition, a custom database must be downloaded which we provide for download:
 https://s3.computational.bio.uni-giessen.de/swift/v1/platon/db.tar.gz
 
 ### GitHub
@@ -178,8 +177,8 @@ platon-docker.sh <PLATON_DB> <genome>
 Platon depends on a custom database based on NCBI RefSeq nonredundant proteins
 (NRP), PCLA clusters, RefSeq Plasmid database, PlasmidFinder db as well as custom
 HMM models. These databases (RefSeq release 90) can be downloaded here:
-(zipped 1.8, unzipped 2.5 Gb)
-`www.lorem.ipsum`
+(zipped 1.8 Gb, unzipped 2.5 Gb)
+https://s3.computational.bio.uni-giessen.de/swift/v1/platon/db.tar.gz
 
 ## Dependencies
 Platon was developed and tested on Python 3.5.
