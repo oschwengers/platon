@@ -6,32 +6,32 @@ import subprocess as sp
 
 from platon.constants import *
 
-# global constants
 
-
-# test for circularity
 def test_circularity( config, contig ):
+    """Test if this contig can be circularized."""
 
-    contigSplitPosition = int(contig['length'] / 2)
+    contig_split_position = int(contig['length'] / 2)
 
-    contigFragmentAPath = config['tmp'] + '/' + contig['id'] + '-a.fasta'
-    with open( contigFragmentAPath, 'w' ) as fh:
+    contig_fragment_a_path = config['tmp'] + '/' + contig['id'] + '-a.fasta'
+    with open( contig_fragment_a_path, 'w' ) as fh:
         fh.write( '>a\n')
-        fh.write( contig['sequence'][:contigSplitPosition] + '\n ')
+        fh.write( contig['sequence'][:contig_split_position] + '\n ')
 
-    contigFragmentBPath = config['tmp'] + '/' + contig['id'] + '-b.fasta'
-    contigFragmentBSequence = contig['sequence'][contigSplitPosition:]
-    with open( contigFragmentBPath, 'w' ) as fh:
+    contig_fragment_b_path = config['tmp'] + '/' + contig['id'] + '-b.fasta'
+    contig_fragment_b_seq = contig['sequence'][contig_split_position:]
+    with open( contig_fragment_b_path, 'w' ) as fh:
         fh.write( '>b\n ')
-        fh.write( contigFragmentBSequence + '\n ')
+        fh.write( contig_fragment_b_seq + '\n ')
 
-    sp.check_call( ['nucmer',
+    sp.check_call(
+        [
+            'nucmer',
             '-f', # only forward strand
             '-l', '40', # increase min match length to 40 bp
             '--threads=1',
             '-p', contig['id'],
-            contigFragmentBPath,
-            contigFragmentAPath
+            contig_fragment_b_path,
+            contig_fragment_a_path
         ],
         cwd = config['tmp'],
         env = config['env'],
@@ -40,54 +40,54 @@ def test_circularity( config, contig ):
     )
 
     contig['is_circular'] = False
-    hasMatch = False
+    has_match = False
     with open( config['tmp'] + '/' + contig['id'] + '.delta', 'r' ) as fh:
         for line in fh:
             line = line.rstrip()
             if( line[0] == '>' ):
-                hasMatch = True
-            elif( hasMatch ):
+                has_match = True
+            elif( has_match ):
                 cols = line.split( ' ' )
                 if( len(cols) == 7 ):
-                    bStart = int(cols[0])
-                    bEnd   = int(cols[1])
-                    aStart = int(cols[2])
-                    aEnd   = int(cols[3])
+                    start_b = int(cols[0])
+                    end_b   = int(cols[1])
+                    start_a = int(cols[2])
+                    end_a   = int(cols[3])
                     mismatches = int(cols[4])
-                    aAlignment = aEnd - aStart + 1
-                    bAlignment = bEnd - bStart + 1
-                    if( aAlignment == bAlignment  and  aAlignment > 50
-                        and (mismatches/aAlignment) < 0.05
-                        and bEnd == len(contigFragmentBSequence)
-                        and aStart == 1):
-                            contig['is_circular'] = True
-                            contig['circular_link'] = {
-                                'length': aAlignment,
-                                'mismatches': mismatches,
-                                'prime5Start': 1,
-                                'prime5End': aAlignment,
-                                'prime3Start': contig['length'] - bAlignment + 1,
-                                'prime3End': contig['length'],
-                            }
-                            break
+                    alignment_a = end_a - start_a + 1
+                    alignment_b = end_b - start_b + 1
+                    if( alignment_a == alignment_b  and  alignment_a > 50
+                            and (mismatches/alignment_a) < 0.05
+                            and end_b == len(contig_fragment_b_seq)
+                            and start_a == 1):
+                        contig['is_circular'] = True
+                        contig['circular_link'] = {
+                            'length': alignment_a,
+                            'mismatches': mismatches,
+                            'prime5Start': 1,
+                            'prime5End': alignment_a,
+                            'prime3Start': contig['length'] - alignment_b + 1,
+                            'prime3End': contig['length'],
+                        }
+                        break
     return
 
 
-
-
-# search for inc type signatures
 def search_inc_type( config, contig ):
+    """Search for incompatibility motifs."""
 
-    contigPath = config['tmp'] + '/' + contig['id'] + '.fasta'
-    outPath = config['tmp'] + '/' + contig['id'] + '.inc.blast.out'
-    sp.check_call( [ 'blastn',
+    contig_path = config['tmp'] + '/' + contig['id'] + '.fasta'
+    tmp_output_path = config['tmp'] + '/' + contig['id'] + '.inc.blast.out'
+    sp.check_call(
+        [
+            'blastn',
             '-query', config['db'] + '/inc-types.fasta',
-            '-subject', contigPath,
+            '-subject', contig_path,
             '-num_threads', '1',
             '-perc_identity', '80',
             '-culling_limit', '1',
             '-outfmt', '6 qseqid sstart send sstrand pident qcovs',
-            '-out', outPath
+            '-out', tmp_output_path
         ],
         cwd = config['tmp'],
         env = config['env'],
@@ -95,7 +95,7 @@ def search_inc_type( config, contig ):
         stderr = sp.STDOUT
     )
 
-    with open( outPath, 'r' ) as fh:
+    with open( tmp_output_path, 'r' ) as fh:
         for line in fh:
             cols = line.rstrip().split( '\t' )
             hit = {
@@ -111,20 +111,20 @@ def search_inc_type( config, contig ):
     return
 
 
-
-
-# search for rRNAs
 def search_rrnas( config, contig ):
+    """Search for ribosomal RNA sequences."""
 
-    contigPath = config['tmp'] + '/' + contig['id'] + '.fasta'
-    outPath = config['tmp'] + '/' + contig['id'] + '.rrna.cmscan.tsv'
-    sp.check_call( [ 'cmscan',
+    contig_path = config['tmp'] + '/' + contig['id'] + '.fasta'
+    tmp_output_path = config['tmp'] + '/' + contig['id'] + '.rrna.cmscan.tsv'
+    sp.check_call(
+        [
+            'cmscan',
             '--noali',
             '--cut_tc',
             '--cpu', '1',
-            '--tblout', outPath,
+            '--tblout', tmp_output_path,
             config['db'] + '/rRNA',
-            contigPath,
+            contig_path,
         ],
         cwd = config['tmp'],
         env = config['env'],
@@ -132,7 +132,7 @@ def search_rrnas( config, contig ):
         stderr = sp.STDOUT
     )
 
-    with open( outPath, 'r' ) as fh:
+    with open( tmp_output_path, 'r' ) as fh:
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.rstrip().split()
@@ -148,17 +148,17 @@ def search_rrnas( config, contig ):
     return
 
 
-
-
-# search for amr genes
 def search_amr_genes( config, contigs, filteredProteinsPath ):
+    """Search for AMR genes."""
 
-    outPath = config['tmp'] + '/amr.hmm.out'
-    sp.check_call( [ 'hmmsearch',
+    tmp_output_path = config['tmp'] + '/amr.hmm.out'
+    sp.check_call(
+        [
+            'hmmsearch',
             '--noali',
             '--cpu', '1',
             '--cut_tc',
-            '--tblout', outPath,
+            '--tblout', tmp_output_path,
             config['db'] + '/ncbifam-amr',
             filteredProteinsPath
         ],
@@ -169,14 +169,14 @@ def search_amr_genes( config, contigs, filteredProteinsPath ):
     )
 
     hits = set()
-    with open( outPath, 'r' ) as fh:
+    with open( tmp_output_path, 'r' ) as fh:
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.rstrip().split()
-                if( not cols[0] in hits ):
+                if( cols[0] not in hits ):
                     tmp = cols[0].rsplit('_', 1 )
-                    contigId = tmp[0]
-                    contig = contigs[ contigId ]
+                    contig_id = tmp[0]
+                    contig = contigs[ contig_id ]
                     orf = contig['orfs'][tmp[1]]
                     hit = {
                         'type': cols[2],
@@ -193,27 +193,27 @@ def search_amr_genes( config, contigs, filteredProteinsPath ):
     return
 
 
-
-
-# search for reference plasmid hits
 def search_reference_plasmids( config, contig ):
+    """Search for reference plasmid hits."""
 
-    # reduce blastn word size to overcome segmentation faults due to too many
+    # Reduce blastn word size to overcome segmentation faults due to too many
     # HSPs. As filtered contigs are at least 1k bp long, word size cannot be
     # smaller than 10.
-    blastWordSize = int( contig['length'] / 100 )
+    blast_word_size = int( contig['length'] / 100 )
 
-    contigPath = config['tmp'] + '/' + contig['id'] + '.fasta'
-    outPath = config['tmp'] + '/' + contig['id'] + '.refplas.blast.out'
-    sp.check_call( [ 'blastn',
-            '-query', contigPath,
+    contig_path = config['tmp'] + '/' + contig['id'] + '.fasta'
+    tmp_output_path = config['tmp'] + '/' + contig['id'] + '.refplas.blast.out'
+    sp.check_call(
+        [
+            'blastn',
+            '-query', contig_path,
             '-db', config['db'] + '/refseq-plasmids',
             '-num_threads', '1',
             '-culling_limit', '1',
             '-perc_identity', '80',
-            '-word_size', str(blastWordSize),
+            '-word_size', str(blast_word_size),
             '-outfmt', '6 sseqid qstart qend sstart send slen length nident',
-            '-out', outPath
+            '-out', tmp_output_path
         ],
         cwd = config['tmp'],
         env = config['env'],
@@ -221,7 +221,7 @@ def search_reference_plasmids( config, contig ):
         stderr = sp.STDOUT
     )
 
-    with open( outPath, 'r' ) as fh:
+    with open( tmp_output_path, 'r' ) as fh:
         for line in fh:
             line = line.rstrip()
             cols = line.split( '\t' )
@@ -242,15 +242,14 @@ def search_reference_plasmids( config, contig ):
     return
 
 
-
-
 def filter_contig( contig ):
+    """Apply heuristic filters based on contig information."""
 
     # include all circular contigs
     if( contig['is_circular'] ):
         return True
 
-    # include all contigs containing Inc type signatures
+    # include all contigs with Inc type signatures
     if( len(contig['inc_types']) > 0 ):
         return True
 
@@ -262,29 +261,32 @@ def filter_contig( contig ):
     if( len(contig['mobilization_hits']) > 0 ):
         return True
 
-    # include all contigs with high confidence protein scores
+    # include all contigs with shigh confidence protein scores
     if( contig['protein_score'] > PROTEIN_SCORE_TRUSTED_THRESHOLD ):
         return True
 
     # include all contigs with mediocre protein scores but additional blast hit evidence without rRNAs
-    if( contig['protein_score'] > PROTEIN_SCORE_CONSERVATIVE_THRESHOLD  and  len(contig['plasmid_hits']) > 0  and  len(contig['rrnas']) == 0 ):
+    if( contig['protein_score'] > PROTEIN_SCORE_CONSERVATIVE_THRESHOLD
+            and  len(contig['plasmid_hits']) > 0
+            and  len(contig['rrnas']) == 0 ):
         return True
 
     return False
 
 
-
-
-# predict ORFs
 def predict_orfs( config, contigs, filteredDraftGenomePath ):
-    proteinsPath = config['tmp'] + '/proteins.faa'
-    gffPath = config['tmp'] + '/prodigal.gff'
-    sp.check_call( [ 'prodigal',
+    """Predict open reading frames with Prodigal."""
+
+    proteins_path = config['tmp'] + '/proteins.faa'
+    gff_path = config['tmp'] + '/prodigal.gff'
+    sp.check_call(
+        [
+            'prodigal',
             '-i', filteredDraftGenomePath,
-            '-a', proteinsPath,
+            '-a', proteins_path,
             '-c', # closed ends
             '-f', 'gff', # GFF output
-            '-o', gffPath # prodigal output
+            '-o', gff_path # prodigal output
         ],
         cwd = config['tmp'],
         env = config['env'],
@@ -293,34 +295,34 @@ def predict_orfs( config, contigs, filteredDraftGenomePath ):
     )
 
     # parse orfs
-    with open( gffPath, 'rU' ) as fh:
+    with open( gff_path, 'rU' ) as fh:
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.split( '\t' )
-                orfId = cols[8].split(';')[0].split('=')[1].split('_')[1]
+                orf_id = cols[8].split(';')[0].split('=')[1].split('_')[1]
                 orf = {
                     'start': cols[3],
                     'end': cols[4],
                     'strand': cols[6],
-                    'id': orfId
+                    'id': orf_id
                 }
                 contig = contigs.get(cols[0], None)
                 if( contig is not None ):
-                    contig['orfs'][ orfId ] = orf
-    return proteinsPath
+                    contig['orfs'][ orf_id ] = orf
+    return proteins_path
 
 
-
-
-# search for replication genes
 def search_replication_genes( config, contigs, filteredProteinsPath ):
+    """Search for replication genes, e.g. repA by custom HMMs."""
 
-    outPath = config['tmp'] + '/rep.hmm.out'
-    sp.check_call( [ 'hmmsearch',
+    tmp_output_path = config['tmp'] + '/rep.hmm.out'
+    sp.check_call(
+        [
+            'hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
-            '--tblout', outPath,
+            '--tblout', tmp_output_path,
             config['db'] + '/replication',
             filteredProteinsPath
         ],
@@ -331,14 +333,14 @@ def search_replication_genes( config, contigs, filteredProteinsPath ):
     )
 
     hits = set()
-    with open( outPath, 'r' ) as fh:
+    with open( tmp_output_path, 'r' ) as fh:
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.rstrip().split()
-                if( not cols[0] in hits ):
+                if( cols[0] not in hits ):
                     tmp = cols[0].rsplit('_', 1 )
-                    contigId = tmp[0]
-                    contig = contigs[ contigId ]
+                    contig_id = tmp[0]
+                    contig = contigs[ contig_id ]
                     orf = contig['orfs'][tmp[1]]
                     hit = {
                         'type': cols[2],
@@ -354,17 +356,17 @@ def search_replication_genes( config, contigs, filteredProteinsPath ):
     return
 
 
-
-
-# search for mobilization genes
 def search_mobilization_genes( config, contigs, filteredProteinsPath ):
+    """Search for mobilization genes, e.g. mob by custom HMMs."""
 
-    outPath = config['tmp'] + '/mob.hmm.out'
-    sp.check_call( [ 'hmmsearch',
+    tmp_output_path = config['tmp'] + '/mob.hmm.out'
+    sp.check_call(
+        [
+            'hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
-            '--tblout', outPath,
+            '--tblout', tmp_output_path,
             config['db'] + '/mobilization',
             filteredProteinsPath
         ],
@@ -375,14 +377,14 @@ def search_mobilization_genes( config, contigs, filteredProteinsPath ):
     )
 
     hits = set()
-    with open( outPath, 'r' ) as fh:
+    with open( tmp_output_path, 'r' ) as fh:
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.rstrip().split()
-                if( not cols[0] in hits ):
+                if( cols[0] not in hits ):
                     tmp = cols[0].rsplit('_', 1 )
-                    contigId = tmp[0]
-                    contig = contigs[ contigId ]
+                    contig_id = tmp[0]
+                    contig = contigs[ contig_id ]
                     orf = contig['orfs'][tmp[1]]
                     hit = {
                         'type': cols[2],
@@ -398,17 +400,17 @@ def search_mobilization_genes( config, contigs, filteredProteinsPath ):
     return
 
 
-
-
-# search for conjugation genes
 def search_conjugation_genes( config, contigs, filteredProteinsPath ):
+    """Search for conjugation genes by custom HMMs."""
 
-    outPath = config['tmp'] + '/conj.hmm.out'
-    sp.check_call( [ 'hmmsearch',
+    tmp_output_path = config['tmp'] + '/conj.hmm.out'
+    sp.check_call(
+        [
+            'hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
-            '--tblout', outPath,
+            '--tblout', tmp_output_path,
             config['db'] + '/conjugation',
             filteredProteinsPath
         ],
@@ -419,14 +421,14 @@ def search_conjugation_genes( config, contigs, filteredProteinsPath ):
     )
 
     hits = set()
-    with open( outPath, 'r' ) as fh:
+    with open( tmp_output_path, 'r' ) as fh:
         for line in fh:
             if( line[0] != '#' ):
                 cols = line.rstrip().split()
-                if( not cols[0] in hits ):
+                if( cols[0] not in hits ):
                     tmp = cols[0].rsplit('_', 1 )
-                    contigId = tmp[0]
-                    contig = contigs[ contigId ]
+                    contig_id = tmp[0]
+                    contig = contigs[ contig_id ]
                     orf = contig['orfs'][tmp[1]]
                     hit = {
                         'type': cols[2],
@@ -441,7 +443,9 @@ def search_conjugation_genes( config, contigs, filteredProteinsPath ):
 
     return
 
+
 def setup_configuration():
+    """Test environment and build a runtime configuration."""
 
     config = {
         'env': os.environ.copy(),
@@ -449,8 +453,6 @@ def setup_configuration():
         'bundled-binaries': False
     }
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
-#    print( '__file__=' + __file__ )
-#    print( 'base_dir=' + base_dir )
     share_dir = os.path.join( base_dir, 'share' )
     if( os.access( share_dir, os.R_OK & os.X_OK ) ):
         config['env']["PATH"] = share_dir + ':' + config['env']["PATH"]
@@ -462,11 +464,15 @@ def setup_configuration():
 
     return config
 
+
 def test_binaries():
+    """Test the proper installation of necessary 3rd party executables."""
 
     # test prodigal
     try:
-        sp.check_call( [ 'prodigal',
+        sp.check_call(
+            [
+                'prodigal',
                 '-v'
             ],
             stdout = sp.DEVNULL,
@@ -479,7 +485,8 @@ def test_binaries():
 
     # test ghostz
     try:
-        sp.check_call( ['ghostz'],
+        sp.check_call(
+            ['ghostz'],
             stdout = sp.DEVNULL,
             stderr = sp.STDOUT
         )
@@ -490,7 +497,9 @@ def test_binaries():
 
     # test blastn
     try:
-        sp.check_call( [ 'blastn',
+        sp.check_call(
+            [
+                'blastn',
                 '-version'
             ],
             stdout = sp.DEVNULL,
@@ -503,7 +512,8 @@ def test_binaries():
 
     # test hmmsearch
     try:
-        sp.check_call( ['hmmsearch'],
+        sp.check_call(
+            ['hmmsearch'],
             stdout = sp.DEVNULL,
             stderr = sp.STDOUT
         )
@@ -514,7 +524,9 @@ def test_binaries():
 
     # test nucmer
     try:
-        sp.check_call( ['nucmer',
+        sp.check_call(
+            [
+                'nucmer',
                 '-V'
             ],
             stdout = sp.DEVNULL,
@@ -527,7 +539,8 @@ def test_binaries():
 
     # test cmscan
     try:
-        sp.check_call( ['cmscan'],
+        sp.check_call(
+            ['cmscan'],
             stdout = sp.DEVNULL,
             stderr = sp.STDOUT
         )
