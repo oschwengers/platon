@@ -39,11 +39,7 @@ def main():
 
     if( args.db ):
         config['db'] = os.path.abspath(args.db)
-    elif( 'db' not in config ):
-        sys.exit( 'ERROR: database directory not detected nor provided! Please provide a valid path to the database directory.' )
-
-    if( not os.access( config['db'], os.R_OK & os.X_OK ) ):
-        sys.exit( 'ERROR: database directory ('+config['db']+') not readable/accessible!' )
+    test_database( config )
 
     if( 'bundled-binaries' not in config ):
         test_binaries()
@@ -106,8 +102,7 @@ def main():
 
 
     if( len(raw_contigs) == 0 ):
-        print( 'Error: input file contains no valid contigs.' )
-        sys.exit(1)
+        sys.exit( 'Error: input file contains no valid contigs.' )
 
     if( len(contigs) == 0 ):
         print( HEADER )

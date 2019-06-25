@@ -465,6 +465,58 @@ def setup_configuration():
     return config
 
 
+def test_database( config ):
+    """Test if database directory exists, is accessible and contains necessary files."""
+
+    if( 'db' not in config ):
+        sys.exit( 'ERROR: database directory not detected! Please provide a valid path to the database directory.' )
+
+    if( not os.access(config['db'], os.R_OK & os.X_OK) ):
+        sys.exit( 'ERROR: database directory ('+config['db']+') not readable/accessible!' )
+
+    file_names = [
+        'conjugation.h3f',
+        'conjugation.h3i',
+        'conjugation.h3m',
+        'conjugation.h3p',
+        'mobilization.h3f',
+        'mobilization.h3i',
+        'mobilization.h3m',
+        'mobilization.h3p',
+        'replication.h3f',
+        'replication.h3i',
+        'replication.h3m',
+        'replication.h3p',
+        'ncbifam-amr.h3f',
+        'ncbifam-amr.h3i',
+        'ncbifam-amr.h3m',
+        'ncbifam-amr.h3p',
+        'ncbifam-amr.tsv',
+        'rRNA.i1f',
+        'rRNA.i1i',
+        'rRNA.i1m',
+        'rRNA.i1p',
+        'protein-scores.tsv',
+        'refseq-plasmids.tsv',
+        'inc-types.fasta',
+        'refseq-plasmids.nhr',
+        'refseq-plasmids.nin',
+        'refseq-plasmids.nsq',
+        'refseq-bacteria-nrpc-reps.inf',
+        'refseq-bacteria-nrpc-reps_0.inf',
+        'refseq-bacteria-nrpc-reps_0.nam',
+        'refseq-bacteria-nrpc-reps_0.off',
+        'refseq-bacteria-nrpc-reps_0.seq',
+        'refseq-bacteria-nrpc-reps_0.src'
+    ]
+
+    for file_name in file_names:
+        path = config['db'] + '/' + file_name
+        if( not os.access(path, os.R_OK)  or  not os.path.isfile(path) ):
+            sys.exit( 'ERROR: database file ('+file_name+') not readable!' )
+    return
+
+
 def test_binaries():
     """Test the proper installation of necessary 3rd party executables."""
 
