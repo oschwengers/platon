@@ -3,5 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Python Setuptools
+dist/
+*.egg-info/
+
 # database directory for debugging purposes
 db/
