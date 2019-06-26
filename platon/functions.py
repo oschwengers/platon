@@ -565,7 +565,10 @@ def test_binaries():
     # test hmmsearch
     try:
         sp.check_call(
-            ['hmmsearch'],
+            [
+                'hmmsearch'
+                '-h'
+            ],
             stdout = sp.DEVNULL,
             stderr = sp.STDOUT
         )
@@ -592,7 +595,10 @@ def test_binaries():
     # test cmscan
     try:
         sp.check_call(
-            ['cmscan'],
+            [
+                'cmscan',
+                '-h'
+            ],
             stdout = sp.DEVNULL,
             stderr = sp.STDOUT
         )
