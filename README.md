@@ -1,5 +1,12 @@
-# Platon: Plasmid contig classification and characterization for short read draft assemblies.
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/oschwengers/platon/blob/master/LICENSE)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/cb-platon.svg)
+![GitHub release](https://img.shields.io/github/release/oschwengers/platon.svg)
+![PyPI](https://img.shields.io/pypi/v/cb-platon.svg)
+![PyPI - Status](https://img.shields.io/pypi/status/cb-platon.svg)
+![Conda](https://img.shields.io/conda/v/bioconda/platon.svg)
+![Conda](https://img.shields.io/conda/pn/bioconda/platon.svg)
 
+# Platon: Plasmid contig classification and characterization for short read draft assemblies.
 
 ## Contents
 - [Description](#description)
@@ -10,7 +17,6 @@
 - [Database](#database)
 - [Dependencies](#dependencies)
 - [Citation](#citation)
-
 
 ## Description
 Platon classifies contigs from bacterial WGS short read assemblies as plasmid or
@@ -35,7 +41,6 @@ replication, mobilization and conjugation genes as well as incompatibility group
 DNA probes and finally performs a BLAST search against the NCBI plasmid database.
 In a third step, Platon finally classifies all remaining contigs based on an heuristic
 approach, i.e. a decision tree of simple rules exploiting all information at hand.
-
 
 ## Input/Output
 
@@ -65,7 +70,6 @@ In addition, Platon writes the following files into the output directory:
 - `<prefix>`.tsv: dense information as printed to STDOUT (see above)
 - `<prefix>`.json: comprehensive results and information on each single plasmid contig.
 All files are prefixed (`<prefix>`) as the input genome fasta file.
-
 
 ## Installation
 Platon can be installed/used in 2 different ways.
@@ -124,7 +128,6 @@ $ sudo cp ghostz /usr/bin/
 If there are any issues compiling ghostz, please make sure you have everything
 correctly setup, e.g. `$ sudo apt install build-essential`.
 
-
 ## Usage
 Usage:
 ```
@@ -148,7 +151,6 @@ optional arguments:
   --version             show program's version number and exit
 ```
 
-
 ## Examples
 Simple:
 ```
@@ -160,14 +162,12 @@ Expert: writing results to `results` directory with verbose output using 8 threa
 $ platon -db ~/db --output results/ --verbose --threads 8 genome.fasta
 ```
 
-
 ## Database
 Platon depends on a custom database based on NCBI RefSeq nonredundant proteins
 (NRP), PCLA clusters, RefSeq Plasmid database, PlasmidFinder db as well as custom
 HMM models. These databases (RefSeq release 90) can be downloaded here:
 (zipped 1.8 Gb, unzipped 2.5 Gb)
 https://s3.computational.bio.uni-giessen.de/swift/v1/platon/db.tar.gz
-
 
 ## Dependencies
 Platon was developed and tested on Python 3.5.
@@ -180,7 +180,6 @@ Additionally, it depends on the following 3rd party executables:
 - MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
 - HMMER (3.2.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3695513/> <http://hmmer.org/>
 - INFERNAL (1.1.2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
-
 
 ## Citation
 A manuscript is in preparation... stay tuned!
