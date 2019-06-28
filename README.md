@@ -6,7 +6,7 @@
 ![Conda](https://img.shields.io/conda/v/bioconda/platon.svg)
 ![Conda](https://img.shields.io/conda/pn/bioconda/platon.svg)
 
-# Platon: Plasmid contig classification and characterization for short read draft assemblies.
+# Platon: Plasmid contig detection and characterization for short read draft assemblies.
 
 ## Contents
 - [Description](#description)
@@ -19,28 +19,28 @@
 - [Citation](#citation)
 
 ## Description
-Platon classifies contigs from bacterial WGS short read assemblies as plasmid or
-chromosome contigs. Therefore, Platon computes mean protein scores (**MPS**)
+Platon detects plasmid contigs from bacterial WGS short read assemblies.
+Therefore, Platon computes mean protein scores (**MPS**) per contig
 based on pre-computed protein distribution statistics and tests them against
-specific thresholds. Contigs which MPS does not reach the thresholds are
+specific thresholds. Contigs whose MPS does not reach the thresholds are
 comprehensively characterized and finally classified following an heuristic approach.
 
 Platon conducts three analysis steps. First, it predicts open reading
 frames and searches the coding sequences against a custom and pre-computed database
-comprising marker protein sequences and probability scores. These scores express
-the empirical probability on which kind of replicon a certain protein was found
+comprising marker protein sequences and distribution scores. These scores express
+the empirical probability on which kind of replicon a certain protein is found
 based on complete NCBI RefSeq genomes and plasmids.
 Platon then calculates the MPS for each contig and either classifies them
 as chromosome if the MPS is below a sensitivity cutoff (95% sensitivity) or as
 plasmid if the MPS is above a specificity cutoff (99.99% specificity).
-These thresholds have been calculated by Monte Carlo simulations of artifical
+These thresholds have been set based on Monte Carlo simulations of artifical
 contigs created from complete RefSeq chromosome and plasmid sequences. In a second
 step contigs passing the sensitivity filter get comprehensivley characterized.
 Hereby, Platon tries to circularize the contig sequences, searches for rRNA,
 replication, mobilization and conjugation genes as well as incompatibility group
 DNA probes and finally performs a BLAST search against the NCBI plasmid database.
 In a third step, Platon finally classifies all remaining contigs based on an heuristic
-approach, i.e. a decision tree of simple rules exploiting all information at hand.
+approach, i.e. following a decision tree of simple rules exploiting all information at hand.
 
 ## Input/Output
 
@@ -91,7 +91,7 @@ $ platon/bin/platon --db ./db genome.fasta
 ```
 
 Info: Just move the extracted database directory into the platon directory.
-PLATON will automatically recognise it and thus, the database path doesn't need
+Platon will automatically recognise it and thus, the database path doesn't need
 to be specified:
 ```
 $ git clone git@github.com:oschwengers/platon.git
@@ -184,7 +184,7 @@ Additionally, it depends on the following 3rd party executables:
 ## Citation
 A manuscript is in preparation... stay tuned!
 To temporarily cite our work, please transitionally refer to:
-> Schwengers O., Barth P., Falgenhauer L., Chakraborty T., Goesmann A. (2019) PLATON: Plasmid contig classification and characterization for short read draft assemblies. GitHub https://github.com/oschwengers/platon
+> Schwengers O., Barth P., Falgenhauer L., Chakraborty T., Goesmann A. (2019) Platon: Plasmid contig classification and characterization for short read draft assemblies. GitHub https://github.com/oschwengers/platon
 
-As PLATON takes advantage of PlasmidFinder's incompatibility database, please also cite:
+As Platon takes advantage of PlasmidFinder's incompatibility database, please also cite:
 > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
