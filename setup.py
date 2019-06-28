@@ -21,10 +21,10 @@ setup(
     author='Oliver Schwengers',
     author_email='oliver.schwengers@computational.bio.uni-giessen.de',
     url='https://github.com/oschwengers/platon',
-    packages = ['platon'],
+    packages=['platon'],
     python_requires='>=3.5',
-    include_package_data = True,
-    zip_safe = False,
+    include_package_data=True,
+    zip_safe=False,
     install_requires=[
         'biopython >= 1.71'
     ],
