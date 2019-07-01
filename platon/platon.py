@@ -89,13 +89,13 @@ def main():
 
             # only include contigs with reasonable lengths
             if(args.characterize
-                    or contig['length'] >= 1000
-                    and contig['length'] < 500000):
+                    or contig['length'] >= pc.MIN_CONTIG_LENGTH
+                    and contig['length'] < pc.MAX_CONTIG_LENGTH):
                 contigs[record.id] = contig
             elif (args.verbose):
-                if(contig['length'] < 1000):
+                if(contig['length'] < pc.MIN_CONTIG_LENGTH):
                     print('\texclude contig \'%s\', too short (%d)' % (contig['id'], contig['length']))
-                elif(contig['length'] >= 500000):
+                elif(contig['length'] >= pc.MAX_CONTIG_LENGTH):
                     print('\texclude contig \'%s\', too long (%d)' % (contig['id'], contig['length']))
     except:
         sys.exit('ERROR: wrong genome file format!')
