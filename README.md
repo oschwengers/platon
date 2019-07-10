@@ -103,11 +103,11 @@ $ platon/bin/platon genome.fasta
 ```
 
 ### Pip
-1. install PLATON per pip
+1. install Platon per pip
 2. download and extract the database
 3. install 3rd party binaries
 
-Pip/Platon (1./2.):
+Platon/database (1./2.):
 ```
 $ pip3 install cb-platon
 $ wget https://s3.computational.bio.uni-giessen.de/swift/v1/platon/db.tar.gz
@@ -170,8 +170,7 @@ HMM models. These databases (RefSeq release 90) can be downloaded here:
 https://s3.computational.bio.uni-giessen.de/swift/v1/platon/db.tar.gz
 
 ## Dependencies
-Platon was developed and tested on Python 3.5.
-It depends on BioPython (>=1.71).
+Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
 
 Additionally, it depends on the following 3rd party executables:
 - Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
