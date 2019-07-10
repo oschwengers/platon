@@ -13,7 +13,7 @@ nrpcDB            = Paths.get(params.nrpcDB).toRealPath().toString() - '.inf' //
 
 
 // Constants
-final int PROTEIN_PENALTY = -1
+final int PROTEIN_PENALTY = -1.187401
 final int RANDOM_CONTIG_LENGTH = 10_000
 
 
