@@ -85,7 +85,7 @@ def search_inc_type(config, contig):
             '-query', config['db'] + '/inc-types.fasta',
             '-subject', contig_path,
             '-num_threads', '1',
-            '-perc_identity', '80',
+            '-perc_identity', '90',
             '-culling_limit', '1',
             '-outfmt', '6 qseqid sstart send sstrand pident qcovs',
             '-out', tmp_output_path
@@ -107,7 +107,7 @@ def search_inc_type(config, contig):
                 'identity': float(cols[4]) / 100,
                 'coverage': float(cols[5]) / 100
             }
-            if(hit['coverage'] >= 0.9):
+            if(hit['coverage'] >= 0.6):
                 contig['inc_types'].append(hit)
     return
 
