@@ -132,8 +132,8 @@ process mergeBlastResults {
     def wpIds = [].toSet()
     wpIds.addAll( blastPlasmidCounts.keySet() )
     wpIds.addAll( blastChromosomeCounts.keySet() )
-    println( "# distinct plasmid proteins: ${blastPlasmidCounts.size()}" )
-    println( "# distinct chromosome proteins: ${blastChromosomeCounts.size()}" )
+    println( "# plasmid proteins: ${blastPlasmidCounts.size()}" )
+    println( "# chromosome proteins: ${blastChromosomeCounts.size()}" )
     println( "# distinct proteins: ${wpIds.size()}" )
     wpIds.each( { wpId ->
         int plasmidHits = blastPlasmidCounts[ wpId ] ?: 0

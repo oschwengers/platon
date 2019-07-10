@@ -2,8 +2,7 @@
 import java.nio.file.*
 
 
-final int MAX_PLASMID_LENGTH = 1_000_000
-final int MIN_CHROMOSOME_LENGTH = 1_000_000
+final int MIN_CHROMOSOME_LENGTH = 100_000
 
 
 Channel.fromPath( "ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt" )

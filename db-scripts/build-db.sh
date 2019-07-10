@@ -41,14 +41,15 @@ mv NCBIfam-AMR.tsv ncbifam-amr.tsv
 printf "\n4/10: download RefSeq reference plasmids...\n"
 wget -q -O refseq-plasmids-raw.tsv ftp://ftp.ncbi.nlm.nih.gov/genomes/GENOME_REPORTS/plasmids.txt
 grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f1,5,6,8,9,10,11,12,15 > refseq-plasmids.tsv
+grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f3 refseq-plasmids.tsv > refseq-plasmids-ids.txt
 mkdir refseq-plasmids-dir
 cd refseq-plasmids-dir
 wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/refseq/release/plasmid/plasmid.*.1.genomic.fna.gz
 cd ..
-gzip -dc refseq-plasmids-dir/plasmid.*.1.genomic.fna.gz | seqtk seq -CU > refseq-plasmids
+gzip -dc refseq-plasmids-dir/plasmid.*.1.genomic.fna.gz | seqtk subseq - refseq-plasmids-ids.txt | seqtk seq -CU > refseq-plasmids
 makeblastdb -dbtype nucl -in refseq-plasmids -title 'RefSeq Plasmids'
 mv refseq-plasmids refseq-plasmids.fna
-rm -r refseq-plasmids-raw.tsv refseq-plasmids-dir
+rm -r refseq-plasmids-dir refseq-plasmids-raw.tsv refseq-plasmids-ids.txt
 
 
 # download RefSeq nonredundant proteins and clusters
