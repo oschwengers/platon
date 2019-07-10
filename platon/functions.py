@@ -87,7 +87,7 @@ def search_inc_type(config, contig):
             '-num_threads', '1',
             '-perc_identity', '90',
             '-culling_limit', '1',
-            '-outfmt', '6 qseqid sstart send sstrand pident qcovs',
+            '-outfmt', '6 qseqid sstart send sstrand pident qcovs bitscore',
             '-out', tmp_output_path
         ],
         cwd=config['tmp'],
@@ -96,6 +96,7 @@ def search_inc_type(config, contig):
         stderr=sp.STDOUT
     )
 
+    hits_per_pos = {}
     with open(tmp_output_path, 'r') as fh:
         for line in fh:
             cols = line.rstrip().split('\t')
@@ -105,10 +106,19 @@ def search_inc_type(config, contig):
                 'end': int(cols[2]),
                 'strand': '+' if cols[3] == 'plus' else '-',
                 'identity': float(cols[4]) / 100,
-                'coverage': float(cols[5]) / 100
+                'coverage': float(cols[5]) / 100,
+                'bitscore': int(cols[6])
             }
             if(hit['coverage'] >= 0.6):
-                contig['inc_types'].append(hit)
+                hit_pos = hit['end'] if hit['strand'] == '+' else hit['start']
+                if(hit_pos in hits_per_pos):
+                    former_hit = hits_per_pos[hit_pos]
+                    if(hit['bitscore'] > former_hit['bitscore']):
+                        hits_per_pos[hit_pos] = hit
+                else:
+                    hits_per_pos[hit_pos] = hit
+
+    contig['inc_types'] = list(hits_per_pos.values())
     return
 
 

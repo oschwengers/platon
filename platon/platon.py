@@ -156,12 +156,11 @@ def main():
         for line in fh:
             cols = line.split('\t')
             locus = cols[0].split(' ')[0].rpartition('_')
-            if(float(cols[2]) >= pc.MIN_PROTEIN_IDENTITY):
-                contig = contigs.get(locus[0], None)
-                if(contig is not None):
-                    orf = contig['orfs'][locus[2]]
-                    orf['protein_id'] = cols[1]
-                    no_proteins_identified += 1
+            if((float(cols[2]) >= pc.MIN_PROTEIN_IDENTITY) and (locus[0] in contigs)):
+                contig = contigs[locus[0]]
+                orf = contig['orfs'][locus[2]]
+                orf['protein_id'] = cols[1]
+                no_proteins_identified += 1
     if(args.verbose): print('\tfound %d marker proteins' % (no_proteins_identified))
 
 
@@ -280,7 +279,15 @@ def main():
         fh.write(pc.HEADER + '\n')
         for id in sorted(filtered_contigs, key=lambda k: -filtered_contigs[k]['length']):
             c = filtered_contigs[id]
-            line = '%s\t%d\t%4.1f\t%d\t%3.1f\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d' % (c['id'], c['length'], c['coverage'], len(c['orfs']), c['protein_score'], 'yes' if c['is_circular'] else 'no', c['inc_types'][0]['type'] if len(c['inc_types']) > 0 else '-', len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits']))
+            if(len(c['inc_types']) == 0):
+                inc_types = '-'
+            else:
+                inc_types = c['inc_types'][0]['type']
+                i = 1
+                while(i < len(c['inc_types'])):
+                    inc_types += ',' + c['inc_types'][i]['type']
+                    i += 1
+            line = '%s\t%d\t%4.1f\t%d\t%3.1f\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d' % (c['id'], c['length'], c['coverage'], len(c['orfs']), c['protein_score'], 'yes' if c['is_circular'] else 'no', inc_types, len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits']))
             print(line)
             fh.write(line + '\n')
 
