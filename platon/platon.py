@@ -269,7 +269,9 @@ def main():
 
     # get file prefix
     prefix = Path(genome_path).name
-    if('.' in prefix): prefix = prefix.split('.')[0]
+    tmp = prefix.split('.')
+    if(len(tmp) > 1): # remove a potential suffix, remaining inner name periods ('.')
+        prefix = '.'.join(tmp[:-1:])
 
 
     # print results to tsv file and STDOUT
