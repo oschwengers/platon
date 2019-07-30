@@ -33,7 +33,6 @@ def main():
     parser.add_argument('--version', '-V', action='version', version='%(prog)s '+platon.__version__)
     args = parser.parse_args()
 
-
     # check parameters and test/setup runtime configuration
     config = pf.setup_configuration()
 
@@ -61,9 +60,9 @@ def main():
         print('\ttmp path: ' + config['tmp'])
         print('\t# threads: ' + str(args.threads))
 
-
     # parse draft genome
-    if(args.verbose): print('parse draft genome...')
+    if(args.verbose):
+        print('parse draft genome...')
     contigs = {}
     raw_contigs = []
     try:
@@ -100,7 +99,6 @@ def main():
     except:
         sys.exit('ERROR: wrong genome file format!')
 
-
     if(len(raw_contigs) == 0):
         sys.exit('Error: input file contains no valid contigs.')
 
@@ -110,28 +108,27 @@ def main():
             print('No potential plasmid contigs found. Please, check contig lengths. Maybe you passed a finished or pseudo genome?')
         sys.exit(0)
 
-
     # predict ORFs
-    if(args.verbose): print('predict ORFs...')
+    if(args.verbose):
+        print('predict ORFs...')
     proteins_path = pf.predict_orfs(config, contigs, genome_path)
     if(args.verbose):
         no_orfs = ft.reduce(lambda x, y: x+y, map(lambda k: len(contigs[k]['orfs']), contigs))
         print('\tfound %d ORFs' % no_orfs)
 
-
     # exclude contigs without ORFs
     if(not args.characterize):
         tmp_contigs = {}
-        for contig in filter(lambda k: len(k['orfs'])> 0, contigs.values()):
+        for contig in filter(lambda k: len(k['orfs']) > 0, contigs.values()):
             tmp_contigs[contig['id']] = contig
         if(args.verbose):
             no_removed_contigs = len(contigs) - len(tmp_contigs)
             print('\tremoved %d contig(s), no ORFs found' % (no_removed_contigs))
         contigs = tmp_contigs
 
-
     # find marker genes
-    if(args.verbose): print('search marker proteins...')
+    if(args.verbose):
+        print('search marker proteins...')
     tmp_output_path = config['tmp'] + '/ghostz.tsv'
     sp.check_call(
         [
@@ -149,7 +146,6 @@ def main():
         stderr=sp.STDOUT
     )
 
-
     # parse ghostz output
     no_proteins_identified = 0
     with open(tmp_output_path, 'r') as fh:
@@ -161,11 +157,12 @@ def main():
                 orf = contig['orfs'][locus[2]]
                 orf['protein_id'] = cols[1]
                 no_proteins_identified += 1
-    if(args.verbose): print('\tfound %d marker proteins' % (no_proteins_identified))
-
+    if(args.verbose):
+        print('\tfound %d marker proteins' % (no_proteins_identified))
 
     # parse protein score file
-    if(args.verbose): print('score contigs...')
+    if(args.verbose):
+        print('score contigs...')
     marker_proteins = {}
     with open(config['db'] + '/protein-scores.tsv', 'r') as fh:
         for line in fh:
@@ -176,7 +173,6 @@ def main():
                 'length': cols[2],
                 'score': float(cols[3]),
             }
-
 
     # calculate protein score per contig
     for contig in contigs.values():
@@ -192,20 +188,19 @@ def main():
                 score_sum += pc.PROTEIN_SCORE_PENALTY
         contig['protein_score'] = score_sum / len(contig['orfs']) if len(contig['orfs']) > 0 else 0
 
-
     # filter contigs based on conservative protein score threshold
     # MIN_PROTEIN_SCORE_THRESHOLD and execute per contig analyses in parallel
     scored_contigs = None
     if(args.characterize):
         scored_contigs = contigs
     else:
-        if(args.verbose): print('prefilter contigs...')
+        if(args.verbose):
+            print('prefilter contigs...')
         scored_contigs = {k: v for (k, v) in contigs.items() if v['protein_score'] >= pc.MIN_PROTEIN_SCORE_THRESHOLD}
         if(args.verbose):
             no_excluded_contigs = len(contigs) - len(scored_contigs)
             print('\texcluded %d contigs by min protein score threshold (%2.1f)' % (no_excluded_contigs, pc.MIN_PROTEIN_SCORE_THRESHOLD))
             print('analyze contigs...')
-
 
     # extract proteins from potential plasmid contigs for subsequent analyses
     filtered_proteins_path = config['tmp'] + '/proteins-filtered.faa'
@@ -217,14 +212,12 @@ def main():
                 fh.write('>' + orf_name + '\n')
                 fh.write(str(record.seq) + '\n')
 
-
     # write contig sequences to fasta files for subsequent parallel analyses
     for id, contig in scored_contigs.items():
         contig_path = config['tmp'] + '/' + contig['id'] + '.fasta'
         with open(contig_path, 'w') as fh:
             fh.write('>' + contig['id'] + '\n')
             fh.write(contig['sequence'] + '\n')
-
 
     # init thread pool to parallize io bound analyses
     with ThreadPoolExecutor(max_workers=args.threads) as tpe:
@@ -237,7 +230,6 @@ def main():
             tpe.submit(pf.search_inc_type, config, contig)
             tpe.submit(pf.search_rrnas, config, contig)
             tpe.submit(pf.search_reference_plasmids, config, contig)
-
 
     # lookup AMR genes
     amr_genes = {}
@@ -254,10 +246,8 @@ def main():
             hit['gene'] = amr_gene['gene']
             hit['product'] = amr_gene['product']
 
-
     # remove tmp dir
     shutil.rmtree(config['tmp'])
-
 
     # filter contigs
     filtered_contigs = None
@@ -266,13 +256,11 @@ def main():
     else:
         filtered_contigs = {k: v for (k, v) in scored_contigs.items() if pf.filter_contig(v)}
 
-
     # get file prefix
     prefix = Path(genome_path).name
     tmp = prefix.split('.')
-    if(len(tmp) > 1): # remove a potential suffix, remaining inner name periods ('.')
+    if(len(tmp) > 1):  # remove a potential suffix, remaining inner name periods ('.')
         prefix = '.'.join(tmp[:-1:])
-
 
     # print results to tsv file and STDOUT
     print(pc.HEADER)
@@ -293,14 +281,12 @@ def main():
             print(line)
             fh.write(line + '\n')
 
-
     # write comprehensive results to JSON file
     tmp_output_path = output_path + '/' + prefix + '.json'
     with open(tmp_output_path, 'w') as fh:
         indent = '\t' if args.verbose else None
         separators = (', ', ': ') if args.verbose else (',', ':')
         json.dump(filtered_contigs, fh, indent=indent, separators=separators)
-
 
     # write chromosome contigs to fasta file
     tmp_output_path = output_path + '/' + prefix + '.chromosome.fasta'
@@ -309,7 +295,6 @@ def main():
             if(contig['id'] not in filtered_contigs):
                 fh.write('>' + contig['id'] + '\n')
                 fh.write(contig['sequence'] + '\n')
-
 
     # write plasmid contigs to fasta file
     tmp_output_path = output_path + '/' + prefix + '.plasmid.fasta'
