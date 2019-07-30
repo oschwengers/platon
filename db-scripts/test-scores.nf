@@ -130,7 +130,7 @@ chBlast.map( {
 
     def testedCutoffs = []
     for( def cutoff=-50.0; cutoff<=10.0; cutoff+=0.1 ) {
-        if( score > cutoff ) {
+        if( score >= cutoff ) {
             if( type == 'p' )
                 testedCutoffs << [ cutoff, [1,0,0,0] ] //tp++
             else
@@ -161,11 +161,11 @@ chBlast.map( {
     } )
     float sn  = (float)tp / ( tp + fn ) // sensitivity
     float sp  = (float)tn / ( tn + fp ) // specificity
-    float acc = (float)( tp + tn ) / ( tp + fp + fn + tn ) // accuracy
+    float acc = (float)( tp + tn ) / ( tp + fp + tn + fn ) // accuracy
     float ppv = (float)tp / ( tp + fp ) // positive predictive value
     float npv = (float)tn / ( tn + fn ) // negative predictive value
     return "${cutoff}\t${sn}\t${sp}\t${acc}\t${ppv}\t${npv}\t${tp}\t${tn}\t${fp}\t${fn}"
 } )
 .toSortedList( { a, b -> a.split('\t')[0] as float <=> b.split('\t')[0] as float } )
 .flatten()
-.collectFile( sort: false, name: 'protein-score-metrics.tsv', storeDir: '.' , newLine: true )
+.collectFile( sort: false, name: 'rds-metrics.tsv', storeDir: '.' , newLine: true )

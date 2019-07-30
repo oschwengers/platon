@@ -164,7 +164,7 @@ def main():
     if(args.verbose):
         print('score contigs...')
     marker_proteins = {}
-    with open(config['db'] + '/protein-scores.tsv', 'r') as fh:
+    with open(config['db'] + '/rds.tsv', 'r') as fh:
         for line in fh:
             cols = line.split('\t')
             marker_proteins[cols[0]] = {

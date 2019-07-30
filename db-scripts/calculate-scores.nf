@@ -138,16 +138,16 @@ process mergeBlastResults {
     wpIds.each( { wpId ->
         int plasmidHits = blastPlasmidCounts[ wpId ] ?: 0
         int chromosomeHits = blastChromosomeCounts[ wpId ] ?: 0
-        double pRatio = (double)plasmidHits / noPlasmids
-        double cRatio = (double)chromosomeHits / noChromosomes
-        double ratio = ( (pRatio / ( pRatio + cRatio )) - 0.5 ) * 2
-        double absDiff = Math.abs( pRatio - cRatio )
-        double correctedRatio = ratio * absDiff * 1000
+        double pHitFrequency = (double)plasmidHits / noPlasmids
+        double cHitFrequency = (double)chromosomeHits / noChromosomes
+        double hitFrequencyRatio = ( (pHitFrequency / ( pHitFrequency + cHitFrequency )) - 0.5 ) * 2
+        double absDiff = Math.abs( pHitFrequency - cHitFrequency )
+        double rds = hitFrequencyRatio * absDiff * 1000
         def prot = proteinInfo[ wpId ]
-        chResults << "${wpId}\t${prot.definition}\t${prot.length}\t${plasmidHits}\t${chromosomeHits}\t${pRatio}\t${cRatio}\t${ratio}\t${absDiff}\t${correctedRatio}"
+        chResults << "${wpId}\t${prot.definition}\t${prot.length}\t${plasmidHits}\t${chromosomeHits}\t${pHitFrequency}\t${cHitFrequency}\t${hitFrequencyRatio}\t${absDiff}\t${rds}"
     } )
     chResults.close()
 }
 
 
-chResults.collectFile( sort: false, name: 'protein-scores-full.tsv', storeDir: '.', newLine: true )
+chResults.collectFile( sort: false, name: 'rds-full.tsv', storeDir: '.', newLine: true )
