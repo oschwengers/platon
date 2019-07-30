@@ -77,6 +77,7 @@ Platon can be installed/used in 2 different ways.
 In all cases, the custom database must be downloaded which we provide for download:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349652.svg)](https://doi.org/10.5281/zenodo.3349652)
 
+
 ### GitHub
 1.  clone the the repository
 2.  download & extract the database
@@ -167,7 +168,7 @@ Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database,
 PlasmidFinder db as well as custom HMM models. This database based on
 RefSeq release 90 can be downloaded here:
 (zipped 1.8 Gb, unzipped 2.5 Gb)
--   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1411986.svg)](https://doi.org/10.5281/zenodo.1411986)
+-   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349652.svg)](https://doi.org/10.5281/zenodo.3349652)
 -   [https://zenodo.org/record/3349652/files/db.tar.gz](https://zenodo.org/record/3349652/files/db.tar.gz)
 
 ## Dependencies
@@ -184,7 +185,7 @@ Additionally, it depends on the following 3rd party executables:
 ## Citation
 A manuscript is in preparation... stay tuned!
 To temporarily cite our work, please transitionally refer to:
-> Schwengers O., Barth P., Falgenhauer L., Chakraborty T., Goesmann A. (2019) Platon: Plasmid contig classification and characterization for short read draft assemblies. GitHub https://github.com/oschwengers/platon
+> Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2019) Platon: Plasmid contig classification and characterization for short read draft assemblies. GitHub https://github.com/oschwengers/platon
 
 As Platon takes advantage of PlasmidFinder's incompatibility database, please also cite:
 > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
