@@ -110,7 +110,7 @@ nextflow run $PLATON_HOME/db-scripts/calculate-scores.nf \
     --protClusterMapping ./PCLA_proteins.txt \
     --nrpcDB ./refseq-bacteria-nrpc-reps.inf
 rm -rf work .nextflow* PCLA_proteins.txt
-cut -f 1,2,3,10 rds-full.tsv > rds.tsv
+cut -f 1,2,3,10 rds.full.tsv > rds.tsv
 
 
 # calculate protein score cutoffs

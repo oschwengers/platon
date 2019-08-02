@@ -150,4 +150,4 @@ process mergeBlastResults {
 }
 
 
-chResults.collectFile( sort: false, name: 'rds-full.tsv', storeDir: '.', newLine: true )
+chResults.collectFile( sort: false, name: 'rds.full.tsv', storeDir: '.', newLine: true )

@@ -13,7 +13,7 @@ nrpcDB            = Paths.get(params.nrpcDB).toRealPath().toString() - '.inf' //
 
 
 // Constants
-final int PROTEIN_PENALTY = -1.187401
+final int PROTEIN_PENALTY = -1.177895
 final int RANDOM_CONTIG_LENGTH = 10_000
 
 
@@ -98,7 +98,7 @@ chBlast.map( {
         orfLengths[ lines[0].split(' ')[0] ] = length
     } )
     if( orfLengths.isEmpty() ) {
-        return [ type, -1 ]
+        return [ type, PROTEIN_PENALTY ]
     } else {
         int noHits = 0
         float scoreSum = 0
