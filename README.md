@@ -75,7 +75,7 @@ All files are prefixed (`<prefix>`) as the input genome fasta file.
 Platon can be installed/used in 2 different ways.
 
 In all cases, the custom database must be downloaded which we provide for download:
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349652.svg)](https://doi.org/10.5281/zenodo.3349652)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
 
 
 ### GitHub
@@ -85,7 +85,7 @@ In all cases, the custom database must be downloaded which we provide for downlo
 Example:
 ```
 $ git clone git@github.com:oschwengers/platon.git
-$ wget https://zenodo.org/record/3349652/files/db.tar.gz
+$ wget https://zenodo.org/record/3358926/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 $ platon/bin/platon --db ./db genome.fasta
@@ -96,7 +96,7 @@ Platon will automatically recognise it and thus, the database path doesn't need
 to be specified:
 ```
 $ git clone git@github.com:oschwengers/platon.git
-$ wget https://zenodo.org/record/3349652/files/db.tar.gz
+$ wget https://zenodo.org/record/3358926/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 $ mv db/ platon
@@ -110,7 +110,7 @@ $ platon/bin/platon genome.fasta
 Example:
 ```
 $ conda install -c conda-forge -c bioconda -c defaults platon
-$ wget https://zenodo.org/record/3349652/files/db.tar.gz
+$ wget https://zenodo.org/record/3358926/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 $ platon --db ./db genome.fasta
@@ -124,7 +124,7 @@ $ platon --db ./db genome.fasta
 Platon/database (1./2.):
 ```
 $ pip3 install cb-platon
-$ wget https://zenodo.org/record/3349652/files/db.tar.gz
+$ wget https://zenodo.org/record/3358926/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 $ platon --db ./db genome.fasta
@@ -181,8 +181,8 @@ Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database,
 PlasmidFinder db as well as custom HMM models. This database based on
 RefSeq release 95 can be downloaded here:
 (zipped 1.8 Gb, unzipped 2.6 Gb)
--   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349652.svg)](https://doi.org/10.5281/zenodo.3349652)
--   [https://zenodo.org/record/3349652/files/db.tar.gz](https://zenodo.org/record/3349652/files/db.tar.gz)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
+-   [https://zenodo.org/record/3358926/files/db.tar.gz](https://zenodo.org/record/3358926/files/db.tar.gz)
 
 ## Dependencies
 Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
