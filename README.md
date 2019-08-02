@@ -99,8 +99,21 @@ $ git clone git@github.com:oschwengers/platon.git
 $ wget https://zenodo.org/record/3349652/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
-$ mv db $PLATON_HOME
+$ mv db/ platon
 $ platon/bin/platon genome.fasta
+```
+
+### Conda
+1.  install Platon via Conda
+2.  download & extract the database
+
+Example:
+```
+$ conda install -c conda-forge -c bioconda -c defaults platon
+$ wget https://zenodo.org/record/3349652/files/db.tar.gz
+$ tar -xzf db.tar.gz
+$ rm db.tar.gz
+$ platon --db ./db genome.fasta
 ```
 
 ### Pip
@@ -166,8 +179,8 @@ $ platon -db ~/db --output results/ --verbose --threads 8 genome.fasta
 ## Database
 Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database,
 PlasmidFinder db as well as custom HMM models. This database based on
-RefSeq release 90 can be downloaded here:
-(zipped 1.8 Gb, unzipped 2.5 Gb)
+RefSeq release 95 can be downloaded here:
+(zipped 1.8 Gb, unzipped 2.6 Gb)
 -   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349652.svg)](https://doi.org/10.5281/zenodo.3349652)
 -   [https://zenodo.org/record/3349652/files/db.tar.gz](https://zenodo.org/record/3349652/files/db.tar.gz)
 
