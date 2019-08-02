@@ -272,12 +272,12 @@ def filter_contig(contig):
     if(len(contig['mobilization_hits']) > 0):
         return True
 
-    # include all contigs with shigh confidence protein scores
-    if(contig['protein_score'] > pc.PROTEIN_SCORE_TRUSTED_THRESHOLD):
+    # include all contigs with high confidence protein scores
+    if(contig['protein_score'] > pc.RDS_SPECIFICITY_THRESHOLD):
         return True
 
     # include all contigs with mediocre protein scores but additional blast hit evidence without rRNAs
-    if(contig['protein_score'] > pc.PROTEIN_SCORE_CONSERVATIVE_THRESHOLD
+    if(contig['protein_score'] > pc.RDS_CONSERVATIVE_THRESHOLD
             and len(contig['plasmid_hits']) > 0
             and len(contig['rrnas']) == 0):
         return True
@@ -507,7 +507,7 @@ def test_database(config):
         'rRNA.i1i',
         'rRNA.i1m',
         'rRNA.i1p',
-        'protein-scores.tsv',
+        'rds.tsv',
         'refseq-plasmids.tsv',
         'inc-types.fasta',
         'refseq-plasmids.nhr',

@@ -189,17 +189,17 @@ def main():
         contig['protein_score'] = score_sum / len(contig['orfs']) if len(contig['orfs']) > 0 else 0
 
     # filter contigs based on conservative protein score threshold
-    # MIN_PROTEIN_SCORE_THRESHOLD and execute per contig analyses in parallel
+    # RDS_SENSITIVITY_THRESHOLD and execute per contig analyses in parallel
     scored_contigs = None
     if(args.characterize):
         scored_contigs = contigs
     else:
         if(args.verbose):
             print('prefilter contigs...')
-        scored_contigs = {k: v for (k, v) in contigs.items() if v['protein_score'] >= pc.MIN_PROTEIN_SCORE_THRESHOLD}
+        scored_contigs = {k: v for (k, v) in contigs.items() if v['protein_score'] >= pc.RDS_SENSITIVITY_THRESHOLD}
         if(args.verbose):
             no_excluded_contigs = len(contigs) - len(scored_contigs)
-            print('\texcluded %d contigs by min protein score threshold (%2.1f)' % (no_excluded_contigs, pc.MIN_PROTEIN_SCORE_THRESHOLD))
+            print('\texcluded %d contigs by min protein score threshold (%2.1f)' % (no_excluded_contigs, pc.RDS_SENSITIVITY_THRESHOLD))
             print('analyze contigs...')
 
     # extract proteins from potential plasmid contigs for subsequent analyses
