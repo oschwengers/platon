@@ -37,31 +37,32 @@ def main():
     config = pf.setup_configuration()
 
     if(args.db):
-        config['db'] = os.path.abspath(args.db)
+        db_path = Path(args.db).resolve()
+        config['db'] = db_path
     pf.test_database(config)
 
     if('bundled-binaries' not in config):
         pf.test_binaries()
 
-    genome_path = os.path.abspath(args.genome)
-    if(not os.access(genome_path, os.R_OK)):
-        sys.exit('ERROR: genome file not readable!')
-    if(os.stat(genome_path).st_size == 0):
-        sys.exit('ERROR: genome file is empty!')
+    genome_path = Path(args.genome).resolve()
+    if(not os.access(str(genome_path), os.R_OK)):
+        sys.exit('ERROR: genome file ('+str(genome_path)+') not readable!')
+    if(genome_path.stat().st_size == 0):
+        sys.exit('ERROR: genome file ('+str(genome_path)+') is empty!')
 
-    output_path = os.path.abspath(args.output) if args.output else os.getcwd()
-    if(not os._exists(output_path)):
-        tmp_output_path = Path(output_path)
-        tmp_output_path.mkdir(parents=True, exist_ok=True)
+    output_path = Path(args.output) if args.output else Path.cwd()
+    if(not output_path.exists()):
+        output_path.mkdir(parents=True, exist_ok=True)
+    output_path = output_path.resolve()
 
     if(args.verbose):
         print('Options, parameters and arguments:')
-        print('\tdb path: ' + config['db'])
+        print('\tdb path: ' + str(config['db']))
         print('\tuse bundled binaries: ' + str(config['bundled-binaries']))
-        print('\tgenome path: ' + genome_path)
-        print('\toutput path: ' + output_path)
+        print('\tgenome path: ' + str(genome_path))
+        print('\toutput path: ' + str(output_path))
         print('\tcharacterize: ' + str(args.characterize))
-        print('\ttmp path: ' + config['tmp'])
+        print('\ttmp path: ' + str(config['tmp']))
         print('\t# threads: ' + str(args.threads))
 
     # parse draft genome
@@ -70,7 +71,7 @@ def main():
     contigs = {}
     raw_contigs = []
     try:
-        for record in SeqIO.parse(genome_path, 'fasta'):
+        for record in SeqIO.parse(str(genome_path), 'fasta'):
             contig = {
                 'id': record.id,
                 'length': len(record.seq),
@@ -133,18 +134,18 @@ def main():
     # find marker genes
     if(args.verbose):
         print('search marker proteins...')
-    tmp_output_path = config['tmp'] + '/ghostz.tsv'
+    tmp_output_path = config['tmp'].joinpath('ghostz.tsv')
     sp.check_call(
         [
             'ghostz',
             'aln',
-            '-d', config['db'] + '/refseq-bacteria-nrpc-reps',
+            '-d', str(config['db'].joinpath('refseq-bacteria-nrpc-reps')),
             '-b', '1',  # max 1 result per query
             '-a', str(args.threads),  # threads
-            '-i', proteins_path,
-            '-o', tmp_output_path
+            '-i', str(proteins_path),
+            '-o', str(tmp_output_path)
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
         stderr=sp.STDOUT
@@ -152,7 +153,7 @@ def main():
 
     # parse ghostz output
     no_proteins_identified = 0
-    with open(tmp_output_path, 'r') as fh:
+    with tmp_output_path.open() as fh:
         for line in fh:
             cols = line.split('\t')
             locus = cols[0].split(' ')[0].rpartition('_')
@@ -168,7 +169,7 @@ def main():
     if(args.verbose):
         print('score contigs...')
     marker_proteins = {}
-    with open(config['db'] + '/rds.tsv', 'r') as fh:
+    with config['db'].joinpath('rds.tsv').open() as fh:
         for line in fh:
             cols = line.split('\t')
             marker_proteins[cols[0]] = {
@@ -207,9 +208,9 @@ def main():
             print('analyze contigs...')
 
     # extract proteins from potential plasmid contigs for subsequent analyses
-    filtered_proteins_path = config['tmp'] + '/proteins-filtered.faa'
-    with open(filtered_proteins_path, 'w') as fh:
-        for record in SeqIO.parse(proteins_path, 'fasta'):
+    filtered_proteins_path = config['tmp'].joinpath('proteins-filtered.faa')
+    with filtered_proteins_path.open(mode='w') as fh:
+        for record in SeqIO.parse(str(proteins_path), 'fasta'):
             orf_name = str(record.id).split()[0]
             contig_id = orf_name.rsplit('_', 1)[0]
             if(contig_id in scored_contigs):
@@ -218,8 +219,8 @@ def main():
 
     # write contig sequences to fasta files for subsequent parallel analyses
     for id, contig in scored_contigs.items():
-        contig_path = config['tmp'] + '/' + contig['id'] + '.fasta'
-        with open(contig_path, 'w') as fh:
+        contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
+        with contig_path.open(mode='w') as fh:
             fh.write('>' + contig['id'] + '\n')
             fh.write(contig['sequence'] + '\n')
 
@@ -237,7 +238,7 @@ def main():
 
     # lookup AMR genes
     amr_genes = {}
-    with open(config['db'] + '/ncbifam-amr.tsv', 'r') as fh:
+    with config['db'].joinpath('ncbifam-amr.tsv').open() as fh:
         for line in fh:
             cols = line.split('\t')
             amr_genes[cols[0]] = {
@@ -251,7 +252,7 @@ def main():
             hit['product'] = amr_gene['product']
 
     # remove tmp dir
-    shutil.rmtree(config['tmp'])
+    shutil.rmtree(str(config['tmp']))
 
     # filter contigs
     filtered_contigs = None
@@ -261,15 +262,12 @@ def main():
         filtered_contigs = {k: v for (k, v) in scored_contigs.items() if pf.filter_contig(v)}
 
     # get file prefix
-    prefix = Path(genome_path).name
-    tmp = prefix.split('.')
-    if(len(tmp) > 1):  # remove a potential suffix, remaining inner name periods ('.')
-        prefix = '.'.join(tmp[:-1:])
+    prefix = genome_path.stem
 
     # print results to tsv file and STDOUT
     print(pc.HEADER)
-    tmp_output_path = output_path + '/' + prefix + '.tsv'
-    with open(tmp_output_path, 'w') as fh:
+    tmp_output_path = output_path.joinpath(prefix + '.tsv')
+    with tmp_output_path.open(mode='w') as fh:
         fh.write(pc.HEADER + '\n')
         for id in sorted(filtered_contigs, key=lambda k: -filtered_contigs[k]['length']):
             c = filtered_contigs[id]
@@ -286,23 +284,23 @@ def main():
             fh.write(line + '\n')
 
     # write comprehensive results to JSON file
-    tmp_output_path = output_path + '/' + prefix + '.json'
-    with open(tmp_output_path, 'w') as fh:
+    tmp_output_path = output_path.joinpath(prefix + '.json')
+    with tmp_output_path.open(mode='w') as fh:
         indent = '\t' if args.verbose else None
         separators = (', ', ': ') if args.verbose else (',', ':')
         json.dump(filtered_contigs, fh, indent=indent, separators=separators)
 
     # write chromosome contigs to fasta file
-    tmp_output_path = output_path + '/' + prefix + '.chromosome.fasta'
-    with open(tmp_output_path, 'w') as fh:
+    tmp_output_path = output_path.joinpath(prefix + '.chromosome.fasta')
+    with tmp_output_path.open(mode='w') as fh:
         for contig in raw_contigs:
             if(contig['id'] not in filtered_contigs):
                 fh.write('>' + contig['id'] + '\n')
                 fh.write(contig['sequence'] + '\n')
 
     # write plasmid contigs to fasta file
-    tmp_output_path = output_path + '/' + prefix + '.plasmid.fasta'
-    with open(tmp_output_path, 'w') as fh:
+    tmp_output_path = output_path.joinpath(prefix + '.plasmid.fasta')
+    with tmp_output_path.open(mode='w') as fh:
         for contig in raw_contigs:
             if(contig['id'] in filtered_contigs):
                 fh.write('>' + contig['id'] + '\n')

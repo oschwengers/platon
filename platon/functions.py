@@ -3,6 +3,7 @@ import os
 import sys
 import tempfile
 import subprocess as sp
+from pathlib import Path
 
 import platon.constants as pc
 
@@ -12,15 +13,15 @@ def test_circularity(config, contig):
 
     contig_split_position = int(contig['length'] / 2)
 
-    contig_fragment_a_path = config['tmp'] + '/' + contig['id'] + '-a.fasta'
+    contig_fragment_a_path = config['tmp'].joinpath(contig['id'] + '-a.fasta')
     contig_fragment_a_seq = contig['sequence'][:contig_split_position]
-    with open(contig_fragment_a_path, 'w') as fh:
+    with contig_fragment_a_path.open(mode='w') as fh:
         fh.write('>a\n')
         fh.write(contig_fragment_a_seq + '\n ')
 
-    contig_fragment_b_path = config['tmp'] + '/' + contig['id'] + '-b.fasta'
+    contig_fragment_b_path = config['tmp'].joinpath(contig['id'] + '-b.fasta')
     contig_fragment_b_seq = contig['sequence'][contig_split_position:]
-    with open(contig_fragment_b_path, 'w') as fh:
+    with contig_fragment_b_path.open(mode='w') as fh:
         fh.write('>b\n')
         fh.write(contig_fragment_b_seq + '\n ')
 
@@ -31,18 +32,18 @@ def test_circularity(config, contig):
             '-l', '40',  # increase min match length to 40 bp
             '--threads=1',
             '-p', contig['id'],
-            contig_fragment_b_path,
-            contig_fragment_a_path
+            str(contig_fragment_b_path),
+            str(contig_fragment_a_path)
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stderr=sp.DEVNULL
     )
 
     contig['is_circular'] = False
     has_match = False
-    with open(config['tmp'] + '/' + contig['id'] + '.delta', 'r') as fh:
+    with config['tmp'].joinpath(contig['id'] + '.delta').open() as fh:
         for line in fh:
             line = line.rstrip()
             if(line[0] == '>'):
@@ -78,27 +79,27 @@ def test_circularity(config, contig):
 def search_inc_type(config, contig):
     """Search for incompatibility motifs."""
 
-    contig_path = config['tmp'] + '/' + contig['id'] + '.fasta'
-    tmp_output_path = config['tmp'] + '/' + contig['id'] + '.inc.blast.out'
+    contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
+    tmp_output_path = config['tmp'].joinpath(contig['id'] + '.inc.blast.out')
     sp.check_call(
         [
             'blastn',
-            '-query', config['db'] + '/inc-types.fasta',
-            '-subject', contig_path,
+            '-query', str(config['db'].joinpath('inc-types.fasta')),
+            '-subject', str(contig_path),
             '-num_threads', '1',
             '-perc_identity', '90',
             '-culling_limit', '1',
             '-outfmt', '6 qseqid sstart send sstrand pident qcovs bitscore',
-            '-out', tmp_output_path
+            '-out', str(tmp_output_path)
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stderr=sp.DEVNULL
     )
 
     hits_per_pos = {}
-    with open(tmp_output_path, 'r') as fh:
+    with tmp_output_path.open() as fh:
         for line in fh:
             cols = line.rstrip().split('\t')
             hit = {
@@ -126,25 +127,25 @@ def search_inc_type(config, contig):
 def search_rrnas(config, contig):
     """Search for ribosomal RNA sequences."""
 
-    contig_path = config['tmp'] + '/' + contig['id'] + '.fasta'
-    tmp_output_path = config['tmp'] + '/' + contig['id'] + '.rrna.cmscan.tsv'
+    contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
+    tmp_output_path = config['tmp'].joinpath(contig['id'] + '.rrna.cmscan.tsv')
     sp.check_call(
         [
             'cmscan',
             '--noali',
             '--cut_tc',
             '--cpu', '1',
-            '--tblout', tmp_output_path,
-            config['db'] + '/rRNA',
-            contig_path,
+            '--tblout', str(tmp_output_path),
+            str(config['db'].joinpath('rRNA')),
+            str(contig_path)
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stderr=sp.DEVNULL
     )
 
-    with open(tmp_output_path, 'r') as fh:
+    with tmp_output_path.open() as fh:
         for line in fh:
             if(line[0] != '#'):
                 cols = line.rstrip().split()
@@ -163,25 +164,25 @@ def search_rrnas(config, contig):
 def search_amr_genes(config, contigs, filteredProteinsPath):
     """Search for AMR genes."""
 
-    tmp_output_path = config['tmp'] + '/amr.hmm.out'
+    tmp_output_path = config['tmp'].joinpath('amr.hmm.out')
     sp.check_call(
         [
             'hmmsearch',
             '--noali',
             '--cpu', '1',
             '--cut_tc',
-            '--tblout', tmp_output_path,
-            config['db'] + '/ncbifam-amr',
-            filteredProteinsPath
+            '--tblout', str(tmp_output_path),
+            str(config['db'].joinpath('ncbifam-amr')),
+            str(filteredProteinsPath)
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stderr=sp.DEVNULL
     )
 
     hits = set()
-    with open(tmp_output_path, 'r') as fh:
+    with tmp_output_path.open() as fh:
         for line in fh:
             if(line[0] != '#'):
                 cols = line.rstrip().split()
@@ -213,27 +214,27 @@ def search_reference_plasmids(config, contig):
     # smaller than 10.
     blast_word_size = int(contig['length'] / 100)
 
-    contig_path = config['tmp'] + '/' + contig['id'] + '.fasta'
-    tmp_output_path = config['tmp'] + '/' + contig['id'] + '.refplas.blast.out'
+    contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
+    tmp_output_path = config['tmp'].joinpath(contig['id'] + '.refplas.blast.out')
     sp.check_call(
         [
             'blastn',
-            '-query', contig_path,
-            '-db', config['db'] + '/refseq-plasmids',
+            '-query', str(contig_path),
+            '-db', str(config['db'].joinpath('refseq-plasmids')),
             '-num_threads', '1',
             '-culling_limit', '1',
             '-perc_identity', '80',
             '-word_size', str(blast_word_size),
             '-outfmt', '6 sseqid qstart qend sstart send slen length nident',
-            '-out', tmp_output_path
+            '-out', str(tmp_output_path)
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stderr=sp.DEVNULL
     )
 
-    with open(tmp_output_path, 'r') as fh:
+    with tmp_output_path.open() as fh:
         for line in fh:
             line = line.rstrip()
             cols = line.split('\t')
@@ -289,25 +290,25 @@ def filter_contig(contig):
 def predict_orfs(config, contigs, filteredDraftGenomePath):
     """Predict open reading frames with Prodigal."""
 
-    proteins_path = config['tmp'] + '/proteins.faa'
-    gff_path = config['tmp'] + '/prodigal.gff'
+    proteins_path = config['tmp'].joinpath('proteins.faa')
+    gff_path = config['tmp'].joinpath('prodigal.gff')
     sp.check_call(
         [
             'prodigal',
-            '-i', filteredDraftGenomePath,
-            '-a', proteins_path,
+            '-i', str(filteredDraftGenomePath),
+            '-a', str(proteins_path),
             '-c',  # closed ends
             '-f', 'gff',  # GFF output
-            '-o', gff_path  # prodigal output
+            '-o', str(gff_path)  # prodigal output
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stderr=sp.DEVNULL
     )
 
     # parse orfs
-    with open(gff_path, 'rU') as fh:
+    with gff_path.open() as fh:
         for line in fh:
             if(line[0] != '#'):
                 cols = line.split('\t')
@@ -327,25 +328,25 @@ def predict_orfs(config, contigs, filteredDraftGenomePath):
 def search_replication_genes(config, contigs, filteredProteinsPath):
     """Search for replication genes, e.g. repA by custom HMMs."""
 
-    tmp_output_path = config['tmp'] + '/rep.hmm.out'
+    tmp_output_path = config['tmp'].joinpath('rep.hmm.out')
     sp.check_call(
         [
             'hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
-            '--tblout', tmp_output_path,
-            config['db'] + '/replication',
-            filteredProteinsPath
+            '--tblout', str(tmp_output_path),
+            str(config['db'].joinpath('replication')),
+            str(filteredProteinsPath)
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stderr=sp.DEVNULL
     )
 
     hits = set()
-    with open(tmp_output_path, 'r') as fh:
+    with tmp_output_path.open() as fh:
         for line in fh:
             if(line[0] != '#'):
                 cols = line.rstrip().split()
@@ -371,25 +372,25 @@ def search_replication_genes(config, contigs, filteredProteinsPath):
 def search_mobilization_genes(config, contigs, filteredProteinsPath):
     """Search for mobilization genes, e.g. mob by custom HMMs."""
 
-    tmp_output_path = config['tmp'] + '/mob.hmm.out'
+    tmp_output_path = config['tmp'].joinpath('mob.hmm.out')
     sp.check_call(
         [
             'hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
-            '--tblout', tmp_output_path,
-            config['db'] + '/mobilization',
-            filteredProteinsPath
+            '--tblout', str(tmp_output_path),
+            str(config['db'].joinpath('mobilization')),
+            str(filteredProteinsPath)
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stderr=sp.DEVNULL
     )
 
     hits = set()
-    with open(tmp_output_path, 'r') as fh:
+    with tmp_output_path.open() as fh:
         for line in fh:
             if(line[0] != '#'):
                 cols = line.rstrip().split()
@@ -415,25 +416,25 @@ def search_mobilization_genes(config, contigs, filteredProteinsPath):
 def search_conjugation_genes(config, contigs, filteredProteinsPath):
     """Search for conjugation genes by custom HMMs."""
 
-    tmp_output_path = config['tmp'] + '/conj.hmm.out'
+    tmp_output_path = config['tmp'].joinpath('conj.hmm.out')
     sp.check_call(
         [
             'hmmsearch',
             '--noali',
             '--cpu', '1',
             '-E', '1E-100',
-            '--tblout', tmp_output_path,
-            config['db'] + '/conjugation',
-            filteredProteinsPath
+            '--tblout', str(tmp_output_path),
+            str(config['db'].joinpath('conjugation')),
+            str(filteredProteinsPath)
         ],
-        cwd=config['tmp'],
+        cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stderr=sp.DEVNULL
     )
 
     hits = set()
-    with open(tmp_output_path, 'r') as fh:
+    with tmp_output_path.open() as fh:
         for line in fh:
             if(line[0] != '#'):
                 cols = line.rstrip().split()
@@ -461,17 +462,19 @@ def setup_configuration():
 
     config = {
         'env': os.environ.copy(),
-        'tmp': tempfile.mkdtemp(),
+        'tmp': Path(tempfile.mkdtemp()),
         'bundled-binaries': False
     }
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
-    share_dir = os.path.join(base_dir, 'share')
-    if(os.access(share_dir, os.R_OK & os.X_OK)):
-        config['env']["PATH"] = share_dir + ':' + config['env']["PATH"]
+    base_dir = Path(__file__).parent.parent
+    print('DEBUG: base_dir='+str(base_dir))
+    share_dir = base_dir.joinpath('share')
+    print('DEBUG: share_dir='+str(share_dir))
+    if(os.access(str(share_dir), os.R_OK & os.X_OK)):
+        config['env']["PATH"] = str(share_dir) + ':' + config['env']["PATH"]
         config['bundled-binaries'] = True
 
-    db_path = os.path.join(base_dir, 'db')
-    if(os.access(db_path, os.R_OK & os.X_OK)):
+    db_path = base_dir.joinpath('db')
+    if(os.access(str(db_path), os.R_OK & os.X_OK)):
         config['db'] = db_path
 
     return config
@@ -483,8 +486,8 @@ def test_database(config):
     if('db' not in config):
         sys.exit('ERROR: database directory not detected! Please provide a valid path to the database directory.')
 
-    if(not os.access(config['db'], os.R_OK & os.X_OK)):
-        sys.exit('ERROR: database directory ('+config['db']+') not readable/accessible!')
+    if(not os.access(str(config['db']), os.R_OK & os.X_OK)):
+        sys.exit('ERROR: database directory ('+str(config['db'])+') not readable/accessible!')
 
     file_names = [
         'conjugation.h3f',
@@ -523,8 +526,8 @@ def test_database(config):
     ]
 
     for file_name in file_names:
-        path = config['db'] + '/' + file_name
-        if(not os.access(path, os.R_OK) or not os.path.isfile(path)):
+        path = config['db'].joinpath(file_name)
+        if(not os.access(str(path), os.R_OK) or not path.is_file()):
             sys.exit('ERROR: database file ('+file_name+') not readable!')
     return
 
@@ -540,7 +543,7 @@ def test_binaries():
                 '-v'
             ],
             stdout=sp.DEVNULL,
-            stderr=sp.STDOUT
+            stderr=sp.DEVNULL
         )
     except FileNotFoundError:
         sys.exit('ERROR: \'prodigal\' not executable!')
@@ -552,7 +555,7 @@ def test_binaries():
         sp.check_call(
             ['ghostz'],
             stdout=sp.DEVNULL,
-            stderr=sp.STDOUT
+            stderr=sp.DEVNULL
         )
     except FileNotFoundError:
         sys.exit('ERROR: \'ghostz\' not executable!')
@@ -567,7 +570,7 @@ def test_binaries():
                 '-version'
             ],
             stdout=sp.DEVNULL,
-            stderr=sp.STDOUT
+            stderr=sp.DEVNULL
         )
     except FileNotFoundError:
         sys.exit('ERROR: \'blastn\' not executable!')
@@ -582,7 +585,7 @@ def test_binaries():
                 '-h'
             ],
             stdout=sp.DEVNULL,
-            stderr=sp.STDOUT
+            stderr=sp.DEVNULL
         )
     except FileNotFoundError:
         sys.exit('ERROR: \'hmmsearch\' not executable!')
@@ -597,7 +600,7 @@ def test_binaries():
                 '-V'
             ],
             stdout=sp.DEVNULL,
-            stderr=sp.STDOUT
+            stderr=sp.DEVNULL
         )
     except FileNotFoundError:
         sys.exit('ERROR: \'nucmer\' not executable!')
@@ -612,7 +615,7 @@ def test_binaries():
                 '-h'
             ],
             stdout=sp.DEVNULL,
-            stderr=sp.STDOUT
+            stderr=sp.DEVNULL
         )
     except FileNotFoundError:
         sys.exit('ERROR: \'cmscan\' not executable!')
