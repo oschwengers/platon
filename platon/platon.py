@@ -50,6 +50,10 @@ def main():
         sys.exit('ERROR: genome file is empty!')
 
     output_path = os.path.abspath(args.output) if args.output else os.getcwd()
+    if(not os._exists(output_path)):
+        tmp_output_path = Path(output_path)
+        tmp_output_path.mkdir(parents=True, exist_ok=True)
+
     if(args.verbose):
         print('Options, parameters and arguments:')
         print('\tdb path: ' + config['db'])
