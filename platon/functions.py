@@ -13,14 +13,15 @@ def test_circularity(config, contig):
     contig_split_position = int(contig['length'] / 2)
 
     contig_fragment_a_path = config['tmp'] + '/' + contig['id'] + '-a.fasta'
+    contig_fragment_a_seq = contig['sequence'][:contig_split_position]
     with open(contig_fragment_a_path, 'w') as fh:
         fh.write('>a\n')
-        fh.write(contig['sequence'][:contig_split_position] + '\n ')
+        fh.write(contig_fragment_a_seq + '\n ')
 
     contig_fragment_b_path = config['tmp'] + '/' + contig['id'] + '-b.fasta'
     contig_fragment_b_seq = contig['sequence'][contig_split_position:]
     with open(contig_fragment_b_path, 'w') as fh:
-        fh.write('>b\n ')
+        fh.write('>b\n')
         fh.write(contig_fragment_b_seq + '\n ')
 
     sp.check_call(
