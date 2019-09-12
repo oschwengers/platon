@@ -2,6 +2,7 @@
 import argparse
 import functools as ft
 import json
+import logging
 import multiprocessing as mp
 import os
 import re
@@ -33,6 +34,16 @@ def main():
     parser.add_argument('--version', '-V', action='version', version='%(prog)s '+platon.__version__)
     args = parser.parse_args()
 
+    logging.basicConfig(
+        filename='platon.log',
+        filemode='w',
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=logging.DEBUG if args.verbose else logging.INFO
+    )
+
+    log = logging.getLogger('main')
+    log.info('version %s', platon.__version__)
+
     # check parameters and test/setup runtime configuration
     config = pf.setup_configuration()
 
@@ -46,15 +57,25 @@ def main():
 
     genome_path = Path(args.genome).resolve()
     if(not os.access(str(genome_path), os.R_OK)):
-        sys.exit('ERROR: genome file ('+str(genome_path)+') not readable!')
+        log.error('genome file not readable! path=%s', genome_path)
+        sys.exit('ERROR: genome file (%s) not readable!' % genome_path)
     if(genome_path.stat().st_size == 0):
-        sys.exit('ERROR: genome file ('+str(genome_path)+') is empty!')
+        log.erro('empty genome file! path=%s', genome_path)
+        sys.exit('ERROR: genome file (%s) is empty!' % genome_path)
 
     output_path = Path(args.output) if args.output else Path.cwd()
     if(not output_path.exists()):
         output_path.mkdir(parents=True, exist_ok=True)
+        log.info('create output dir: path=%s', output_path)
     output_path = output_path.resolve()
 
+    log.info('configuration: db-path=%s', config['db'])
+    log.info('configuration: bundled binaries=%s', config['bundled-binaries'])
+    log.info('configuration: tmp-path=%s', config['tmp'])
+    log.info('parameters: genome=%s', genome_path)
+    log.info('parameters: output=%s', output_path)
+    log.info('options: characterize=%s', args.characterize)
+    log.info('options: threads=%d', args.threads)
     if(args.verbose):
         print('Options, parameters and arguments:')
         print('\tdb path: ' + str(config['db']))
@@ -72,11 +93,14 @@ def main():
     raw_contigs = []
     try:
         for record in SeqIO.parse(str(genome_path), 'fasta'):
+            id = record.id
+            length = len(record.seq)
             contig = {
-                'id': record.id,
-                'length': len(record.seq),
+                'id': id,
+                'length': length,
                 'sequence': str(record.seq),
                 'orfs': {},
+                'is_circular': False,
                 'inc_types': [],
                 'amr_hits': [],
                 'mobilization_hits': [],
@@ -88,27 +112,40 @@ def main():
             raw_contigs.append(contig)
 
             # read coverage from contig names if they were assembled with SPAdes
-            match = re.fullmatch(pc.SPADES_CONTIG_PATTERN, record.id)
+            match = re.fullmatch(pc.SPADES_CONTIG_PATTERN, id)
             contig['coverage'] = 0 if (match is None) else float(match.group(1))
 
-            # only include contigs with reasonable lengths
-            if(args.characterize
-                    or contig['length'] >= pc.MIN_CONTIG_LENGTH
-                    and contig['length'] < pc.MAX_CONTIG_LENGTH):
-                contigs[record.id] = contig
-            elif (args.verbose):
-                if(contig['length'] < pc.MIN_CONTIG_LENGTH):
-                    print('\texclude contig \'%s\', too short (%d)' % (contig['id'], contig['length']))
-                elif(contig['length'] >= pc.MAX_CONTIG_LENGTH):
-                    print('\texclude contig \'%s\', too long (%d)' % (contig['id'], contig['length']))
+            # only include contigs with reasonable lengths except of
+            # platon runs in characterization mode
+            if(args.characterize):
+                contigs[id] = contig
+            else:
+                if(length < pc.MIN_CONTIG_LENGTH):
+                    log.info('exclude contig: too short: id=%s, length=%d', id, length)
+                    if (args.verbose):
+                        print('\texclude contig \'%s\', too short (%d)' % (id, length))
+                elif(length >= pc.MAX_CONTIG_LENGTH):
+                    log.info('exclude contig: too long: id=%s, length=%d', id, length)
+                    if (args.verbose):
+                        print('\texclude contig \'%s\', too long (%d)' % (id, length))
+                else:
+                    contigs[id] = contig
     except:
+        log.error('wrong genome file format!', exc_info=True)
         sys.exit('ERROR: wrong genome file format!')
 
+    log.info(
+        'length contig filter: # input=%d, # discarded=%d, # remaining=%d',
+        len(raw_contigs), (len(raw_contigs)-len(contigs)), len(contigs)
+    )
+
     if(len(raw_contigs) == 0):
+        log.warning('no valid contigs!')
         sys.exit('Error: input file contains no valid contigs.')
 
     if(len(contigs) == 0):
         print(pc.HEADER)
+        log.warning('no potential plasmid contigs!')
         if(args.verbose):
             print('No potential plasmid contigs found. Please, check contig lengths. Maybe you passed a finished or pseudo genome?')
         sys.exit(0)
@@ -117,8 +154,9 @@ def main():
     if(args.verbose):
         print('predict ORFs...')
     proteins_path = pf.predict_orfs(config, contigs, genome_path)
+    no_orfs = ft.reduce(lambda x, y: x+y, map(lambda k: len(contigs[k]['orfs']), contigs))
+    log.info('ORF detection: # ORFs=%d', no_orfs)
     if(args.verbose):
-        no_orfs = ft.reduce(lambda x, y: x+y, map(lambda k: len(contigs[k]['orfs']), contigs))
         print('\tfound %d ORFs' % no_orfs)
 
     # exclude contigs without ORFs
@@ -126,30 +164,43 @@ def main():
         tmp_contigs = {}
         for contig in filter(lambda k: len(k['orfs']) > 0, contigs.values()):
             tmp_contigs[contig['id']] = contig
+        no_removed_contigs = len(contigs) - len(tmp_contigs)
         if(args.verbose):
-            no_removed_contigs = len(contigs) - len(tmp_contigs)
-            print('\tremoved %d contig(s), no ORFs found' % (no_removed_contigs))
+            print('\tdiscarded %d contig(s) without ORFs' % no_removed_contigs)
         contigs = tmp_contigs
+        log.info('ORF contig filter: # discarded=%s, # remaining=%s', no_removed_contigs, len(contigs))
 
     # find marker genes
     if(args.verbose):
-        print('search marker proteins...')
+        print('search marker protein sequences (MPS)...')
     tmp_output_path = config['tmp'].joinpath('ghostz.tsv')
-    sp.check_call(
-        [
-            'ghostz',
-            'aln',
-            '-d', str(config['db'].joinpath('refseq-bacteria-nrpc-reps')),
-            '-b', '1',  # max 1 result per query
-            '-a', str(args.threads),  # threads
-            '-i', str(proteins_path),
-            '-o', str(tmp_output_path)
-        ],
+    cmd = [
+        'ghostz',
+        'aln',
+        '-d', str(config['db'].joinpath('refseq-bacteria-nrpc-reps')),
+        '-b', '1',  # max 1 result per query
+        '-a', str(args.threads),  # threads
+        '-i', str(proteins_path),
+        '-o', str(tmp_output_path)
+    ]
+    proc = sp.run(
+        cmd,
         cwd=str(config['tmp']),
         env=config['env'],
-        stdout=sp.DEVNULL,
-        stderr=sp.STDOUT
+        stdout=sp.PIPE,
+        stderr=sp.PIPE,
+        universal_newlines=True
     )
+    if(proc.returncode != 0):
+        log.error(
+            'ghostz execution failed! contig=%s, ghostz-error-code=%d',
+            proc.returncode
+        )
+        log.debug(
+            'ghostz execution: cmd=%s, stdout=\'%s\', stderr=\'%s\'',
+            cmd, proc.stdout, proc.stderr
+        )
+        sys.exit('Marker protein search failed!')
 
     # parse ghostz output
     no_proteins_identified = 0
@@ -162,12 +213,13 @@ def main():
                 orf = contig['orfs'][locus[2]]
                 orf['protein_id'] = cols[1]
                 no_proteins_identified += 1
+    log.info('MPS detection: # MPS=%d', no_proteins_identified)
     if(args.verbose):
-        print('\tfound %d marker proteins' % (no_proteins_identified))
+        print('\tfound %d MPS' % no_proteins_identified)
 
     # parse protein score file
     if(args.verbose):
-        print('score contigs...')
+        print('compute replicon distribution scores (RDS)...')
     marker_proteins = {}
     with config['db'].joinpath('rds.tsv').open() as fh:
         for line in fh:
@@ -192,6 +244,10 @@ def main():
             else:
                 score_sum += pc.PROTEIN_SCORE_PENALTY
         contig['protein_score'] = score_sum / len(contig['orfs']) if len(contig['orfs']) > 0 else 0
+        log.info(
+            'contig RDS: contig=%s, RDS=%f, score-sum=%f, #ORFs=%d',
+            contig['id'], contig['protein_score'], score_sum, len(contig['orfs'])
+        )
 
     # filter contigs based on conservative protein score threshold
     # RDS_SENSITIVITY_THRESHOLD and execute per contig analyses in parallel
@@ -200,12 +256,13 @@ def main():
         scored_contigs = contigs
     else:
         if(args.verbose):
-            print('prefilter contigs...')
+            print('apply RDS sensitivity threshold (SNT=%2.1f) filter...' % pc.RDS_SENSITIVITY_THRESHOLD)
         scored_contigs = {k: v for (k, v) in contigs.items() if v['protein_score'] >= pc.RDS_SENSITIVITY_THRESHOLD}
+        no_excluded_contigs = len(contigs) - len(scored_contigs)
+        log.info('RDS SNT filter: # discarded contigs=%d, # remaining contigs=%d', no_excluded_contigs, len(scored_contigs))
         if(args.verbose):
-            no_excluded_contigs = len(contigs) - len(scored_contigs)
-            print('\texcluded %d contigs by min protein score threshold (%2.1f)' % (no_excluded_contigs, pc.RDS_SENSITIVITY_THRESHOLD))
-            print('analyze contigs...')
+            print('\texcluded %d contigs by SNT filter' % no_excluded_contigs)
+            print('characterize contigs...')
 
     # extract proteins from potential plasmid contigs for subsequent analyses
     filtered_proteins_path = config['tmp'].joinpath('proteins-filtered.faa')
@@ -253,6 +310,7 @@ def main():
 
     # remove tmp dir
     shutil.rmtree(str(config['tmp']))
+    log.debug('removed tmp dir: %s', config['tmp'])
 
     # filter contigs
     filtered_contigs = None
@@ -267,6 +325,7 @@ def main():
     # print results to tsv file and STDOUT
     print(pc.HEADER)
     tmp_output_path = output_path.joinpath(prefix + '.tsv')
+    log.debug('output: tsv=%s', tmp_output_path)
     with tmp_output_path.open(mode='w') as fh:
         fh.write(pc.HEADER + '\n')
         for id in sorted(filtered_contigs, key=lambda k: -filtered_contigs[k]['length']):
@@ -281,10 +340,15 @@ def main():
                     i += 1
             line = '%s\t%d\t%4.1f\t%d\t%3.1f\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d' % (c['id'], c['length'], c['coverage'], len(c['orfs']), c['protein_score'], 'yes' if c['is_circular'] else 'no', inc_types, len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits']))
             print(line)
+            log.info(
+                'plasmid: id=%s, len=%d, cov=%f, ORFs=%d, score=%f, circ=%s, incs=%s, # rep=%d, # mob=%d, # con=%d, # AMRs=%d, # rRNAs=%d, # refs=%d',
+                c['id'], c['length'], c['coverage'], len(c['orfs']), c['protein_score'], c['is_circular'], inc_types, len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits'])
+            )
             fh.write(line + '\n')
 
     # write comprehensive results to JSON file
     tmp_output_path = output_path.joinpath(prefix + '.json')
+    log.debug('output: json=%s', tmp_output_path)
     with tmp_output_path.open(mode='w') as fh:
         indent = '\t' if args.verbose else None
         separators = (', ', ': ') if args.verbose else (',', ':')
@@ -292,6 +356,7 @@ def main():
 
     # write chromosome contigs to fasta file
     tmp_output_path = output_path.joinpath(prefix + '.chromosome.fasta')
+    log.debug('output: chromosomes=%s', tmp_output_path)
     with tmp_output_path.open(mode='w') as fh:
         for contig in raw_contigs:
             if(contig['id'] not in filtered_contigs):
@@ -300,6 +365,7 @@ def main():
 
     # write plasmid contigs to fasta file
     tmp_output_path = output_path.joinpath(prefix + '.plasmid.fasta')
+    log.debug('output: plasmids=%s', tmp_output_path)
     with tmp_output_path.open(mode='w') as fh:
         for contig in raw_contigs:
             if(contig['id'] in filtered_contigs):
