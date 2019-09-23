@@ -76,7 +76,7 @@ def test_circularity(config, contig):
                     alignment_a = end_a - start_a + 1
                     alignment_b = end_b - start_b + 1
                     if(alignment_a == alignment_b
-                            and alignment_a > 50
+                            and alignment_a > pc.MIN_CIRC_BASEPAIR_OVERLAP
                             and (mismatches/alignment_a) < 0.05
                             and end_b == len(contig_fragment_b_seq)
                             and start_a == 1):
