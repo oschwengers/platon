@@ -42,10 +42,9 @@ DNA probes and finally performs a BLAST+ search against the NCBI plasmid databas
 In a third step, Platon finally classifies all remaining contigs based on an heuristic
 approach, i.e. following a set of heuristic filters.
 
-
-![Replicon distribution and alignment hit frequencies of marker protein sequences](rds-ratio-counts.png?raw=true)
-**Fig** Replicon distribution and alignment hit frequencies of marker protein sequences.
-Shown are summed plasmid and chromosome alignment hit frequencies per marker protein sequences plotted against plasmid/chromosome hit count ratios scaled to [-1, 1]; Hue: normalized replicon distribution score values (min=-100, max=100), hit count outliers below 10-4 and above 1 are discarded for the sake of readability.
+| ![Replicon distribution and alignment hit frequencies of marker protein sequences](rds-ratio-counts.web.png?raw=true) |
+| -- |
+| *Fig: Replicon distribution and alignment hit frequencies of marker protein sequences. Shown are summed plasmid and chromosome alignment hit frequencies per marker protein sequences plotted against plasmid/chromosome hit count ratios scaled to [-1, 1]; Hue: normalized replicon distribution score values (min=-100, max=100), hit count outliers below 10-4 and above 1 are discarded for the sake of readability.* |
 
 ## Input/Output
 
