@@ -19,28 +19,29 @@
 -   [Citation](#citation)
 
 ## Description
+**TL;DR**
 Platon detects plasmid contigs from bacterial WGS short read assemblies.
 Therefore, Platon computes replicon distribution scores (**RDS**) of marker proteins
 sequences (**MPS**) per contig based on pre-computed protein distribution statistics
-and tests them against specific thresholds. Contigs whose mean RDS does not reach
+and tests them against defined statistical thresholds. Contigs whose mean RDS does not reach
 the defined thresholds are comprehensively characterized and finally classified
 by heuristic filters.
 
 Platon conducts three analysis steps. First, it predicts and searches coding
 sequences against a custom and pre-computed database comprising MPS and RDS.
-These scores express the measured bias in plasmid/chromosome distributions
-based on complete NCBI RefSeq genomes and plasmids.
-Platon then calculates the mean RDS for each contig and either classifies them
-as chromosome if the RDS is below a sensitivity cutoff (95% sensitivity) or as
-plasmid if the RDS is above a specificity cutoff (99.99% specificity).
-These thresholds have been set based on Monte Carlo simulations of artifical
-subsequences created from complete RefSeq chromosome and plasmid sequences. In a second
-step contigs passing the sensitivity filter get comprehensivley characterized.
+These scores express the empirically measured frequency biases of protein sequence
+distributions across plasmids and chromosomes based on complete NCBI RefSeq replicons.
+Platon calculates the mean RDS for each contig and either classifies them
+as chromosome if the RDS is below a sensitivity cutoff determined to 99% sensitivity or as
+plasmid if the RDS is above a specificity cutoff determined to 99.9% specificity.
+Exact values for these thresholds have been computed based on Monte Carlo simulations of
+artifical replicon subsequences created from complete RefSeq chromosome and plasmid sequences.
+In a second step contigs passing the sensitivity filter get comprehensivley characterized.
 Hereby, Platon tries to circularize the contig sequences, searches for rRNA,
 replication, mobilization and conjugation genes as well as incompatibility group
 DNA probes and finally performs a BLAST+ search against the NCBI plasmid database.
-In a third step, Platon finally classifies all remaining contigs based on an heuristic
-approach, i.e. following a set of heuristic filters.
+In a last step, Platon finally classifies all remaining contigs based on
+heuristic filters.
 
 | ![Replicon distribution and alignment hit frequencies of marker protein sequences](rds-ratio-counts.web.png?raw=true) |
 | -- |
