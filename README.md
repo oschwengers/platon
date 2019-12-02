@@ -6,7 +6,7 @@
 ![Conda](https://img.shields.io/conda/v/bioconda/platon.svg)
 ![Conda](https://img.shields.io/conda/pn/bioconda/platon.svg)
 
-# Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies.
+# Platon: identification and characterization of bacterial plasmid contigs from short-read draft assemblies.
 
 ## Contents
 -   [Description](#description)
@@ -17,6 +17,7 @@
 -   [Database](#database)
 -   [Dependencies](#dependencies)
 -   [Citation](#citation)
+-   [Issues](#issues)
 
 ## Description
 **TL;DR**
@@ -150,24 +151,26 @@ correctly setup, e.g. `$ sudo apt install build-essential`.
 ## Usage
 Usage:
 ```
-usage: platon [-h] [--threads THREADS] [--verbose] [--output OUTPUT]
-              [--version]
+usage: platon [-h] [--db DB] [--threads THREADS] [--verbose] [--characterize]
+              [--output OUTPUT] [--version]
               <genome>
 
-Plasmid contig classification and characterization
+Identification and characterization of bacterial plasmid contigs from short-read draft assemblies.
 
 positional arguments:
   <genome>              draft genome in fasta format
 
 optional arguments:
   -h, --help            show this help message and exit
+  --db DB, -d DB        database path (default = <platon_path>/db)
   --threads THREADS, -t THREADS
                         number of threads to use (default = number of
                         available CPUs)
   --verbose, -v         print verbose information
+  --characterize, -c    deactivate filters; characterize all contigs
   --output OUTPUT, -o OUTPUT
                         output directory (default = current working directory)
-  --version             show program's version number and exit
+  --version, -V         show program's version number and exit
 ```
 
 ## Examples
@@ -207,3 +210,13 @@ To temporarily cite our work, please transitionally refer to:
 
 As Platon takes advantage of PlasmidFinder's incompatibility database, please also cite:
 > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
+
+## Issues
+If you run into any issues with Platon, we'd be happy to hear about it!
+Please, start the pipeline with `-v` (verbose) and do not hesitate
+to file an issue including as much of the following as possible:
+- a detailed description of the issue
+- the platon cmd line output
+- the `<prefix>.json` file if possible
+- A reproducible example of the issue with a small dataset that you can share
+(helps us identify whether the issue is specific to a particular computer, operating system, and/or dataset).

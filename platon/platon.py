@@ -23,13 +23,13 @@ def main():
     # parse arguments
     parser = argparse.ArgumentParser(
         prog='platon',
-        description='Plasmid contig classification and characterization'
+        description='Identification and characterization of bacterial plasmid contigs from short-read draft assemblies.'
     )
     parser.add_argument('genome', metavar='<genome>', help='draft genome in fasta format')
     parser.add_argument('--db', '-d', action='store', help='database path (default = <platon_path>/db)')
     parser.add_argument('--threads', '-t', action='store', type=int, default=mp.cpu_count(), help='number of threads to use (default = number of available CPUs)')
     parser.add_argument('--verbose', '-v', action='store_true', help='print verbose information')
-    parser.add_argument('--characterize', '-c', action='store_true', help='deactivate filters; characterize & classify all contigs')
+    parser.add_argument('--characterize', '-c', action='store_true', help='deactivate filters; characterize all contigs')
     parser.add_argument('--output', '-o', help='output directory (default = current working directory)')
     parser.add_argument('--version', '-V', action='version', version='%(prog)s '+platon.__version__)
     args = parser.parse_args()

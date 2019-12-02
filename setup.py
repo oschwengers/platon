@@ -13,7 +13,7 @@ with open(path.join(setup_dir, 'README.md'), encoding='utf-8') as f:
 setup(
     name='cb-platon',
     version=platon.__version__,
-    description='Platon: Plasmid contig classification and characterization',
+    description='Platon: identification and characterization of bacterial plasmid contigs from short-read draft assemblies.',
     keywords=['bioinformatics', 'plasmids', 'wgs'],
     long_description=long_description,
     long_description_content_type='text/markdown',
