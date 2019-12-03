@@ -206,7 +206,7 @@ Additionally, it depends on the following 3rd party executables:
 ## Citation
 A manuscript is in preparation... stay tuned!
 To temporarily cite our work, please transitionally refer to:
-> Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2019) Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein-sequence-based replicon distribution scores. GitHub https://github.com/oschwengers/platon
+> Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2019) Platon: identification and characterization of bacterial plasmid contigs from short-read draft assemblies exploiting protein-sequence-based replicon distribution scores. GitHub https://github.com/oschwengers/platon
 
 As Platon takes advantage of PlasmidFinder's incompatibility database, please also cite:
 > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
