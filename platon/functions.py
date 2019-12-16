@@ -10,6 +10,7 @@ import platon.constants as pc
 
 log = logging.getLogger('functions')
 
+
 def test_circularity(config, contig):
     """Test if this contig can be circularized."""
 
@@ -77,7 +78,7 @@ def test_circularity(config, contig):
                     alignment_b = end_b - start_b + 1
                     if(alignment_a == alignment_b
                             and alignment_a > pc.MIN_CIRC_BASEPAIR_OVERLAP
-                            and (mismatches/alignment_a) < 0.05
+                            and (mismatches / alignment_a) < 0.05
                             and end_b == len(contig_fragment_b_seq)
                             and start_a == 1):
                         contig['is_circular'] = True

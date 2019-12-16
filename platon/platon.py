@@ -31,7 +31,7 @@ def main():
     parser.add_argument('--verbose', '-v', action='store_true', help='print verbose information')
     parser.add_argument('--characterize', '-c', action='store_true', help='deactivate filters; characterize all contigs')
     parser.add_argument('--output', '-o', help='output directory (default = current working directory)')
-    parser.add_argument('--version', '-V', action='version', version='%(prog)s '+platon.__version__)
+    parser.add_argument('--version', '-V', action='version', version='%(prog)s ' + platon.__version__)
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -60,7 +60,7 @@ def main():
         log.error('genome file not readable! path=%s', genome_path)
         sys.exit('ERROR: genome file (%s) not readable!' % genome_path)
     if(genome_path.stat().st_size == 0):
-        log.erro('empty genome file! path=%s', genome_path)
+        log.error('empty genome file! path=%s', genome_path)
         sys.exit('ERROR: genome file (%s) is empty!' % genome_path)
 
     output_path = Path(args.output) if args.output else Path.cwd()
@@ -136,7 +136,7 @@ def main():
 
     log.info(
         'length contig filter: # input=%d, # discarded=%d, # remaining=%d',
-        len(raw_contigs), (len(raw_contigs)-len(contigs)), len(contigs)
+        len(raw_contigs), (len(raw_contigs) - len(contigs)), len(contigs)
     )
 
     if(len(raw_contigs) == 0):
@@ -154,7 +154,7 @@ def main():
     if(args.verbose):
         print('predict ORFs...')
     proteins_path = pf.predict_orfs(config, contigs, genome_path)
-    no_orfs = ft.reduce(lambda x, y: x+y, map(lambda k: len(contigs[k]['orfs']), contigs))
+    no_orfs = ft.reduce(lambda x, y: x + y, map(lambda k: len(contigs[k]['orfs']), contigs))
     log.info('ORF detection: # ORFs=%d', no_orfs)
     if(args.verbose):
         print('\tfound %d ORFs' % no_orfs)
