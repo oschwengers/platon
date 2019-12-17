@@ -23,7 +23,9 @@ def main():
     # parse arguments
     parser = argparse.ArgumentParser(
         prog='platon',
-        description='Identification and characterization of bacterial plasmid contigs from short-read draft assemblies.'
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='Identification and characterization of bacterial plasmid contigs from short-read draft assemblies.',
+        epilog="Citation:\n%s\n\nGitHub:\nhttps://github.com/oschwengers/platon" % pc.CITATION
     )
     parser.add_argument('genome', metavar='<genome>', help='draft genome in fasta format')
     parser.add_argument('--db', '-d', action='store', help='database path (default = <platon_path>/db)')
