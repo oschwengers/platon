@@ -78,7 +78,7 @@ In addition, Platon writes the following files into the output directory:
 All files are prefixed (`<prefix>`) as the input genome fasta file.
 
 ## Installation
-Platon can be installed/used in 3 different ways, though we advice to use Conda/BioConda.
+Platon can be installed in 3 different ways, though we advise to use Conda/BioConda.
 
 In all cases, the custom database must be downloaded which we provide for download:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
