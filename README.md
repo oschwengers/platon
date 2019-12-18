@@ -78,11 +78,23 @@ In addition, Platon writes the following files into the output directory:
 All files are prefixed (`<prefix>`) as the input genome fasta file.
 
 ## Installation
-Platon can be installed/used in 2 different ways.
+Platon can be installed/used in 3 different ways, though we advice to use Conda/BioConda.
 
 In all cases, the custom database must be downloaded which we provide for download:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
 
+### Conda / BioConda
+1.  install Platon via [Conda](https://conda.io/docs/install/quick.html) and the [Bioconda](https://bioconda.github.io/) channel
+2.  download & extract the database
+
+Example:
+```
+$ conda install -c conda-forge -c bioconda -c defaults platon
+$ wget https://zenodo.org/record/3358926/files/db.tar.gz
+$ tar -xzf db.tar.gz
+$ rm db.tar.gz
+$ platon --db ./db genome.fasta
+```
 
 ### GitHub
 1.  clone the the repository
@@ -107,19 +119,6 @@ $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 $ mv db/ platon
 $ platon/bin/platon genome.fasta
-```
-
-### Conda
-1.  install Platon via Conda
-2.  download & extract the database
-
-Example:
-```
-$ conda install -c conda-forge -c bioconda -c defaults platon
-$ wget https://zenodo.org/record/3358926/files/db.tar.gz
-$ tar -xzf db.tar.gz
-$ rm db.tar.gz
-$ platon --db ./db genome.fasta
 ```
 
 ### Pip
