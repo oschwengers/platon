@@ -9,15 +9,18 @@
 # Platon: identification and characterization of bacterial plasmid contigs from short-read draft assemblies.
 
 ## Contents
--   [Description](#description)
--   [Input/Output](#inputoutput)
--   [Installation](#installation)
--   [Usage](#usage)
--   [Examples](#examples)
--   [Database](#database)
--   [Dependencies](#dependencies)
--   [Citation](#citation)
--   [Issues](#issues)
+- [Description](#description)
+- [Input/Output](#inputoutput)
+- [Installation](#installation)
+  - [BioConda](#bioconda)
+  - [GitHub](#github)
+  - [Pip](#pip)
+- [Usage](#usage)
+- [Examples](#examples)
+- [Database](#database)
+- [Dependencies](#dependencies)
+- [Citation](#citation)
+- [Issues](#issues)
 
 ## Description
 **TL;DR**
@@ -83,7 +86,7 @@ Platon can be installed in 3 different ways, though we advise to use Conda/BioCo
 In all cases, the custom database must be downloaded which we provide for download:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
 
-### Conda / BioConda
+### BioConda
 1.  install Platon via [Conda](https://conda.io/docs/install/quick.html) and the [Bioconda](https://bioconda.github.io/) channel
 2.  download & extract the database
 
