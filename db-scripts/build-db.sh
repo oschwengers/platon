@@ -44,13 +44,13 @@ mv NCBIfam-AMRFinder.tsv ncbifam-amr.tsv
 printf "\n4/13: build HMMs...\n"
 wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/CLUSTERS/PCLA_clusters.txt
 touch clusters.lst
-for type in replication mobilization conjugation; do
+for type in replication conjugation; do
     sh $PLATON_HOME/db-scripts/extract-${type}.sh PCLA_clusters.txt
     cut -f1 ${type}.tsv >> clusters.lst
 done
 grep -f clusters.lst PCLA_proteins.txt | cut -f2 > clusters-proteins.lst
 seqtk subseq refseq-bacteria-nrp.trimmed.faa clusters-proteins.lst > clusters-proteins.faa
-for type in replication mobilization conjugation; do
+for type in replication conjugation; do
     printf "\nbuild ${type}...\n"
     nextflow run $PLATON_HOME/db-scripts/build-hmms.nf \
         --nrpc ${type}.tsv \
@@ -64,8 +64,17 @@ done
 rm refseq-bacteria-nrp.trimmed.faa PCLA_clusters.txt clusters-proteins.faa clusters.lst clusters-proteins.lst
 
 
+# build conjugation HMMs
+printf "\n5/14: build HMMs...\n"
+wget -q -nH https://castillo.dicom.unican.es/mobscan_about/MOBfamDB.gz
+gunzip MOBfamDB.gz
+mv MOBfamDB mobilization
+hmmpress mobilization
+rm mobilization
+
+
 # download RefSeq reference plasmids
-printf "\n5/13: download RefSeq reference plasmids...\n"
+printf "\n6/14: download RefSeq reference plasmids...\n"
 wget -q -O refseq-plasmids-raw.tsv ftp://ftp.ncbi.nlm.nih.gov/genomes/GENOME_REPORTS/plasmids.txt
 grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f1,5,6,8,9,10,11,12,15 > refseq-plasmids.tsv
 grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f3 refseq-plasmids.tsv > refseq-plasmids-ids.txt
@@ -82,14 +91,14 @@ rm -r refseq-plasmids-dir refseq-plasmids-raw.tsv refseq-plasmids-ids.txt
 
 
 # download RefSeq chromosomes
-printf "\n6/13: download RefSeq chromosomes...\n"
+printf "\n7/14: download RefSeq chromosomes...\n"
 mkdir nf-tmp
 nextflow run $PLATON_HOME/db-scripts/download-chromosomes.nf
 rm -rf work .nextflow* nf-tmp
 
 
 # download NCBI taxonomy
-printf "\n7/13: download NCBI taxonomy...\n"
+printf "\n8/14: download NCBI taxonomy...\n"
 mkdir taxonomy
 cd taxonomy
 wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
@@ -98,7 +107,7 @@ cd ..
 
 
 # download UniProt UniRef90 clusters
-printf "\n8/13: download UniProt UniRef90 clusters...\n"
+printf "\n9/14: download UniProt UniRef90 clusters...\n"
 wget -q -nH ftp://ftp.expasy.org/databases/uniprot/current_release/uniref/uniref90/uniref90.xml.gz
 python3 $PLATON_HOME/db-scripts/uniref-extract-bacteria.py \
     --taxonomy taxonomy/nodes.dmp \
@@ -109,12 +118,12 @@ rm -r uniref90.xml.gz taxonomy/
 
 
 # build complete protein cluster db
-printf "\n9/13: build complete protein cluster database...\n"
+printf "\n10/14: build complete protein cluster database...\n"
 diamond makedb --in uniref90.faa --db uniref90
 
 
 # count protein hits
-printf "\n10/13: count protein hits...\n"
+printf "\n11/14: count protein hits...\n"
 nextflow run $PLATON_HOME/db-scripts/count-protein-hits.nf \
     --plasmids ./refseq-plasmids.fna \
     --chromosomes ./refseq-chromosomes.fna \
@@ -123,7 +132,7 @@ rm -rf work .nextflow*
 
 
 # calculate RDS, extract found MPS and rebuild database
-printf "\n11/13: calculate RDS, extract found MPS and rebuild database...\n"
+printf "\n12/14: calculate RDS, extract found MPS and rebuild database...\n"
 python3 $PLATON_HOME/db-scripts/setup-mps-db.py \
     --plasmids refseq-plasmids.fna \
     --chromosomes refseq-chromosomes.fna \
@@ -135,7 +144,7 @@ rm uniref90.*
 
 
 # create artificial contigs
-printf "\n12/13: create artificial contigs...\n"
+printf "\n13/14: create artificial contigs...\n"
 export NXF_OPTS="-Xms256G -Xmx512G"
 nextflow run $PLATON_HOME/db-scripts/generate-artificial-contigs.nf \
     --plasmids refseq-plasmids.fna \
@@ -144,7 +153,7 @@ rm -rf work .nextflow* refseq-plasmids.fna refseq-chromosomes.fna
 
 
 # compute RDS thresholds
-printf "\n13/13: compute RDS thresholds...\n"
+printf "\n14/14: compute RDS thresholds...\n"
 export NXF_OPTS="-Xms32G -Xmx256G"
 nextflow run $PLATON_HOME/db-scripts/compute-rds-thresholds.nf \
     --contigs artificial-contigs.fna \
