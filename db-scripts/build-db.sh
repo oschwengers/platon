@@ -4,17 +4,20 @@ mkdir db
 cd db
 
 # download incompatibility group signatures from CGE PlasmidFinder DB
-printf "1/10: download incompatibility group signatures from CGE PlasmidFinder DB...\n"
+printf "1/13: download incompatibility group signatures from CGE PlasmidFinder DB...\n"
 git clone https://bitbucket.org/genomicepidemiology/plasmidfinder_db.git
-grep '\S' plasmidfinder_db/gram_positive.fsa > inc-types-raw.fasta
-grep '\S' plasmidfinder_db/enterobacteriaceae.fsa >> inc-types-raw.fasta
+for f in plasmidfinder_db/*.fsa; do
+    cat $f >> inc-types-raw.fasta
+done
+#grep '\S' plasmidfinder_db/gram_positive.fsa > inc-types-raw.fasta
+#grep '\S' plasmidfinder_db/enterobacteriaceae.fsa >> inc-types-raw.fasta
 cat inc-types-raw.fasta | sed -r "s/^>([a-zA-Z0-9()]+)_([0-9]+)_(.*)_(.*)$/>\1 \4/" > inc-types-mixed.fasta
 awk '{if(!/>/){print toupper($0)}else{print $1}}' inc-types-mixed.fasta > inc-types.fasta
 rm -rf plasmidfinder_db inc-types-raw.fasta inc-types-mixed.fasta
 
 
 # download rRNA covariance models from Rfam
-printf "\n2/10: download rRNA covariance models from Rfam...\n"
+printf "\n2/13: download rRNA covariance models from Rfam...\n"
 mkdir Rfam
 cd Rfam
 wget -q -nH ftp://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/Rfam.tar.gz
@@ -28,51 +31,17 @@ rm -r Rfam rRNA
 
 
 # download AMR HMMs from NCBIfams
-printf "\n3/10: download AMR HMMs from NCBIfams...\n"
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/hmm/NCBIfam-AMR/latest/NCBIfam-AMR.LIB
-mv NCBIfam-AMR.LIB ncbifam-amr
+printf "\n3/13: download AMR HMMs from NCBIfams...\n"
+wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/hmm/NCBIfam-AMRFinder/latest/NCBIfam-AMRFinder.LIB
+mv NCBIfam-AMRFinder.LIB ncbifam-amr
 hmmpress ncbifam-amr
 rm ncbifam-amr
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/hmm/NCBIfam-AMR/latest/NCBIfam-AMR.tsv
-mv NCBIfam-AMR.tsv ncbifam-amr.tsv
-
-
-# download RefSeq reference plasmids
-printf "\n4/10: download RefSeq reference plasmids...\n"
-wget -q -O refseq-plasmids-raw.tsv ftp://ftp.ncbi.nlm.nih.gov/genomes/GENOME_REPORTS/plasmids.txt
-grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f1,5,6,8,9,10,11,12,15 > refseq-plasmids.tsv
-grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f3 refseq-plasmids.tsv > refseq-plasmids-ids.txt
-mkdir refseq-plasmids-dir
-cd refseq-plasmids-dir
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/refseq/release/plasmid/plasmid.*.1.genomic.fna.gz
-cd ..
-gzip -dc refseq-plasmids-dir/plasmid.*.1.genomic.fna.gz | seqtk subseq - refseq-plasmids-ids.txt | seqtk seq -CU > refseq-plasmids
-makeblastdb -dbtype nucl -in refseq-plasmids -title 'RefSeq Plasmids'
-mv refseq-plasmids refseq-plasmids.fna
-rm -r refseq-plasmids-dir refseq-plasmids-raw.tsv refseq-plasmids-ids.txt
-
-
-# download RefSeq nonredundant proteins and clusters
-printf "\n5/10: download RefSeq nonredundant proteins and clusters...\n"
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/CLUSTERS/PCLA_proteins.txt
-mkdir refseq-bacteria
-cd refseq-bacteria
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.nonredundant_protein.*.protein.faa.gz
-cd ..
-gzip -dc refseq-bacteria/bacteria.nonredundant_protein.* | seqtk seq -CU > refseq-bacteria-nrp.trimmed.faa
-rm -r refseq-bacteria
-
-
-# extract NRP cluster representatives and build db
-printf "\n6/10: extract NRP cluster representatives and build database...\n"
-python3 $PLATON_HOME/db-scripts/select-cluster-rep.py --cluster PCLA_proteins.txt --proteins refseq-bacteria-nrp.trimmed.faa > refseq-bacteria-nrpc-reps.txt
-seqtk subseq refseq-bacteria-nrp.trimmed.faa refseq-bacteria-nrpc-reps.txt > refseq-bacteria-nrpc-reps.faa
-ghostz db -i refseq-bacteria-nrpc-reps.faa -o refseq-bacteria-nrpc-reps -L 6
-rm refseq-bacteria-nrpc-reps.txt refseq-bacteria-nrpc-reps.faa
+wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/hmm/NCBIfam-AMRFinder/latest/NCBIfam-AMRFinder.tsv
+mv NCBIfam-AMRFinder.tsv ncbifam-amr.tsv
 
 
 # build HMMs
-printf "\n7/10: build HMMs...\n"
+printf "\n4/13: build HMMs...\n"
 wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/CLUSTERS/PCLA_clusters.txt
 touch clusters.lst
 for type in replication mobilization conjugation; do
@@ -95,33 +64,92 @@ done
 rm refseq-bacteria-nrp.trimmed.faa PCLA_clusters.txt clusters-proteins.faa clusters.lst clusters-proteins.lst
 
 
+# download RefSeq reference plasmids
+printf "\n5/13: download RefSeq reference plasmids...\n"
+wget -q -O refseq-plasmids-raw.tsv ftp://ftp.ncbi.nlm.nih.gov/genomes/GENOME_REPORTS/plasmids.txt
+grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f1,5,6,8,9,10,11,12,15 > refseq-plasmids.tsv
+grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f3 refseq-plasmids.tsv > refseq-plasmids-ids.txt
+mkdir refseq-plasmids-dir
+cd refseq-plasmids-dir
+for i in {1..6}; do
+    wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/refseq/release/plasmid/plasmid.$i.1.genomic.fna.gz
+done
+cd ..
+gzip -dc refseq-plasmids-dir/plasmid.*.1.genomic.fna.gz | seqtk subseq - refseq-plasmids-ids.txt | seqtk seq -CU > refseq-plasmids
+makeblastdb -dbtype nucl -in refseq-plasmids -title 'RefSeq Plasmids'
+mv refseq-plasmids refseq-plasmids.fna
+rm -r refseq-plasmids-dir refseq-plasmids-raw.tsv refseq-plasmids-ids.txt
+
+
 # download RefSeq chromosomes
-printf "\n8/10: download RefSeq chromosomes...\n"
+printf "\n6/13: download RefSeq chromosomes...\n"
 mkdir nf-tmp
 nextflow run $PLATON_HOME/db-scripts/download-chromosomes.nf
 rm -rf work .nextflow* nf-tmp
 
 
-# calculate protein scores
-printf "\n9/10: calculate protein scores...\n"
-nextflow run $PLATON_HOME/db-scripts/calculate-scores.nf \
-    --plasmids ./refseq-plasmids.fna \
-    --chromosomes ./refseq-chromosomes.fna \
-    --protClusterMapping ./PCLA_proteins.txt \
-    --nrpcDB ./refseq-bacteria-nrpc-reps.inf
-rm -rf work .nextflow* PCLA_proteins.txt
-cut -f 1,2,3,10 rds.full.tsv > rds.tsv
+# download NCBI taxonomy
+printf "\n7/13: download NCBI taxonomy...\n"
+mkdir taxonomy
+cd taxonomy
+wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+tar -xzf taxdump.tar.gz
+cd ..
 
 
-# calculate protein score cutoffs
-printf "\n10/10: calculate protein score cutoffs...\n"
-export NXF_OPTS="-Xms32G -Xmx64G"
-nextflow run $PLATON_HOME/db-scripts/test-scores.nf \
+# download UniProt UniRef90 clusters
+printf "\n8/13: download UniProt UniRef90 clusters...\n"
+wget -q -nH ftp://ftp.expasy.org/databases/uniprot/current_release/uniref/uniref90/uniref90.xml.gz
+python3 $PLATON_HOME/db-scripts/uniref-extract-bacteria.py \
+    --taxonomy taxonomy/nodes.dmp \
+    --xml uniref90.xml.gz \
+    --fasta uniref90.faa \
+    --tsv uniref90.tsv
+rm -r uniref90.xml.gz taxonomy/
+
+
+# build complete protein cluster db
+printf "\n9/13: build complete protein cluster database...\n"
+diamond makedb --in uniref90.faa --db uniref90
+
+
+# count protein hits
+printf "\n10/13: count protein hits...\n"
+nextflow run $PLATON_HOME/db-scripts/count-protein-hits.nf \
     --plasmids ./refseq-plasmids.fna \
     --chromosomes ./refseq-chromosomes.fna \
-    --protein_scores ./rds.tsv \
-    --nrpcDB ./refseq-bacteria-nrpc-reps.inf
+    --pcDb ./uniref90.dmnd
+rm -rf work .nextflow*
+
+
+# calculate RDS, extract found MPS and rebuild database
+printf "\n11/13: calculate RDS, extract found MPS and rebuild database...\n"
+python3 $PLATON_HOME/db-scripts/setup-mps-db.py \
+    --plasmids refseq-plasmids.fna \
+    --chromosomes refseq-chromosomes.fna \
+    --counts protein-hit-counts.tsv \
+    --cluster-seqs uniref90.faa \
+    --cluster-info uniref90.tsv
+diamond makedb --in mps.faa --db mps
+rm uniref90.*
+
+
+# create artificial contigs
+printf "\n12/13: create artificial contigs...\n"
+export NXF_OPTS="-Xms256G -Xmx512G"
+nextflow run $PLATON_HOME/db-scripts/generate-artificial-contigs.nf \
+    --plasmids refseq-plasmids.fna \
+    --chromosomes refseq-chromosomes.fna
 rm -rf work .nextflow* refseq-plasmids.fna refseq-chromosomes.fna
 
+
+# compute RDS thresholds
+printf "\n13/13: compute RDS thresholds...\n"
+export NXF_OPTS="-Xms32G -Xmx256G"
+nextflow run $PLATON_HOME/db-scripts/compute-rds-thresholds.nf \
+    --contigs artificial-contigs.fna \
+    --mps mps.tsv \
+    --pcDb mps.dmnd
+rm -rf work .nextflow* artificial-contigs.fna
+
 cd ..
-mv db $PLATON_HOME/

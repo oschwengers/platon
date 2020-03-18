@@ -670,18 +670,13 @@ def test_database(config):
         'rRNA.i1i',
         'rRNA.i1m',
         'rRNA.i1p',
-        'rds.tsv',
+        'mps.tsv',
+        'mps.dmnd',
         'refseq-plasmids.tsv',
         'inc-types.fasta',
         'refseq-plasmids.nhr',
         'refseq-plasmids.nin',
-        'refseq-plasmids.nsq',
-        'refseq-bacteria-nrpc-reps.inf',
-        'refseq-bacteria-nrpc-reps_0.inf',
-        'refseq-bacteria-nrpc-reps_0.nam',
-        'refseq-bacteria-nrpc-reps_0.off',
-        'refseq-bacteria-nrpc-reps_0.seq',
-        'refseq-bacteria-nrpc-reps_0.src'
+        'refseq-plasmids.nsq'
     ]
 
     for file_name in file_names:
@@ -711,13 +706,13 @@ def test_binaries():
     # test ghostz
     try:
         sp.check_call(
-            ['ghostz'],
+            ['diamond', 'version'],
             stdout=sp.DEVNULL,
             stderr=sp.DEVNULL
         )
     except FileNotFoundError:
-        log.exception('ghostz not found!')
-        sys.exit('ERROR: \'ghostz\' not executable!')
+        log.exception('diamond not found!')
+        sys.exit('ERROR: \'diamond\' not executable!')
     except:
         pass
 

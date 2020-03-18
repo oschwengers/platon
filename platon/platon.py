@@ -177,13 +177,17 @@ def main():
         print('search marker protein sequences (MPS)...')
     tmp_output_path = config['tmp'].joinpath('ghostz.tsv')
     cmd = [
-        'ghostz',
-        'aln',
-        '-d', str(config['db'].joinpath('refseq-bacteria-nrpc-reps')),
-        '-b', '1',  # max 1 result per query
-        '-a', str(args.threads),  # threads
-        '-i', str(proteins_path),
-        '-o', str(tmp_output_path)
+        'diamond',
+        'blastp',
+        '--db', str(config['db'].joinpath('mps.dmnd')),
+        '--query', str(proteins_path),
+        '--out', str(tmp_output_path),
+        '--max-target-seqs', '1',  # max 1 result per query
+        '--id', '90',  # min alignment identity 90%
+        '--query-cover', '80',  # min query cov 80%
+        '--subject-cover', '80',  # min subjetc cov 80%
+        '--threads', str(args.threads),  # threads
+        '--tmpdir', str(config['tmp'])
     ]
     proc = sp.run(
         cmd,
@@ -195,35 +199,37 @@ def main():
     )
     if(proc.returncode != 0):
         log.error(
-            'ghostz execution failed! contig=%s, ghostz-error-code=%d',
+            'diamond execution failed! contig=%s, diamond-error-code=%d',
             proc.returncode
         )
         log.debug(
-            'ghostz execution: cmd=%s, stdout=\'%s\', stderr=\'%s\'',
+            'diamond execution: cmd=%s, stdout=\'%s\', stderr=\'%s\'',
             cmd, proc.stdout, proc.stderr
         )
         sys.exit('Marker protein search failed!')
 
-    # parse ghostz output
-    no_proteins_identified = 0
+    # parse diamond output
+    proteins_identified = 0
     with tmp_output_path.open() as fh:
         for line in fh:
             cols = line.split('\t')
-            locus = cols[0].split(' ')[0].rpartition('_')
-            if((float(cols[2]) >= pc.MIN_PROTEIN_IDENTITY) and (locus[0] in contigs)):
-                contig = contigs[locus[0]]
-                orf = contig['orfs'][locus[2]]
+            locus = cols[0].rpartition('_')
+            contig_id = locus[0]
+            orf_id = locus[2]
+            if((float(cols[2]) >= pc.MIN_PROTEIN_IDENTITY) and (contig_id in contigs)):
+                contig = contigs[contig_id]
+                orf = contig['orfs'][orf_id]
                 orf['protein_id'] = cols[1]
-                no_proteins_identified += 1
-    log.info('MPS detection: # MPS=%d', no_proteins_identified)
+                proteins_identified += 1
+    log.info('MPS detection: # MPS=%d', proteins_identified)
     if(args.verbose):
-        print('\tfound %d MPS' % no_proteins_identified)
+        print('\tfound %d MPS' % proteins_identified)
 
     # parse protein score file
     if(args.verbose):
         print('compute replicon distribution scores (RDS)...')
     marker_proteins = {}
-    with config['db'].joinpath('rds.tsv').open() as fh:
+    with config['db'].joinpath('mps.tsv').open() as fh:
         for line in fh:
             cols = line.split('\t')
             marker_proteins[cols[0]] = {
