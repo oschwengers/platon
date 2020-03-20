@@ -703,7 +703,7 @@ def test_binaries():
     except:
         pass
 
-    # test ghostz
+    # test diamond
     try:
         sp.check_call(
             ['diamond', 'version'],
