@@ -36,13 +36,23 @@ def main():
     parser.add_argument('--version', '-V', action='version', version='%(prog)s ' + platon.__version__)
     args = parser.parse_args()
 
+    # check input genome
+    genome_path = Path(args.genome).resolve()
+    if(not os.access(str(genome_path), os.R_OK)):
+        sys.exit('ERROR: genome file (%s) not readable!' % genome_path)
+    if(genome_path.stat().st_size == 0):
+        sys.exit('ERROR: genome file (%s) is empty!' % genome_path)
+
+    # get file prefix
+    prefix = genome_path.stem
+
+    # setup logging
     logging.basicConfig(
-        filename='platon.log',
+        filename='%s.log' % prefix,
         filemode='w',
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG if args.verbose else logging.INFO
     )
-
     log = logging.getLogger('main')
     log.info('version %s', platon.__version__)
 
@@ -56,14 +66,6 @@ def main():
 
     if('bundled-binaries' not in config):
         pf.test_binaries()
-
-    genome_path = Path(args.genome).resolve()
-    if(not os.access(str(genome_path), os.R_OK)):
-        log.error('genome file not readable! path=%s', genome_path)
-        sys.exit('ERROR: genome file (%s) not readable!' % genome_path)
-    if(genome_path.stat().st_size == 0):
-        log.error('empty genome file! path=%s', genome_path)
-        sys.exit('ERROR: genome file (%s) is empty!' % genome_path)
 
     output_path = Path(args.output) if args.output else Path.cwd()
     if(not output_path.exists()):
@@ -199,7 +201,7 @@ def main():
     )
     if(proc.returncode != 0):
         log.error(
-            'diamond execution failed! contig=%s, diamond-error-code=%d',
+            'diamond execution failed! diamond-error-code=%d',
             proc.returncode
         )
         log.debug(
@@ -326,9 +328,6 @@ def main():
         filtered_contigs = scored_contigs
     else:
         filtered_contigs = {k: v for (k, v) in scored_contigs.items() if pf.filter_contig(v)}
-
-    # get file prefix
-    prefix = genome_path.stem
 
     # print results to tsv file and STDOUT
     print(pc.HEADER)
