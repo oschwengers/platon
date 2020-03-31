@@ -36,19 +36,25 @@ def main():
     parser.add_argument('--version', '-V', action='version', version='%(prog)s ' + platon.__version__)
     args = parser.parse_args()
 
-    # check input genome
+    # check input file
     genome_path = Path(args.genome).resolve()
     if(not os.access(str(genome_path), os.R_OK)):
         sys.exit('ERROR: genome file (%s) not readable!' % genome_path)
     if(genome_path.stat().st_size == 0):
         sys.exit('ERROR: genome file (%s) is empty!' % genome_path)
 
+    # check output file
+    output_path = Path(args.output) if args.output else Path.cwd()
+    if(not output_path.exists()):
+        output_path.mkdir(parents=True, exist_ok=True)
+    output_path = output_path.resolve()
+
     # get file prefix
     prefix = genome_path.stem
 
     # setup logging
     logging.basicConfig(
-        filename='%s.log' % prefix,
+        filename='%s/%s.log' % (str(output_path), prefix),
         filemode='w',
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.DEBUG if args.verbose else logging.INFO
@@ -66,12 +72,6 @@ def main():
 
     if('bundled-binaries' not in config):
         pf.test_binaries()
-
-    output_path = Path(args.output) if args.output else Path.cwd()
-    if(not output_path.exists()):
-        output_path.mkdir(parents=True, exist_ok=True)
-        log.info('create output dir: path=%s', output_path)
-    output_path = output_path.resolve()
 
     log.info('configuration: db-path=%s', config['db'])
     log.info('configuration: bundled binaries=%s', config['bundled-binaries'])
