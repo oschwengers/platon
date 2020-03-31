@@ -340,11 +340,12 @@ def main():
                 while(i < len(c['inc_types'])):
                     inc_types += ',' + c['inc_types'][i]['type']
                     i += 1
-            line = '%s\t%d\t%4.1f\t%d\t%3.1f\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d' % (c['id'], c['length'], c['coverage'], len(c['orfs']), c['protein_score'], 'yes' if c['is_circular'] else 'no', inc_types, len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits']))
+            cov = 'NA' if c['coverage'] == 0 else "%4.1f" % c['coverage']
+            line = '%s\t%d\t%s\t%d\t%3.1f\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d' % (c['id'], c['length'], cov, len(c['orfs']), c['protein_score'], 'yes' if c['is_circular'] else 'no', inc_types, len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits']))
             print(line)
             log.info(
-                'plasmid: id=%s, len=%d, cov=%f, ORFs=%d, score=%f, circ=%s, incs=%s, # rep=%d, # mob=%d, # con=%d, # AMRs=%d, # rRNAs=%d, # refs=%d',
-                c['id'], c['length'], c['coverage'], len(c['orfs']), c['protein_score'], c['is_circular'], inc_types, len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits'])
+                'plasmid: id=%s, len=%d, cov=%s, ORFs=%d, score=%f, circ=%s, incs=%s, # rep=%d, # mob=%d, # con=%d, # AMRs=%d, # rRNAs=%d, # refs=%d',
+                c['id'], c['length'], cov, len(c['orfs']), c['protein_score'], c['is_circular'], inc_types, len(c['replication_hits']), len(c['mobilization_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits'])
             )
             fh.write(line + '\n')
 
