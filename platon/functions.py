@@ -349,6 +349,68 @@ def search_reference_plasmids(config, contig):
     return
 
 
+def search_orit_sequences(config, contig):
+    """Search for oriT sequence hits."""
+
+    contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
+    tmp_output_path = config['tmp'].joinpath(contig['id'] + '.orit.blast.out')
+
+    cmd = [
+        'blastn',
+        '-query', str(contig_path),
+        '-db', str(config['db'].joinpath('orit')),
+        '-num_threads', '1',
+        '-culling_limit', '1',
+        '-perc_identity', '90',
+        '-evalue', '1E-5',
+        '-outfmt', '6 sseqid qstart qend sstart send slen length nident',
+        '-out', str(tmp_output_path)
+    ]
+    proc = sp.run(
+        cmd,
+        cwd=str(config['tmp']),
+        env=config['env'],
+        stdout=sp.PIPE,
+        stderr=sp.PIPE,
+        universal_newlines=True
+    )
+    if(proc.returncode != 0):
+        log.warning(
+            'oriT failed! contig=%s, blastn-error-code=%d',
+            contig['id'], proc.returncode
+        )
+        log.debug(
+            'oriT: id=%s, cmd=%s, stdout=\'%s\', stderr=\'%s\'',
+            contig['id'], cmd, proc.stdout, proc.stderr
+        )
+        return
+
+    with tmp_output_path.open() as fh:
+        for line in fh:
+            line = line.rstrip()
+            cols = line.split('\t')
+            hit = {
+                'contig_start': int(cols[1]),
+                'contig_end': int(cols[2]),
+                'orit_start': int(cols[3]),
+                'orit_end': int(cols[4]),
+                'orit': {
+                    'id': cols[0],
+                    'length': int(cols[5])
+                },
+                'coverage': float(cols[6]) / int(cols[5]),
+                'identity': float(cols[7]) / float(cols[6])
+            }
+            if(hit['coverage'] >= 0.9 and hit['identity'] >= 0.9):
+                contig['orit_hits'].append(hit)
+                log.info(
+                    'oriT: hit! contig=%s, id=%s, c-start=%d, c-end=%d, coverage=%f, identity=%f',
+                    contig['id'], hit['orit']['id'], hit['contig_start'], hit['contig_end'], hit['coverage'], hit['identity']
+                )
+    log.info('oriT: contig=%s, # oriT=%s', contig['id'], len(contig['orit_hits']))
+    return
+
+
 def filter_contig(contig):
     """Apply heuristic filters based on contig information."""
 
@@ -370,6 +432,11 @@ def filter_contig(contig):
     # include all contigs containing mobilization genes
     if(len(contig['mobilization_hits']) > 0):
         log.debug('filter: has mob hits! contig=%s', contig['id'])
+        return True
+
+    # include all contigs containing oriT sequences
+    if(len(contig['orit_hits']) > 0):
+        log.debug('filter: has oriT hits! contig=%s', contig['id'])
         return True
 
     # include all contigs with high confidence protein scores
@@ -657,6 +724,9 @@ def test_database(config):
         'mobilization.h3i',
         'mobilization.h3m',
         'mobilization.h3p',
+        'orit.nhr',
+        'orit.nin',
+        'orit.nsq',
         'replication.h3f',
         'replication.h3i',
         'replication.h3m',
