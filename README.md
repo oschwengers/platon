@@ -69,6 +69,7 @@ to `STDOUT` as tab separated values:
 -   Incompatibility Type(s)
 -   \# Replication Genes
 -   \# Mobilization Genes
+-   \# OriT Sequences
 -   \# Conjugation Genes
 -   \# rRNA Genes
 -   \# Plasmid Database Hits
@@ -140,15 +141,8 @@ $ platon --db ./db genome.fasta
 
 3rd party dependencies on Ubuntu (3.):
 ```
-$ sudo apt install ncbi-blast+ prodigal infernal hmmer mummer
-$ wget http://www.bi.cs.titech.ac.jp/ghostz/releases/ghostz-1.0.2.tar.gz
-$ tar -xzf ghostz-1.0.2.tar.gz
-$ cd ghostz-1.0.2/
-$ make
-$ sudo cp ghostz /usr/bin/
+$ sudo apt install ncbi-blast+ prodigal diamond-aligner infernal hmmer mummer
 ```
-If there are any issues compiling ghostz, please make sure you have everything
-correctly setup, e.g. `$ sudo apt install build-essential`.
 
 ## Usage
 Usage:
@@ -188,9 +182,10 @@ $ platon -db ~/db --output results/ --verbose --threads 8 genome.fasta
 
 ## Database
 Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database,
-PlasmidFinder db as well as custom HMM models. This database based on
-RefSeq release 95 can be downloaded here:
-(zipped 1.8 Gb, unzipped 2.6 Gb)
+PlasmidFinder db as well as manually curated MOB HMM models from MOBscan, custom HMM models and
+oriT sequences from MOB-suite.
+This database based on UniProt UniRef90 release 2020_01 can be downloaded here:
+(zipped 1.4 Gb, unzipped 2.4 Gb)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
 -   [https://zenodo.org/record/3358926/files/db.tar.gz](https://zenodo.org/record/3358926/files/db.tar.gz)
 
@@ -199,7 +194,7 @@ Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
 
 Additionally, it depends on the following 3rd party executables:
 -   Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
--   Ghostz (1.0.2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4393512> <http://www.bi.cs.titech.ac.jp/ghostz>
+-   Diamond (0.9.31) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
 -   Blast+ (2.7.1) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
 -   MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
 -   HMMER (3.2.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3695513/> <http://hmmer.org/>
@@ -212,6 +207,13 @@ To temporarily cite our work, please transitionally refer to:
 
 As Platon takes advantage of PlasmidFinder's incompatibility database, please also cite:
 > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
+
+As Platon takes advantage of MOBscan's MOB HMM profiles, please also cite:
+> Garcillán-Barcia M. P., Redondo-Salvo S., Vielva L., de la Cruz F. (2020) MOBscan: Automated Annotation of MOB Relaxases. Methods in Molecular Biology, https://doi.org/10.1007/978-1-4939-9877-7_21
+
+As Platon takes advantage of MOB-suite's oriT sequences, please also cite:
+> Robertson J., Nash J. H. E. (2018) MOB-suite: Software Tools for Clustering, Reconstruction and Typing of Plasmids From Draft Assemblies. Microbial Genomics, https://doi.org/10.1099/mgen.0.000206
+
 
 ## Issues
 If you run into any issues with Platon, we'd be happy to hear about it!
