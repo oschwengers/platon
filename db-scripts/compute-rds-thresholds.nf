@@ -8,7 +8,7 @@ import java.nio.file.*
 // Parameters
 mpsPath         = Paths.get( params.mps ).toRealPath()
 contigsPath    = Paths.get( params.contigs ).toRealPath()
-//pcDb            = Paths.get( params.pcDb ).toRealPath()
+pcDb            = Paths.get( params.pcDb ).toRealPath()
 
 
 // Constants
@@ -39,7 +39,6 @@ process searchProts {
     maxRetries 3
     cpus 1
     memory '2 GB'
-    //clusterOptions 'virtual_free=2000m'
 
     input:
     set val(type), val(id), val(subSequence) from chContigs
@@ -53,7 +52,7 @@ process searchProts {
     prodigal -i seq.fna -a cdss.faa -p meta
     if [ -s cdss.faa ]
     then
-        diamond blastp --query cdss.faa --db /var/scratch/mps.dmnd --threads ${task.cpus} --out output.tsv --max-target-seqs 1 --id 90 --query-cover 80 --subject-cover 80 --tmpdir /var/scratch/
+        diamond blastp --query cdss.faa --db ${pcDB}/mps.dmnd --threads ${task.cpus} --out output.tsv --max-target-seqs 1 --id 90 --query-cover 80 --subject-cover 80
     else
         touch output.tsv
     fi

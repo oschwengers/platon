@@ -6,25 +6,7 @@ from Bio import SeqIO
 from scipy import stats
 
 
-def calc_rds(no_plasmids, plasmid_hits, no_chromosomes, chromosome_hits):
-    p_hit_frequency = plasmid_hits / no_plasmids
-    c_hit_frequency = chromosome_hits / no_chromosomes
-    hit_frequency_ratio = ((p_hit_frequency / (p_hit_frequency + c_hit_frequency)) - 0.5) * 2
-    abs_hit_freq_diff = abs(p_hit_frequency - c_hit_frequency)
-    rds = hit_frequency_ratio * abs_hit_freq_diff * 1000
-    return rds
-
-
-def calc_rds_absdiffnorm(abs_diff_mean, no_plasmids, plasmid_hits, no_chromosomes, chromosome_hits):
-    p_hit_frequency = plasmid_hits / no_plasmids
-    c_hit_frequency = chromosome_hits / no_chromosomes
-    hit_frequency_ratio = ((p_hit_frequency / (p_hit_frequency + c_hit_frequency)) - 0.5) * 2
-    abs_diff_norm = abs(p_hit_frequency - c_hit_frequency) / abs_diff_mean
-    rds = hit_frequency_ratio * abs_diff_norm
-    return rds
-
-
-def calc_rds_pval_absdiffnorm(abs_diff_mean, no_plasmids, plasmid_hits, no_chromosomes, chromosome_hits):
+def calc_rds_pval(abs_diff_mean, no_plasmids, plasmid_hits, no_chromosomes, chromosome_hits):
     p_hit_frequency = plasmid_hits / no_plasmids
     c_hit_frequency = chromosome_hits / no_chromosomes
     hit_frequency_ratio = ((p_hit_frequency / (p_hit_frequency + c_hit_frequency)) - 0.5) * 2
@@ -108,11 +90,7 @@ with counts_path.open() as fh:
         if(plasmid_hits > 0 or chromosome_hits > 0):
             i_hit += 1
             mps = clusters[id]
-            # mps['rds'] = calc_rds(no_plasmids, plasmid_hits, no_chromosomes, chromosome_hits)
-            # mps['rds_absdiffnorm'] = calc_rds_absdiffnorm(mahfd, no_plasmids, plasmid_hits, no_chromosomes, chromosome_hits)
-            # rds_pval_absdiffnorm, p_value = calc_rds_pval_absdiffnorm(mahfd, no_plasmids, plasmid_hits, no_chromosomes, chromosome_hits)
-            # mps['rds_pval_absdiffnorm'] = rds_pval_absdiffnorm
-            rds, p_value = calc_rds_pval_absdiffnorm(mahfd, no_plasmids, plasmid_hits, no_chromosomes, chromosome_hits)
+            rds, p_value = calc_rds_pval(mahfd, no_plasmids, plasmid_hits, no_chromosomes, chromosome_hits)
             mps['rds'] = rds
             mps['p_value'] = p_value
             mpss[id] = mps
@@ -121,28 +99,17 @@ with counts_path.open() as fh:
 clusters.clear()
 
 # write MPS fasta and tsv files
-# print('write unfiltered MPS fasta and tsv files...')
-# mps_raw_fasta_path = Path('mps.raw.faa')
-# mps_raw_tsv_path = Path('mps.raw.tsv')
-# with cluster_seqs_path.open() as cluster_in_fh, mps_raw_fasta_path.open('wt') as mps_fasta_fh, mps_raw_tsv_path.open('wt') as mps_tsv_fh:
-#     for record in SeqIO.parse(cluster_in_fh, 'fasta'):
-#         id = record.id
-#         if(id in mpss):
-#             mps = mpss[id]
-#             mps_fasta_fh.write(">%s\n%s\n" % (id, str(record.seq)))
-#             mps_tsv_fh.write("%s\t%s\t%d\t%f\t%f\n" % (id, mps['product'], mps['length'], mps['p_value'], mps['rds']))
-# print('\t...done')
-
-# write MPS fasta and tsv files
 print('write filtered MPS fasta and tsv files...')
 mpss = {k: v for k, v in mpss if v['rds'] != 0.0}
-mps_fasta_path = Path('mps.raw.faa')
-mps_tsv_path = Path('mps.raw.tsv')
-with cluster_seqs_path.open() as cluster_in_fh, mps_fasta_path.open('wt') as mps_fasta_fh, mps_tsv_path.open('wt') as mps_tsv_fh:
+mps_fasta_path = Path('mps.faa')
+mps_tsv_path = Path('mps.tsv')
+mps_full_tsv_path = Path('mps.raw.tsv')
+with cluster_seqs_path.open() as cluster_in_fh, mps_fasta_path.open('wt') as mps_fasta_fh, mps_tsv_path.open('wt') as mps_tsv_fh, mps_full_tsv_path.open('wt') as mps_full_tsv_fh:
     for record in SeqIO.parse(cluster_in_fh, 'fasta'):
         id = record.id
         if(id in mpss):
             mps = mpss[id]
             mps_fasta_fh.write(">%s\n%s\n" % (id, str(record.seq)))
             mps_tsv_fh.write("%s\t%s\t%d\t%f\n" % (id, mps['product'], mps['length'], mps['rds']))
+            mps_full_tsv_fh.write("%s\t%s\t%d\t%f\t%f\n" % (id, mps['product'], mps['length'], mps['p_value'], mps['rds']))
 print('\t...done')
