@@ -252,8 +252,6 @@ def main():
                 orf['score'] = score
                 orf['product'] = marker_protein['product']
                 score_sum += score
-            else:
-                score_sum += pc.PROTEIN_SCORE_PENALTY
         contig['protein_score'] = score_sum / len(contig['orfs']) if len(contig['orfs']) > 0 else 0
         log.info(
             'contig RDS: contig=%s, RDS=%f, score-sum=%f, #ORFs=%d',
