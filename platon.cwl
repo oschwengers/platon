@@ -21,7 +21,7 @@ hints:
 
 requirements:
   - ResourceRequirement:
-    ramMin: 2048
+    ramMin: 4096
     coresMin: 1
 
 inputs:
