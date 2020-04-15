@@ -24,28 +24,28 @@
 
 ## Description
 **TL;DR**
-Platon detects plasmid contigs from bacterial WGS short read assemblies.
-Therefore, Platon computes replicon distribution scores (**RDS**) of marker proteins
-sequences (**MPS**) per contig based on pre-computed protein distribution statistics
-and tests them against defined statistical thresholds. Contigs whose mean RDS does not reach
-the defined thresholds are comprehensively characterized and finally classified
-by heuristic filters.
+Platon detects plasmid contigs within bacterial draft genomes from WGS short-read assemblies.
+Therefore, Platon analyses the natural distribution biases of certain protein coding genes between
+chromosomes and plasmids. This analysis is complemented by comprehensive contig characterizations
+upon which the software applies several heuristics.
 
-Platon conducts three analysis steps. First, it predicts and searches coding
-sequences against a custom and pre-computed database comprising MPS and RDS.
-These scores express the empirically measured frequency biases of protein sequence
-distributions across plasmids and chromosomes based on complete NCBI RefSeq replicons.
-Platon calculates the mean RDS for each contig and either classifies them
-as chromosome if the RDS is below a sensitivity cutoff determined to 99% sensitivity or as
-plasmid if the RDS is above a specificity cutoff determined to 99.9% specificity.
+Platon conducts three analysis steps:
+1. It predicts and searches coding sequences against a custom and pre-computed
+database comprising marker protein sequences (**MPS**) and related replicon
+distribution scores (**RDS**). These scores express the empirically measured
+frequency biases of protein sequence distributions between plasmids and chromosomes
+pre-computed on complete NCBI RefSeq replicons. Platon calculates the mean RDS for
+each contig and either classifies them as chromosome if the RDS is below a
+sensitivity cutoff determined to 95% sensitivity or as plasmid if the RDS is
+above a specificity cutoff determined to 99.9% specificity.
 Exact values for these thresholds have been computed based on Monte Carlo simulations of
-artifical replicon subsequences created from complete RefSeq chromosome and plasmid sequences.
-In a second step contigs passing the sensitivity filter get comprehensivley characterized.
+artifical replicon fragments created from complete RefSeq chromosome and plasmid sequences.
+2. Contigs passing the sensitivity filter get comprehensivley characterized.
 Hereby, Platon tries to circularize the contig sequences, searches for rRNA,
-replication, mobilization and conjugation genes as well as incompatibility group
+replication, mobilization and conjugation genes, oriT sequences, incompatibility group
 DNA probes and finally performs a BLAST+ search against the NCBI plasmid database.
-In a last step, Platon finally classifies all remaining contigs based on
-heuristic filters.
+3. Finally, to increase the overall sensitivity, Platon classifies all remaining contigs based on the gathered information
+by several heuristics.
 
 | ![Replicon distribution and alignment hit frequencies of marker protein sequences](rds-ratio-counts.web.png?raw=true) |
 | -- |
@@ -182,8 +182,8 @@ $ platon -db ~/db --output results/ --verbose --threads 8 genome.fasta
 
 ## Database
 Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database,
-PlasmidFinder db as well as manually curated MOB HMM models from MOBscan, custom HMM models and
-oriT sequences from MOB-suite.
+PlasmidFinder db as well as manually curated MOB HMM models from MOBscan,
+custom conjugation and replication HMM models and oriT sequences from MOB-suite.
 This database based on UniProt UniRef90 release 2020_01 can be downloaded here:
 (zipped 1.4 Gb, unzipped 2.4 Gb)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
@@ -201,9 +201,9 @@ Additionally, it depends on the following 3rd party executables:
 -   INFERNAL (1.1.2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
 
 ## Citation
-A manuscript is in preparation... stay tuned!
+A manuscript is submitted.
 To temporarily cite our work, please transitionally refer to:
-> Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2019) Platon: identification and characterization of bacterial plasmid contigs from short-read draft assemblies exploiting protein-sequence-based replicon distribution scores. GitHub https://github.com/oschwengers/platon
+> Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2020) Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein-sequence-based replicon distribution scores. GitHub https://github.com/oschwengers/platon
 
 As Platon takes advantage of PlasmidFinder's incompatibility database, please also cite:
 > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
