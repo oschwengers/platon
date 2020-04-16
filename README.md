@@ -13,8 +13,7 @@
 - [Input/Output](#inputoutput)
 - [Installation](#installation)
   - [BioConda](#bioconda)
-  - [GitHub](#github)
-  - [Pip](#pip)
+  - [GitHub/Pip](#githubpip)
 - [Usage](#usage)
 - [Examples](#examples)
 - [Database](#database)
@@ -87,7 +86,9 @@ Platon can be installed in 3 different ways, though we advise to use Conda/BioCo
 In all cases, the custom database must be downloaded which we provide for download:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
 
-### BioConda
+### ~~BioConda~~
+Bioconda is our preferred packaging system, however the database for the latest release (v.1.2.0) was built with Diamond v0.9.31. Thus, Platon strictly depends on Diamond v0.9.3. Please, make sure you have this very version installed which is currently **not** available via BioConda due to an upstream bug on MacOS systems. We will update the Platon database as soon as a new Diamond release is available. Until then, please use the GitHub/Pip way to install Platon as described below.
+
 1.  install Platon via [Conda](https://conda.io/docs/install/quick.html) and the [Bioconda](https://bioconda.github.io/) channel
 2.  download & extract the database
 
@@ -100,13 +101,17 @@ $ rm db.tar.gz
 $ platon --db ./db genome.fasta
 ```
 
-### GitHub
+### GitHub/Pip
 1.  clone the the repository
-2.  download & extract the database
+2.  install Platon & Python dependencies per pip
+3.  download & extract the database
 
 Example:
 ```
 $ git clone git@github.com:oschwengers/platon.git
+$ cd platon
+$ python3 -m pip install .
+$ cd ..
 $ wget https://zenodo.org/record/3751774/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
@@ -117,31 +122,9 @@ Info: Just move the extracted database directory into the platon directory.
 Platon will automatically recognise it and thus, the database path doesn't need
 to be specified:
 ```
-$ git clone git@github.com:oschwengers/platon.git
-$ wget https://zenodo.org/record/3751774/files/db.tar.gz
-$ tar -xzf db.tar.gz
-$ rm db.tar.gz
+$ ...
 $ mv db/ platon
 $ platon/bin/platon genome.fasta
-```
-
-### Pip
-1.  install Platon per pip
-2.  download and extract the database
-3.  install 3rd party binaries
-
-Platon/database (1./2.):
-```
-$ pip3 install cb-platon
-$ wget https://zenodo.org/record/3751774/files/db.tar.gz
-$ tar -xzf db.tar.gz
-$ rm db.tar.gz
-$ platon --db ./db genome.fasta
-```
-
-3rd party dependencies on Ubuntu (3.):
-```
-$ sudo apt install ncbi-blast+ prodigal diamond-aligner infernal hmmer mummer
 ```
 
 ## Usage
