@@ -26,7 +26,7 @@
 Platon detects plasmid contigs within bacterial draft genomes from WGS short-read assemblies.
 Therefore, Platon analyses the natural distribution biases of certain protein coding genes between
 chromosomes and plasmids. This analysis is complemented by comprehensive contig characterizations
-upon which the software applies several heuristics.
+upon which several heuristics are applied.
 
 Platon conducts three analysis steps:
 1. It predicts and searches coding sequences against a custom and pre-computed
