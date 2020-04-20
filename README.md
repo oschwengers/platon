@@ -81,14 +81,12 @@ In addition, Platon writes the following files into the output directory:
 All files are prefixed (`<prefix>`) as the input genome fasta file.
 
 ## Installation
-Platon can be installed in 3 different ways, though we advise to use Conda/BioConda.
+Platon can be installed in 2 different ways, though we advise to use Conda/BioConda.
 
 In all cases, the custom database must be downloaded which we provide for download:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
 
-### ~~BioConda~~
-Bioconda is our preferred packaging system, however the database for the latest release (v.1.2.0) was built with Diamond v0.9.31. Thus, Platon strictly depends on Diamond v0.9.3. Please, make sure you have this very version installed which is currently **not** available via BioConda due to an upstream bug on MacOS systems. We will update the Platon database as soon as a new Diamond release is available. Until then, please use the GitHub/Pip way to install Platon as described below.
-
+### BioConda
 1.  install Platon via [Conda](https://conda.io/docs/install/quick.html) and the [Bioconda](https://bioconda.github.io/) channel
 2.  download & extract the database
 
@@ -177,7 +175,7 @@ Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
 
 Additionally, it depends on the following 3rd party executables:
 -   Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
--   Diamond (0.9.31) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
+-   Diamond (0.9.32) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
 -   Blast+ (2.7.1) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
 -   MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
 -   HMMER (3.2.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3695513/> <http://hmmer.org/>
