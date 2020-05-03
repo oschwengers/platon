@@ -29,10 +29,11 @@ def main():
     )
     parser.add_argument('genome', metavar='<genome>', help='draft genome in fasta format')
     parser.add_argument('--db', '-d', action='store', help='database path (default = <platon_path>/db)')
-    parser.add_argument('--threads', '-t', action='store', type=int, default=mp.cpu_count(), help='number of threads to use (default = number of available CPUs)')
-    parser.add_argument('--verbose', '-v', action='store_true', help='print verbose information')
+    parser.add_argument('--mode', '-m', action='store', type=str, choices=['sensitivity', 'accuracy', 'specificity'], default='accuracy', help='applied filter mode: sensitivity: RDS only (>= 95%% sensitivity); specificity: RDS only (>=99.9%% specificity); accuracy: RDS & characterization heuristics (highest accuracy)')
     parser.add_argument('--characterize', '-c', action='store_true', help='deactivate filters; characterize all contigs')
     parser.add_argument('--output', '-o', help='output directory (default = current working directory)')
+    parser.add_argument('--threads', '-t', action='store', type=int, default=mp.cpu_count(), help='number of threads to use (default = number of available CPUs)')
+    parser.add_argument('--verbose', '-v', action='store_true', help='print verbose information')
     parser.add_argument('--version', '-V', action='version', version='%(prog)s ' + platon.__version__)
     args = parser.parse_args()
 
@@ -77,6 +78,7 @@ def main():
     log.info('configuration: bundled binaries=%s', config['bundled-binaries'])
     log.info('configuration: tmp-path=%s', config['tmp'])
     log.info('parameters: genome=%s', genome_path)
+    log.info('parameters: mode=%s', args.mode)
     log.info('parameters: output=%s', output_path)
     log.info('options: characterize=%s', args.characterize)
     log.info('options: threads=%d', args.threads)
@@ -86,6 +88,7 @@ def main():
         print('\tuse bundled binaries: ' + str(config['bundled-binaries']))
         print('\tgenome path: ' + str(genome_path))
         print('\toutput path: ' + str(output_path))
+        print('\tmode: ' + args.mode)
         print('\tcharacterize: ' + str(args.characterize))
         print('\ttmp path: ' + str(config['tmp']))
         print('\t# threads: ' + str(args.threads))
@@ -324,8 +327,10 @@ def main():
 
     # filter contigs
     filtered_contigs = None
-    if(args.characterize):  # skip protein score based filtering
+    if(args.characterize or args.mode == 'sensitivity'):  # skip protein score based filtering
         filtered_contigs = scored_contigs
+    if(args.mode == 'specificity'):
+        filtered_contigs = {k: v for (k, v) in scored_contigs.items() if v['protein_score'] > pc.RDS_SPECIFICITY_THRESHOLD}
     else:
         filtered_contigs = {k: v for (k, v) in scored_contigs.items() if pf.filter_contig(v)}
 

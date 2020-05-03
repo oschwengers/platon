@@ -16,6 +16,7 @@
   - [GitHub/Pip](#githubpip)
 - [Usage](#usage)
 - [Examples](#examples)
+- [Mode](#mode)
 - [Database](#database)
 - [Dependencies](#dependencies)
 - [Citation](#citation)
@@ -140,6 +141,11 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --db DB, -d DB        database path (default = <platon_path>/db)
+  --mode {sensitivity,accuracy,specificity}, -m {sensitivity,accuracy,specificity}
+                        applied filter mode: sensitivity: RDS only (>= 95%
+                        sensitivity); specificity: RDS only (>=99.9%
+                        specificity); accuracy: RDS & characterization
+                        heuristics (highest accuracy)
   --threads THREADS, -t THREADS
                         number of threads to use (default = number of
                         available CPUs)
@@ -160,6 +166,35 @@ Expert: writing results to `results` directory with verbose output using 8 threa
 ```
 $ platon -db ~/db --output results/ --verbose --threads 8 genome.fasta
 ```
+
+## Mode
+Platon provides 3 different modi controlling which filters will be used.
+`Accuracy` mode is the preset default.
+
+### Sensitivity
+In the `sensitivity` mode Platon will classifiy all contigs with an `RDS` value *below*
+the sensitivity threshold as chromosomal and all remaining contigs as plasmid.
+This threshold was defined to account for 95% sensitivity and computed via Monte Carlo
+simulations of artifical contigs resulting in an RDS=-7.7.
+-> use this mode to *exclude chromosomal* contigs.
+
+### Specificity
+In the `specificity` mode Platon will classifiy all contigs with an `RDS` value *above*
+the specificity threshold as plasmid and all remaining contigs as chromosomal.
+This threshold was defined to account for 99.9% specificity and computed via Monte Carlo
+simulations of artifical contigs resulting in an RDS=0.4.
+
+### Accuracy (default)
+In the `accuracy` mode Platon will classifiy all contigs with:
+  - an `RDS` value *below* the sensitivity threshold as chromosomal
+  - an `RDS` value *above* the specificity threshold as plasmid
+and in addition all contigs as plasmid for which one of the following is true: it
+  - can be circularized
+  - has an incompatibility group sequence
+  - has a replication or mobilization HMM hit
+  - has an oriT hit
+  - has an RDS above the conservative score (0.1), a RefSeq plasmid hit and *no* rRNA hit
+
 
 ## Database
 Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database,
