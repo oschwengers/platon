@@ -10,7 +10,7 @@ RDS_SPECIFICITY_THRESHOLD = 0.4  # (-0.5) specificity >= 99.9 %
 MIN_CIRC_BASEPAIR_OVERLAP = 100
 
 SPADES_CONTIG_PATTERN = re.compile(r'NODE_\d+_length_\d+_cov_(\d+\.\d+)')
-HEADER = 'ID\tLength\tCoverage\t# ORFs\tProtein Score\tCircular\tInc Type(s)\t# Replication\t# Mobilization\t# OriT\t# Conjugation\t# AMRs\t# rRNAs\t# Plasmid Hits'
+HEADER = 'ID\tLength\tCoverage\t# ORFs\tRDS\tCircular\tInc Type(s)\t# Replication\t# Mobilization\t# OriT\t# Conjugation\t# AMRs\t# rRNAs\t# Plasmid Hits'
 CITATION = '''Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2019)
 Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein-sequence-based replicon distribution scores.
 GitHub https://github.com/oschwengers/platon'''
