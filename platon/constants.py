@@ -11,6 +11,6 @@ MIN_CIRC_BASEPAIR_OVERLAP = 100
 
 SPADES_CONTIG_PATTERN = re.compile(r'NODE_\d+_length_\d+_cov_(\d+\.\d+)')
 HEADER = 'ID\tLength\tCoverage\t# ORFs\tRDS\tCircular\tInc Type(s)\t# Replication\t# Mobilization\t# OriT\t# Conjugation\t# AMRs\t# rRNAs\t# Plasmid Hits'
-CITATION = '''Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2019)
+CITATION = '''Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2020)
 Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein-sequence-based replicon distribution scores.
-GitHub https://github.com/oschwengers/platon'''
+bioRxiv 2020.04.21.053082; doi: https://doi.org/10.1101/2020.04.21.053082'''
