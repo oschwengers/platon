@@ -285,10 +285,10 @@ def search_amr_genes(config, contigs, filteredProteinsPath):
 def search_reference_plasmids(config, contig):
     """Search for reference plasmid hits."""
 
-    # Reduce blastn word size to overcome segmentation faults due to too many
-    # HSPs. As filtered contigs are at least 1k bp long, word size cannot be
-    # smaller than 10.
+    # Reduce blastn word size to overcome segmentation faults due to too many HSPs.
     blast_word_size = int(contig['length'] / 100)
+    if(blast_word_size < 11):
+        blast_word_size = 11
 
     contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
     tmp_output_path = config['tmp'].joinpath(contig['id'] + '.refplas.blast.out')
