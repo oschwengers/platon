@@ -440,12 +440,12 @@ def filter_contig(contig):
         return True
 
     # include all contigs with high confidence protein scores
-    if(contig['protein_score'] > pc.RDS_SPECIFICITY_THRESHOLD):
+    if(contig['protein_score'] >= pc.RDS_SPECIFICITY_THRESHOLD):
         log.debug('filter: RDS > SPT! contig=%s', contig['id'])
         return True
 
     # include all contigs with mediocre protein scores but additional blast hit evidence without rRNAs
-    if(contig['protein_score'] > pc.RDS_CONSERVATIVE_THRESHOLD
+    if(contig['protein_score'] >= pc.RDS_CONSERVATIVE_THRESHOLD
             and len(contig['plasmid_hits']) > 0
             and len(contig['rrnas']) == 0):
         log.debug('filter: RDS > CT & plasmid hits & no rRNAs! contig=%s', contig['id'])
