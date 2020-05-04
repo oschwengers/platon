@@ -64,7 +64,7 @@ to `STDOUT` as tab separated values:
 -   Length
 -   Coverage
 -   \# ORFs
--   Protein Score
+-   RDS
 -   Circularity
 -   Incompatibility Type(s)
 -   \# Replication Genes
