@@ -171,8 +171,10 @@ def main():
     if(args.verbose):
         print('\tfound %d ORFs' % no_orfs)
 
-    # exclude contigs without ORFs
-    if(not args.characterize):
+    # retain / exclude contigs without ORFs
+    if(args.characterize or args.mode == 'sensitivity' or args.mode == 'accuracy'):
+        log.info('ORF contig filter disabled! # passed contigs=%s', len(contigs))
+    else:  # exclude contigs without ORFs in specificity mode
         tmp_contigs = {}
         for contig in filter(lambda k: len(k['orfs']) > 0, contigs.values()):
             tmp_contigs[contig['id']] = contig
@@ -331,10 +333,12 @@ def main():
 
     # filter contigs
     filtered_contigs = None
-    if(args.characterize or args.mode == 'sensitivity'):  # skip protein score based filtering
+    if(args.characterize):  # skip protein score based filtering
         filtered_contigs = scored_contigs
-    if(args.mode == 'specificity'):
-        filtered_contigs = {k: v for (k, v) in scored_contigs.items() if v['protein_score'] > pc.RDS_SPECIFICITY_THRESHOLD}
+    elif(args.mode == 'sensitivity'):  # skip protein score based filtering but apply rRNA filter
+        filtered_contigs = {k: v for (k, v) in scored_contigs.items() if len(v['rrnas']) == 0}
+    elif(args.mode == 'specificity'):
+        filtered_contigs = {k: v for (k, v) in scored_contigs.items() if v['protein_score'] >= pc.RDS_SPECIFICITY_THRESHOLD}
     else:
         filtered_contigs = {k: v for (k, v) in scored_contigs.items() if pf.filter_contig(v)}
 
