@@ -29,7 +29,7 @@ def main():
     )
     parser.add_argument('genome', metavar='<genome>', help='draft genome in fasta format')
     parser.add_argument('--db', '-d', action='store', help='database path (default = <platon_path>/db)')
-    parser.add_argument('--mode', '-m', action='store', type=str, choices=['sensitivity', 'accuracy', 'specificity'], default='accuracy', help='applied filter mode: sensitivity: RDS only (>= 95%% sensitivity); specificity: RDS only (>=99.9%% specificity); accuracy: RDS & characterization heuristics (highest accuracy)')
+    parser.add_argument('--mode', '-m', action='store', type=str, choices=['sensitivity', 'accuracy', 'specificity'], default='accuracy', help='applied filter mode: sensitivity: RDS only (>= 95%% sensitivity); specificity: RDS only (>=99.9%% specificity); accuracy: RDS & characterization heuristics (highest accuracy) (default = accuracy)')
     parser.add_argument('--characterize', '-c', action='store_true', help='deactivate filters; characterize all contigs')
     parser.add_argument('--output', '-o', help='output directory (default = current working directory)')
     parser.add_argument('--threads', '-t', action='store', type=int, default=mp.cpu_count(), help='number of threads to use (default = number of available CPUs)')
