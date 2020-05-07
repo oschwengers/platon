@@ -1,6 +1,6 @@
 #!/usr/bin/env cwl-runner
 
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: CommandLineTool
 baseCommand: [platon]
 id: platon
@@ -17,7 +17,7 @@ hints:
   SoftwareRequirement:
     packages:
       platon:
-      version: [ "1.2.0" ]
+      version: [ "1.3.0" ]
 
 requirements:
   - ResourceRequirement:
@@ -33,7 +33,12 @@ inputs:
   - doc: Database path (default = <platon_path>/db)
     id: db
     inputBinding: {prefix: --db}
-    type: File
+    type: Directory
+  - doc: Mode
+    id: mode
+    inputBinding: {prefix: --mode}
+    type: string
+    default: 'accuracy'
   - doc: Threads
     id: threads
     inputBinding: {prefix: --threads}
