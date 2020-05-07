@@ -221,14 +221,12 @@ A manuscript is submitted.
 To temporarily cite our work, please transitionally refer to:
 > Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2020) Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein-sequence-based replicon distribution scores. bioRxiv 2020.04.21.053082; doi: https://doi.org/10.1101/2020.04.21.053082
 
-As Platon takes advantage of PlasmidFinder's incompatibility database, please also cite:
-> Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
+As Platon takes advantage of the inc groups, MOB HMMs and oriT sequences of the following databases, please also cite:
+-  > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
 
-As Platon takes advantage of MOBscan's MOB HMM profiles, please also cite:
-> Garcillán-Barcia M. P., Redondo-Salvo S., Vielva L., de la Cruz F. (2020) MOBscan: Automated Annotation of MOB Relaxases. Methods in Molecular Biology, https://doi.org/10.1007/978-1-4939-9877-7_21
+-  > Garcillán-Barcia M. P., Redondo-Salvo S., Vielva L., de la Cruz F. (2020) MOBscan: Automated Annotation of MOB Relaxases. Methods in Molecular Biology, https://doi.org/10.1007/978-1-4939-9877-7_21
 
-As Platon takes advantage of MOB-suite's oriT sequences, please also cite:
-> Robertson J., Nash J. H. E. (2018) MOB-suite: Software Tools for Clustering, Reconstruction and Typing of Plasmids From Draft Assemblies. Microbial Genomics, https://doi.org/10.1099/mgen.0.000206
+-  > Robertson J., Nash J. H. E. (2018) MOB-suite: Software Tools for Clustering, Reconstruction and Typing of Plasmids From Draft Assemblies. Microbial Genomics, https://doi.org/10.1099/mgen.0.000206
 
 
 ## Issues
