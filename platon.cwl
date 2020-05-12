@@ -20,7 +20,7 @@ hints:
       version: [ "1.3.0" ]
 
 requirements:
-  - ResourceRequirement:
+  ResourceRequirement:
     ramMin: 4096
     coresMin: 1
 
