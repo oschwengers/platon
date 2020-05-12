@@ -1,6 +1,6 @@
 #!/usr/bin/env cwl-runner
 
-cwlVersion: v1.1
+cwlVersion: v1.0
 class: CommandLineTool
 baseCommand: [platon]
 id: platon
@@ -20,7 +20,7 @@ hints:
       version: [ "1.3.0" ]
 
 requirements:
-  - ResourceRequirement:
+  ResourceRequirement:
     ramMin: 4096
     coresMin: 1
 
@@ -52,12 +52,12 @@ outputs:
     id: plasmid_contigs
     type: File
     format: edam:format_1929
-    glob: '*.plasmid.fasta'
+    outputBinding: {glob: '*.plasmid.fasta'}
   - doc: Chromosome contigs
     id: chromosome_contigs
     type: File
     format: edam:format_1929
-    glob: '*.chromosome.fasta'
+    outputBinding: {glob: '*.chromosome.fasta'}
 
 s:author:
   - class: s:Person
