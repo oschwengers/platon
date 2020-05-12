@@ -1,6 +1,6 @@
 #!/usr/bin/env cwl-runner
 
-cwlVersion: v1.1
+cwlVersion: v1.0
 class: CommandLineTool
 baseCommand: [platon]
 id: platon
