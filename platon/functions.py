@@ -117,6 +117,7 @@ def search_inc_type(config, contig):
         '-out', str(tmp_output_path)
     ]
     proc = sp.run(
+        cmd,
         cwd=str(config['tmp']),
         env=config['env'],
         stdout=sp.PIPE,
