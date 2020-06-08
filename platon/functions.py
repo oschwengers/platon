@@ -681,13 +681,20 @@ def search_conjugation_genes(config, contigs, filteredProteinsPath):
     return
 
 
-def setup_configuration():
+def setup_configuration(args):
     """Test environment and build a runtime configuration."""
 
     config = {
         'env': os.environ.copy(),
         'tmp': Path(tempfile.mkdtemp()),
-        'bundled-binaries': False
+        'bundled-binaries': False,
+        'args': {
+            'mode': args.mode,
+            'characterize': args.characterize,
+            'threads': args.threads,
+            'output': args.output,
+            'verbose': args.verbose
+        }
     }
     base_dir = Path(__file__).parent.parent
     share_dir = base_dir.joinpath('share')

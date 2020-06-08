@@ -64,7 +64,7 @@ def main():
     log.info('version %s', platon.__version__)
 
     # check parameters and test/setup runtime configuration
-    config = pf.setup_configuration()
+    config = pf.setup_configuration(args)
 
     if(args.db):
         db_path = Path(args.db).resolve()
