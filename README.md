@@ -129,8 +129,9 @@ $ platon/bin/platon genome.fasta
 ## Usage
 Usage:
 ```
-usage: platon [-h] [--db DB] [--threads THREADS] [--verbose] [--characterize]
-              [--output OUTPUT] [--version]
+usage: platon [-h] [--db DB] [--mode {sensitivity,accuracy,specificity}]
+              [--characterize] [--output OUTPUT] [--prefix PREFIX]
+              [--threads THREADS] [--verbose] [--version]
               <genome>
 
 Identification and characterization of bacterial plasmid contigs from short-read draft assemblies.
@@ -145,14 +146,16 @@ optional arguments:
                         applied filter mode: sensitivity: RDS only (>= 95%
                         sensitivity); specificity: RDS only (>=99.9%
                         specificity); accuracy: RDS & characterization
-                        heuristics (highest accuracy)
+                        heuristics (highest accuracy) (default = accuracy)
+  --characterize, -c    deactivate filters; characterize all contigs
+  --output OUTPUT, -o OUTPUT
+                        output directory (default = current working directory)
+  --prefix PREFIX, -p PREFIX
+                        file prefix (default = input file name)
   --threads THREADS, -t THREADS
                         number of threads to use (default = number of
                         available CPUs)
   --verbose, -v         print verbose information
-  --characterize, -c    deactivate filters; characterize all contigs
-  --output OUTPUT, -o OUTPUT
-                        output directory (default = current working directory)
   --version, -V         show program's version number and exit
 ```
 

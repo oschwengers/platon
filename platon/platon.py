@@ -32,6 +32,7 @@ def main():
     parser.add_argument('--mode', '-m', action='store', type=str, choices=['sensitivity', 'accuracy', 'specificity'], default='accuracy', help='applied filter mode: sensitivity: RDS only (>= 95%% sensitivity); specificity: RDS only (>=99.9%% specificity); accuracy: RDS & characterization heuristics (highest accuracy) (default = accuracy)')
     parser.add_argument('--characterize', '-c', action='store_true', help='deactivate filters; characterize all contigs')
     parser.add_argument('--output', '-o', help='output directory (default = current working directory)')
+    parser.add_argument('--prefix', '-p', action='store', default='', help='file prefix (default = input file name)')
     parser.add_argument('--threads', '-t', action='store', type=int, default=mp.cpu_count(), help='number of threads to use (default = number of available CPUs)')
     parser.add_argument('--verbose', '-v', action='store_true', help='print verbose information')
     parser.add_argument('--version', '-V', action='version', version='%(prog)s ' + platon.__version__)
@@ -51,7 +52,7 @@ def main():
     output_path = output_path.resolve()
 
     # get file prefix
-    prefix = genome_path.stem
+    prefix = args.prefix if args.prefix != '' else genome_path.stem
 
     # setup logging
     logging.basicConfig(
@@ -80,6 +81,7 @@ def main():
     log.info('parameters: genome=%s', genome_path)
     log.info('parameters: mode=%s', args.mode)
     log.info('parameters: output=%s', output_path)
+    log.info('parameters: prefix=%s', prefix)
     log.info('options: characterize=%s', args.characterize)
     log.info('options: threads=%d', args.threads)
     if(args.verbose):
@@ -88,6 +90,7 @@ def main():
         print('\tuse bundled binaries: ' + str(config['bundled-binaries']))
         print('\tgenome path: ' + str(genome_path))
         print('\toutput path: ' + str(output_path))
+        print('\tprefix: ' + prefix)
         print('\tmode: ' + args.mode)
         print('\tcharacterize: ' + str(args.characterize))
         print('\ttmp path: ' + str(config['tmp']))
