@@ -468,6 +468,13 @@ def predict_orfs(config, contigs, filteredDraftGenomePath):
         '-f', 'gff',  # GFF output
         '-o', str(gff_path)  # prodigal output
     ]
+
+    genome_size = sum([v['length'] for k, v in contigs.items()])
+    if(config['args']['characterize'] and genome_size < 50000):
+        cmd.append('-p')
+        cmd.append('meta')
+        log.info('ORFs: execute prodigal in meta mode! characterize=%s, genome-size=%d', config['args']['characterize'], genome_size)
+
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
