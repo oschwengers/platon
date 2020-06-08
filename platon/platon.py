@@ -166,6 +166,8 @@ def main():
     if(args.verbose):
         print('predict ORFs...')
     proteins_path = pf.predict_orfs(config, contigs, genome_path)
+    if(proteins_path is None):
+        sys.exit('Error: ORF prediction failed!')
     no_orfs = ft.reduce(lambda x, y: x + y, map(lambda k: len(contigs[k]['orfs']), contigs))
     log.info('ORF detection: # ORFs=%d', no_orfs)
     if(args.verbose):

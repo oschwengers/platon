@@ -484,7 +484,7 @@ def predict_orfs(config, contigs, filteredDraftGenomePath):
             'ORFs: cmd=%s stdout=\'%s\', stderr=\'%s\'',
             cmd, proc.stdout, proc.stderr
         )
-        return
+        return None
 
     # parse orfs
     with gff_path.open() as fh:
