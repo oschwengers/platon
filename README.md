@@ -220,9 +220,7 @@ Additionally, it depends on the following 3rd party executables:
 -   INFERNAL (1.1.2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
 
 ## Citation
-A manuscript is submitted.
-To temporarily cite our work, please transitionally refer to:
-> Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., Goesmann A. (2020) Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein-sequence-based replicon distribution scores. bioRxiv 2020.04.21.053082; doi: https://doi.org/10.1101/2020.04.21.053082
+> Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., & Goesmann A. (2020). Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein sequence-based replicon distribution scores. Microbial Genomics, 95, 295. https://doi.org/10.1099/mgen.0.000398
 
 As Platon takes advantage of the inc groups, MOB HMMs and oriT sequences of the following databases, please also cite:
 -  > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
