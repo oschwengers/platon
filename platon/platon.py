@@ -192,7 +192,7 @@ def main():
     # find marker genes
     if(args.verbose):
         print('search marker protein sequences (MPS)...')
-    tmp_output_path = config['tmp'].joinpath('ghostz.tsv')
+    tmp_output_path = config['tmp'].joinpath('diamond.tsv')
     cmd = [
         'diamond',
         'blastp',
