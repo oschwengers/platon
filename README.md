@@ -1,10 +1,10 @@
+[![DOI:10.1099/mgen.0.000398](https://zenodo.org/badge/DOI/10.1099/mgen.0.000398.svg)](https://doi.org/10.1099/mgen.0.000398)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/oschwengers/platon/blob/master/LICENSE)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/cb-platon.svg)
 ![GitHub release](https://img.shields.io/github/release/oschwengers/platon.svg)
 ![PyPI](https://img.shields.io/pypi/v/cb-platon.svg)
 ![PyPI - Status](https://img.shields.io/pypi/status/cb-platon.svg)
-![Conda](https://img.shields.io/conda/v/bioconda/platon.svg)
-![Conda](https://img.shields.io/conda/pn/bioconda/platon.svg)
+[![Conda](https://img.shields.io/conda/v/bioconda/platon.svg)](https://bioconda.github.io/recipes/platon/README.html)
 
 # Platon: identification and characterization of bacterial plasmid contigs from short-read draft assemblies.
 
