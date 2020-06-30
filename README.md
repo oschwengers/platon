@@ -94,7 +94,7 @@ In all cases, the custom database must be downloaded which we provide for downlo
 Example:
 ```
 $ conda install -c conda-forge -c bioconda -c defaults platon
-$ wget https://zenodo.org/record/3751774/files/db.tar.gz
+$ wget https://zenodo.org/record/3924529/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 $ platon --db ./db genome.fasta
@@ -111,7 +111,7 @@ $ git clone git@github.com:oschwengers/platon.git
 $ cd platon
 $ python3 -m pip install .
 $ cd ..
-$ wget https://zenodo.org/record/3751774/files/db.tar.gz
+$ wget https://zenodo.org/record/3924529/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 $ platon/bin/platon --db ./db genome.fasta
@@ -206,7 +206,7 @@ custom conjugation and replication HMM models and oriT sequences from MOB-suite.
 This database based on UniProt UniRef90 release 2020_01 can be downloaded here:
 (zipped 1.4 Gb, unzipped 2.4 Gb)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
--   [https://zenodo.org/record/3751774/files/db.tar.gz](https://zenodo.org/record/3751774/files/db.tar.gz)
+-   [https://zenodo.org/record/3924529/files/db.tar.gz](https://zenodo.org/record/3924529/files/db.tar.gz)
 
 ## Dependencies
 Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
