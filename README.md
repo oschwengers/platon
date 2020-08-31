@@ -213,7 +213,7 @@ Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
 
 Additionally, it depends on the following 3rd party executables:
 -   Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
--   Diamond (0.9.32) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
+-   Diamond (2.0.4) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
 -   Blast+ (2.7.1) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
 -   MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
 -   HMMER (3.2.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3695513/> <http://hmmer.org/>
