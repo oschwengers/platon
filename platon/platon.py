@@ -103,10 +103,9 @@ def main():
     raw_contigs = []
     try:
         for record in SeqIO.parse(str(genome_path), 'fasta'):
-            id = record.id
             length = len(record.seq)
             contig = {
-                'id': id,
+                'id': record.id,
                 'length': length,
                 'sequence': str(record.seq),
                 'orfs': {},
@@ -123,24 +122,32 @@ def main():
             raw_contigs.append(contig)
 
             # read coverage from contig names if they were assembled with SPAdes
-            match = re.fullmatch(pc.SPADES_CONTIG_PATTERN, id)
-            contig['coverage'] = 0 if (match is None) else float(match.group(1))
+            match_spades = re.fullmatch(pc.SPADES_CONTIG_PATTERN, record.id)
+            match_unicycler = re.fullmatch(pc.UNICYCLER_CONTIG_PATTERN, record.description)
+            if(match_spades is not None):
+                contig['coverage'] = float(match_spades.group(1))
+            elif(match_unicycler is not None):
+                contig['coverage'] = float(match_unicycler.group(1))
+                if(match_unicycler.group(2) is not None):
+                    contig['is_circular'] = True
+            else:
+                contig['coverage'] = 0
 
             # only include contigs with reasonable lengths except of
             # platon runs in characterization mode
             if(args.characterize):
-                contigs[id] = contig
+                contigs[record.id] = contig
             else:
                 if(length < pc.MIN_CONTIG_LENGTH):
-                    log.info('exclude contig: too short: id=%s, length=%d', id, length)
+                    log.info('exclude contig: too short: id=%s, length=%d', record.id, length)
                     if (args.verbose):
-                        print('\texclude contig \'%s\', too short (%d)' % (id, length))
+                        print('\texclude contig \'%s\', too short (%d)' % (record.id, length))
                 elif(length >= pc.MAX_CONTIG_LENGTH):
-                    log.info('exclude contig: too long: id=%s, length=%d', id, length)
+                    log.info('exclude contig: too long: id=%s, length=%d', record.id, length)
                     if (args.verbose):
-                        print('\texclude contig \'%s\', too long (%d)' % (id, length))
+                        print('\texclude contig \'%s\', too long (%d)' % (record.id, length))
                 else:
-                    contigs[id] = contig
+                    contigs[record.id] = contig
     except:
         log.error('wrong genome file format!', exc_info=True)
         sys.exit('ERROR: wrong genome file format!')
