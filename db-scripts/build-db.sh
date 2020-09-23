@@ -93,7 +93,7 @@ grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f1,5,6,8,9,10,11,12,15 > refseq-p
 grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f3 refseq-plasmids.tsv > refseq-plasmids-ids.txt
 mkdir refseq-plasmids-dir
 cd refseq-plasmids-dir
-for i in {1..6}; do
+for i in {1..8}; do
     wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/refseq/release/plasmid/plasmid.$i.1.genomic.fna.gz
 done
 cd ..
