@@ -114,20 +114,24 @@ rm -rf work .nextflow* nf-tmp
 printf "\n9/15: download NCBI taxonomy...\n"
 mkdir taxonomy
 cd taxonomy
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+wget -q -nv ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
 tar -xzf taxdump.tar.gz
 cd ..
 
 
 # download UniProt UniRef90 clusters
 printf "\n10/15: download UniProt UniRef90 clusters...\n"
-wget -q -nH ftp://ftp.expasy.org/databases/uniprot/current_release/uniref/uniref90/uniref90.xml.gz
+wget -q -nv ftp://ftp.expasy.org/databases/uniprot/current_release/uniref/uniref90/uniref90.xml.gz
+wget -q -nv ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/uniparc/uniparc_active.fasta.gz
+wget -q -nv ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz
 python3 $PLATON_HOME/db-scripts/uniref-extract-bacteria.py \
     --taxonomy taxonomy/nodes.dmp \
     --xml uniref90.xml.gz \
+    --uniprotkb uniprot_trembl.fasta.gz \
+    --uniparc uniparc_active.fasta.gz \
     --fasta uniref90.faa \
     --tsv uniref90.tsv
-rm -r uniref90.xml.gz taxonomy/
+rm -r uniref90.xml.gz taxonomy/ uniparc_active.fasta.gz uniprot_trembl.fasta.gz
 
 
 # build complete protein cluster db
