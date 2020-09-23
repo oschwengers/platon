@@ -49,6 +49,12 @@ for type in replication conjugation; do
     cut -f1 ${type}.tsv >> clusters.lst
 done
 grep -f clusters.lst PCLA_proteins.txt | cut -f2 > clusters-proteins.lst
+
+for i in {1..1169}; do
+    wget -nv ftp://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.nonredundant_protein.${i}.protein.faa.gz
+    pigz -dc bacteria.nonredundant_protein.${i}.protein.faa.gz | seqtk seq -CU >> refseq-bacteria-nrp.trimmed.faa
+    rm bacteria.nonredundant_protein.${i}.protein.faa.gz
+done
 seqtk subseq refseq-bacteria-nrp.trimmed.faa clusters-proteins.lst > clusters-proteins.faa
 for type in replication conjugation; do
     printf "\nbuild ${type}...\n"
