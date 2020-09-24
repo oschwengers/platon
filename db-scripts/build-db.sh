@@ -108,7 +108,8 @@ rm -r refseq-plasmids-dir refseq-plasmids-raw.tsv refseq-plasmids-ids.txt
 # download RefSeq chromosomes
 printf "\n8/15: download RefSeq chromosomes...\n"
 mkdir nf-tmp
-nextflow run $PLATON_HOME/db-scripts/download-chromosomes.nf
+wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt
+nextflow run $PLATON_HOME/db-scripts/download-chromosomes.nf --assembly assembly_summary.txt
 rm -rf work .nextflow* nf-tmp
 
 
@@ -125,15 +126,13 @@ cd ..
 printf "\n10/15: download UniProt UniRef90 clusters...\n"
 wget -q -nv ftp://ftp.expasy.org/databases/uniprot/current_release/uniref/uniref90/uniref90.xml.gz
 wget -q -nv ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/uniparc/uniparc_active.fasta.gz
-wget -q -nv ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz
 python3 $PLATON_HOME/db-scripts/uniref-extract-bacteria.py \
     --taxonomy taxonomy/nodes.dmp \
     --xml uniref90.xml.gz \
-    --uniprotkb uniprot_trembl.fasta.gz \
     --uniparc uniparc_active.fasta.gz \
     --fasta uniref90.faa \
     --tsv uniref90.tsv
-rm -r uniref90.xml.gz taxonomy/ uniparc_active.fasta.gz uniprot_trembl.fasta.gz
+rm -r uniref90.xml.gz taxonomy/ uniparc_active.fasta.gz
 
 
 # build complete protein cluster db

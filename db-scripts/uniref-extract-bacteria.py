@@ -12,7 +12,6 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('--taxonomy', action='store', help='Path to NCBI taxonomy node.dmp file.')
 parser.add_argument('--xml', action='store', help='Path to UniRef xml file.')
-parser.add_argument('--uniprotkb', action='store', help='Path to UniProt KB fasta file.')
 parser.add_argument('--uniparc', action='store', help='Path to UniParc fasta file.')
 parser.add_argument('--fasta', action='store', help='Path to MPS fasta file.')
 parser.add_argument('--tsv', action='store', help='Path to MPS tsv file.')
@@ -20,7 +19,6 @@ args = parser.parse_args()
 
 taxonomy_path = Path(args.taxonomy).resolve()
 xml_path = Path(args.xml).resolve()
-uniprotkb_path = Path(args.uniprotkb).resolve()
 uniparc_path = Path(args.uniparc).resolve()
 fasta_path = Path(args.fasta)
 tsv_path = Path(args.tsv)
@@ -42,7 +40,6 @@ with taxonomy_path.open() as fh:
         cols = line.split('\t|\t', maxsplit=2)
         taxonomy[cols[0]] = cols[1]
 
-uniref90_uniprotkb_ids = {}
 uniref90_uniparc_ids = {}
 
 with gzip.open(str(xml_path), mode='rt') as fh_xml, fasta_path.open(mode='wt') as fh_fasta, tsv_path.open(mode='wt') as fh_tsv:
@@ -79,9 +76,7 @@ with gzip.open(str(xml_path), mode='rt') as fh_xml, fasta_path.open(mode='wt') a
                         if(member_dbref.find('./{*}property[@type="isSeed"]') is not None):
                             seed_db_type = member_dbref.get('type')
                             seed_db_id = member_dbref.get('id')
-                            if(seed_db_type == 'UniProtKB ID'):
-                                uniref90_uniprotkb_ids[seed_db_id] = uniref90_id
-                            elif(seed_db_type == 'UniParc ID'):
+                            if(seed_db_type == 'UniParc ID'):
                                 uniref90_uniparc_ids[seed_db_id] = uniref90_id
                             else:
                                 print("detected additional seed type! UniRef90-id=%s, seed-type=%s, seed-id=%s" % (uniref90_id, seed_db_type, seed_db_id))
@@ -93,19 +88,6 @@ with gzip.open(str(xml_path), mode='rt') as fh_xml, fasta_path.open(mode='wt') a
         elem.clear()  # forstall out of memory errors
 
 print('Lookup non-representative seed sequences in:')
-print("\tUniProtKb (%i)..." % len(uniref90_uniprotkb_ids))
-i = 0
-with gzip.open(str(uniprotkb_path), mode='rt') as fh_uniprotkb, fasta_path.open(mode='at') as fh_fasta:
-    for record in SeqIO.parse(fh_uniprotkb, 'fasta'):
-        uniprotkb_id = record.id.split('|')[2]  # >tr|H9BV67|H9BV67_9EURY
-        uniref90_id = uniref90_uniprotkb_ids.get(uniprotkb_id, None)
-        if(uniref90_id):
-            fh_fasta.write(">%s\n%s\n" % (uniref90_id, str(record.seq).upper()))
-            uniref90_uniprotkb_ids.pop(uniprotkb_id)
-            i += 1
-print("\twritten UniProtKB seed sequences: %i" % i)
-
-
 print("UniParc (%i)..." % len(uniref90_uniparc_ids))
 i = 0
 with gzip.open(str(uniparc_path), mode='rt') as fh_uniparc, fasta_path.open(mode='at') as fh_fasta:

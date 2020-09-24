@@ -5,7 +5,7 @@ import java.nio.file.*
 final int MIN_CHROMOSOME_LENGTH = 100_000
 
 
-Channel.fromPath( "ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt" )
+Channel.fromPath( params.assembly )
     .splitCsv( skip: 2, sep: '\t'  )
     .filter( { (it[11].toLowerCase() == 'complete genome') } )
     .map( { return [ it[0], it[7], it[19] ] } )
