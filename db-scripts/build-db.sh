@@ -81,15 +81,11 @@ rm mobilization
 
 # build oriT blastn database
 printf "\n6/15: build oriT blastn database...\n"
-mkdir mobsuite
-cd mobsuite
-wget -q -nH https://castillo.dicom.unican.es/mobscan_about/MOBfamDB.gz
-unzip mobsuitedb.zip
-gunzip orit.fas.gz
-mv orit.fas ../orit
-cd ..
+wget -q -nH https://zenodo.org/record/3786915/files/data.tar.gz
+tar -xvzf data.tar.gz
+mv data/orit.fas ./orit
 makeblastdb -dbtype nucl -in orit -title 'OriT'
-rm -r orit mobsuite
+rm -r orit data.tar.gz data/
 
 
 # download RefSeq reference plasmids
