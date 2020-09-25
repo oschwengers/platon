@@ -42,59 +42,69 @@ with taxonomy_path.open() as fh:
 
 uniref90_uniparc_ids = {}
 
-with gzip.open(str(xml_path), mode='rt') as fh_xml, fasta_path.open(mode='wt') as fh_fasta, tsv_path.open(mode='wt') as fh_tsv:
-    i = 0
-    for event, elem in et.iterparse(fh, tag='{*}entry'):
-        if('Fragment' not in elem.find('./{*}name').text):  # skip protein fragments
-            common_tax_id = elem.find('./{*}property[@type="common taxon ID"]')
-            common_tax_id = common_tax_id.get('value') if common_tax_id is not None else 1
-            
-            rep_member_dbref = elem.find('./{*}representativeMember/{*}dbReference')
-            rep_member_organism = rep_member_dbref.find('./{*}property[@type="source organism"]')  # source organism
-            rep_member_organism = rep_member_organism.get('value') if rep_member_organism is not None else ''
-            
-            rep_member_tax_id = rep_member_dbref.find('./{*}property[@type="NCBI taxonomy"]')
-            rep_member_tax_id = rep_member_tax_id.get('value') if rep_member_tax_id is not None else 1
-            
-            # filter for bacterial or phage protein sequences
-            if(is_taxon_child(common_tax_id, '2', taxonomy) or is_taxon_child(rep_member_tax_id, '2', taxonomy) or 'phage' in rep_member_organism.lower()):
-                # print("tax-id=%s" % tax_id)
-                uniref90_id = elem.attrib['id'][9:]  # remove 'UniRef90_' prefix
-                rep_member = elem.find('./{*}representativeMember/{*}dbReference')
-                prot_name = rep_member.find('./{%s}property[@type="protein name"]')
-                prot_name = prot_name.attrib['value'] if prot_name is not None else ''
-                seq = elem.find('./{%s}representativeMember/{%s}sequence'.text.upper())
-                fh_tsv.write("%s\t%s\t%i\n" % (uniref90_id, prot_name, len(seq)))
-                
-                # lookup seed sequence
-                is_seed = rep_member_dbref.find('./{*}property[@type="isSeed"]')
-                if(is_seed is not None):  # representative is seed sequence
-                    seq = rep_member.find('./{*}sequence').text.upper()
-                    fh_fasta.write(">%s\n%s\n" % (uniref90_id, seq))
-                else:  # search for seed member
-                    for member_dbref in elem.findall('./{*}member/{*}dbReference'):
-                        if(member_dbref.find('./{*}property[@type="isSeed"]') is not None):
-                            seed_db_type = member_dbref.get('type')
-                            seed_db_id = member_dbref.get('id')
-                            if(seed_db_type == 'UniParc ID'):
-                                uniref90_uniparc_ids[seed_db_id] = uniref90_id
-                            else:
-                                print("detected additional seed type! UniRef90-id=%s, seed-type=%s, seed-id=%s" % (uniref90_id, seed_db_type, seed_db_id))
-                            break
-                        member_dbref.clear()
-        i += 1
-        if((i % 1000000) == 0):
-            print("%i..." % i)
-        elem.clear()  # forstall out of memory errors
+with fasta_path.open(mode='wt') as fh_fasta, tsv_path.open(mode='wt') as fh_tsv:
+    with gzip.open(str(xml_path), mode='rb') as fh_xml:
+        i = 0
+        for event, elem in et.iterparse(fh_xml, tag='{*}entry'):
+            if('Fragment' not in elem.find('./{*}name').text):  # skip protein fragments
+                common_tax_id = elem.find('./{*}property[@type="common taxon ID"]')
+                common_tax_id = common_tax_id.get('value') if common_tax_id is not None else 1
 
-print('Lookup non-representative seed sequences in:')
-print("UniParc (%i)..." % len(uniref90_uniparc_ids))
-i = 0
-with gzip.open(str(uniparc_path), mode='rt') as fh_uniparc, fasta_path.open(mode='at') as fh_fasta:
-    for record in SeqIO.parse(fh_uniparc, 'fasta'):
-        uniref90_id = uniref90_uniparc_ids.get(record.id, None)
-        if(uniref90_id):
-            fh_fasta.write(">%s\n%s\n" % (uniref90_id, str(record.seq).upper()))
-            uniref90_uniparc_ids.pop(record.id)
+                rep_member_dbref = elem.find('./{*}representativeMember/{*}dbReference')
+                rep_member_organism = rep_member_dbref.find('./{*}property[@type="source organism"]')  # source organism
+                rep_member_organism = rep_member_organism.get('value') if rep_member_organism is not None else ''
+
+                rep_member_tax_id = rep_member_dbref.find('./{*}property[@type="NCBI taxonomy"]')
+                rep_member_tax_id = rep_member_tax_id.get('value') if rep_member_tax_id is not None else 1
+
+                # filter for bacterial or phage protein sequences
+                if(is_taxon_child(common_tax_id, '2', taxonomy) or is_taxon_child(rep_member_tax_id, '2', taxonomy) or 'phage' in rep_member_organism.lower()):
+                    # print("tax-id=%s" % tax_id)
+                    uniref90_id = elem.attrib['id'][9:]  # remove 'UniRef90_' prefix
+
+                    rep_member = elem.find('./{*}representativeMember')
+                    rep_member_dbref = rep_member.find('./{*}dbReference')
+                    prot_name = rep_member_dbref.find('./{*}property[@type="protein name"]')
+                    prot_name = prot_name.attrib['value'] if prot_name is not None else ''
+
+                    # lookup seed sequence
+                    is_seed = rep_member_dbref.find('./{*}property[@type="isSeed"]')
+                    if(is_seed is not None):  # representative is seed sequence
+                        seq = rep_member.find('./{*}sequence').text.upper()
+                        fh_fasta.write(">%s\n%s\n" % (uniref90_id, seq))
+                        fh_tsv.write("%s\t%s\t%i\n" % (uniref90_id, prot_name, len(seq)))
+                    else:  # search for seed member
+                        for member_dbref in elem.findall('./{*}member/{*}dbReference'):
+                            if(member_dbref.find('./{*}property[@type="isSeed"]') is not None):
+                                uniparc_id = member_dbref.find('./{*}property[@type="UniParc ID"]')  # search for UniParc annotation
+                                if(uniparc_id is not None):  # use UniParc ID
+                                    seed_db_type = 'UniParc ID'
+                                    seed_db_id = uniparc_id.attrib['value']
+                                else:  # use DBRef type (either UniParc or UniProtKB)
+                                    seed_db_type = member_dbref.get('type')
+                                    seed_db_id = member_dbref.get('id')
+                                
+                                if(seed_db_type == 'UniParc ID'):
+                                    uniref90_uniparc_ids[seed_db_id] = (uniref90_id, prot_name)
+                                else:
+                                    print("detected additional seed type! UniRef90-id=%s, seed-type=%s, seed-id=%s" % (uniref90_id, seed_db_type, seed_db_id))
+                                break
+                            member_dbref.clear()
             i += 1
-print("\twritten UniParc seed sequences: %i" % i)
+            if((i % 1000000) == 0):
+                print("%i..." % i)
+            elem.clear()  # forstall out of memory errors
+
+    print('Lookup non-representative seed sequences in:')
+    print("UniParc (%i)..." % len(uniref90_uniparc_ids))
+    i = 0
+    with gzip.open(str(uniparc_path), mode='rt') as fh_uniparc, fasta_path.open(mode='at') as fh_fasta:
+        for record in SeqIO.parse(fh_uniparc, 'fasta'):
+            if(record.id in uniref90_uniparc_ids):
+                (uniref90_id, prot_name) = uniref90_uniparc_ids.get(record.id, None)
+                seq = str(record.seq).upper()
+                fh_fasta.write(">%s\n%s\n" % (uniref90_id, seq))
+                fh_tsv.write("%s\t%s\t%i\n" % (uniref90_id, prot_name, len(seq)))
+                uniref90_uniparc_ids.pop(record.id)
+                i += 1
+    print("\twritten UniParc seed sequences: %i" % i)
