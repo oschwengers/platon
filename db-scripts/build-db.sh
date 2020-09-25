@@ -43,6 +43,7 @@ mv NCBIfam-AMRFinder.tsv ncbifam-amr.tsv
 # build HMMs
 printf "\n4/13: build HMMs...\n"
 wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/CLUSTERS/PCLA_clusters.txt
+wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/CLUSTERS/PCLA_proteins.txt
 touch clusters.lst
 for type in replication conjugation; do
     sh $PLATON_HOME/db-scripts/extract-${type}.sh PCLA_clusters.txt
@@ -67,7 +68,7 @@ for type in replication conjugation; do
     hmmpress ${type}
     rm -rf work .nextflow* ${type}.tsv ${type}
 done
-rm refseq-bacteria-nrp.trimmed.faa PCLA_clusters.txt clusters-proteins.faa clusters.lst clusters-proteins.lst
+rm refseq-bacteria-nrp.trimmed.faa PCLA_clusters.txt PCLA_proteins.txt clusters-proteins.faa clusters.lst clusters-proteins.lst
 
 
 # build conjugation HMMs
@@ -110,7 +111,7 @@ printf "\n8/15: download RefSeq chromosomes...\n"
 mkdir nf-tmp
 wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt
 nextflow run $PLATON_HOME/db-scripts/download-chromosomes.nf --assembly assembly_summary.txt
-rm -rf work .nextflow* nf-tmp
+rm -rf work/ .nextflow* assembly_summary.txt
 
 
 # download NCBI taxonomy
