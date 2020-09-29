@@ -100,7 +100,7 @@ clusters.clear()
 
 # write MPS fasta and tsv files
 print('write filtered MPS fasta and tsv files...')
-mpss = {k: v for k, v in mpss if v['rds'] != 0.0}
+mpss = {k: v for k, v in mpss.items() if v['rds'] != 0.0}
 mps_fasta_path = Path('mps.faa')
 mps_tsv_path = Path('mps.tsv')
 mps_full_tsv_path = Path('mps.raw.tsv')

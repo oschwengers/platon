@@ -50,10 +50,10 @@ process callORFs {
 
 process searchProts {
 
-    errorStrategy 'retry'
+    errorStrategy 'ignore'
     maxRetries 3
     cpus 2
-    memory 10.GB
+    memory '2.5 GB'
 
     input:
     set val(type), file(cdss) from chAA
@@ -65,7 +65,7 @@ process searchProts {
     cdss.size() > 0
 
     """
-    diamond blastp --query ${cdss} --db ${pcDb} --threads ${task.cpus} --out output.tsv --max-target-seqs 1 --id 90 --query-cover 80 --subject-cover 80 --tmpdir /var/scratch/
+    diamond blastp --query ${cdss} --db ${pcDb} --threads ${task.cpus} --out output.tsv --max-target-seqs 1 --id 90 --query-cover 80 --subject-cover 80
     """
 }
 
@@ -100,6 +100,7 @@ chResults = Channel.create()
 process mergeSearchResults {
 
     cache false
+    executor 'local'
 
     input:
     val valPlasmidHitCounts    from chProteinPlasmidHits.countBy()
