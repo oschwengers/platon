@@ -85,7 +85,7 @@ All files are prefixed (`<prefix>`) as the input genome fasta file.
 Platon can be installed in 2 different ways, though we advise to use Conda/BioConda.
 
 In all cases, the custom database must be downloaded which we provide for download:
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4066768.svg)](https://doi.org/10.5281/zenodo.4066768)
 
 ### BioConda
 1.  install Platon via [Conda](https://conda.io/docs/install/quick.html) and the [Bioconda](https://bioconda.github.io/) channel
@@ -94,7 +94,7 @@ In all cases, the custom database must be downloaded which we provide for downlo
 Example:
 ```
 $ conda install -c conda-forge -c bioconda -c defaults platon
-$ wget https://zenodo.org/record/3924529/files/db.tar.gz
+$ wget https://zenodo.org/record/4066768/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 $ platon --db ./db genome.fasta
@@ -111,7 +111,7 @@ $ git clone git@github.com:oschwengers/platon.git
 $ cd platon
 $ python3 -m pip install .
 $ cd ..
-$ wget https://zenodo.org/record/3924529/files/db.tar.gz
+$ wget https://zenodo.org/record/4066768/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 $ platon/bin/platon --db ./db genome.fasta
@@ -178,14 +178,14 @@ Platon provides 3 different modi controlling which filters will be used.
 In the `sensitivity` mode Platon will classifiy all contigs with an `RDS` value *below*
 the sensitivity threshold as chromosomal and all remaining contigs as plasmid.
 This threshold was defined to account for 95% sensitivity and computed via Monte Carlo
-simulations of artifical contigs resulting in an RDS=-7.7.
+simulations of artifical contigs resulting in an RDS=-7.9.
 -> use this mode to *exclude chromosomal* contigs.
 
 ### Specificity
 In the `specificity` mode Platon will classifiy all contigs with an `RDS` value *above*
 the specificity threshold as plasmid and all remaining contigs as chromosomal.
 This threshold was defined to account for 99.9% specificity and computed via Monte Carlo
-simulations of artifical contigs resulting in an RDS=0.4.
+simulations of artifical contigs resulting in an RDS=0.7.
 
 ### Accuracy (default)
 In the `accuracy` mode Platon will classifiy all contigs with:
@@ -204,9 +204,9 @@ Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database,
 PlasmidFinder db as well as manually curated MOB HMM models from MOBscan,
 custom conjugation and replication HMM models and oriT sequences from MOB-suite.
 This database based on UniProt UniRef90 release 2020_01 can be downloaded here:
-(zipped 1.4 Gb, unzipped 2.4 Gb)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3349651.svg)](https://doi.org/10.5281/zenodo.3349651)
--   [https://zenodo.org/record/3924529/files/db.tar.gz](https://zenodo.org/record/3924529/files/db.tar.gz)
+(zipped 1.6 Gb, unzipped 2.8 Gb)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4066768.svg)](https://doi.org/10.5281/zenodo.4066768)
+-   [https://zenodo.org/record/4066768/files/db.tar.gz](https://zenodo.org/record/4066768/files/db.tar.gz)
 
 ## Dependencies
 Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
