@@ -203,10 +203,12 @@ and in addition all contigs as plasmid for which one of the following is true: i
 Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database,
 PlasmidFinder db as well as manually curated MOB HMM models from MOBscan,
 custom conjugation and replication HMM models and oriT sequences from MOB-suite.
-This database based on UniProt UniRef90 release 2020_01 can be downloaded here:
+This database based on UniProt UniRef90 release 202 can be downloaded here:
 (zipped 1.6 Gb, unzipped 2.8 Gb)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4066768.svg)](https://doi.org/10.5281/zenodo.4066768)
 -   [https://zenodo.org/record/4066768/files/db.tar.gz](https://zenodo.org/record/4066768/files/db.tar.gz)
+
+*Please make sure that you use the latest Platon version along with the most recent database version! Older software versions are **not** compatible with the latest database version*
 
 ## Dependencies
 Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
