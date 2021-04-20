@@ -578,7 +578,7 @@ def search_mobilization_genes(config, contigs, filteredProteinsPath):
         'hmmsearch',
         '--noali',
         '--cpu', '1',
-        '-E', '1E-100',
+        '-E', '1E-10',
         '--tblout', str(tmp_output_path),
         str(config['db'].joinpath('mobilization')),
         str(filteredProteinsPath)
