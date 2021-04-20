@@ -36,6 +36,6 @@ with cluster_seqs_path.open() as cluster_in_fh, mps_fasta_path.open('wt') as mps
         id = record.id
         if(id in mpss):
             mps = mpss[id]
-            mps_fasta_fh.write(">%s\n%s\n" % (id, str(record.seq)))
-            mps_tsv_fh.write("%s\t%s\t%d\t%f\n" % (id, mps['product'], mps['length'], mps['rds']))
+            mps_fasta_fh.write(f'>{id}\n{record.seq}\n')
+            mps_tsv_fh.write(f"{id}\t{mps['product']}\t{mps['length']}\t{mps['rds']}\n")
 print('\t...done')

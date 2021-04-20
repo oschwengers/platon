@@ -708,7 +708,7 @@ def test_database(config):
 
     if(not os.access(str(config['db']), os.R_OK & os.X_OK)):
         log.error('database directory (%s) not readable/accessible!', config['db'])
-        sys.exit('ERROR: database directory (%s) not readable/accessible!' % config['db'])
+        sys.exit(f"ERROR: database directory ({config['db']}) not readable/accessible!")
 
     file_names = [
         'conjugation.h3f',
@@ -748,7 +748,7 @@ def test_database(config):
         path = config['db'].joinpath(file_name)
         if(not os.access(str(path), os.R_OK) or not path.is_file()):
             log.error('database file not readable! file=%s', file_name)
-            sys.exit('ERROR: database file (%s) not readable!' % file_name)
+            sys.exit(f'ERROR: database file ({file_name}) not readable!')
     return
 
 

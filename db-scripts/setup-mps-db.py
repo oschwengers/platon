@@ -38,7 +38,7 @@ no_plasmids = 0
 with plasmids_path.open() as fh:
     for record in SeqIO.parse(fh, 'fasta'):
         no_plasmids += 1
-print("\tplasmids found: %d" % no_plasmids)
+print(f'\tplasmids found: {no_plasmids}')
 
 # count chromosome records
 print('count chromosomes...')
@@ -46,7 +46,7 @@ no_chromosomes = 0
 with chromosomes_path.open() as fh:
     for record in SeqIO.parse(fh, 'fasta'):
         no_chromosomes += 1
-print("\tchromosomes found: %d" % no_chromosomes)
+print(f'\tchromosomes found: {no_chromosomes}')
 
 # store UniRef90 cluster info
 print('store UniRef90 cluster info...')
@@ -74,7 +74,7 @@ with counts_path.open() as fh:
             abs_hit_freq_diff_sum += abs((plasmid_hits / no_plasmids) - (chromosome_hits / no_chromosomes))
             no_mps += 1
 mahfd = abs_hit_freq_diff_sum / no_mps
-print('\tmean abs hit freq diff: %f' % mahfd)
+print(f'\tmean abs hit freq diff: {mahfd}')
 
 # calculate RDS for all MPS
 print('calculate RDS for all MPS...')
@@ -95,7 +95,7 @@ with counts_path.open() as fh:
             mps['p_value'] = p_value
             mpss[id] = mps
         if((i % 1000000) == 0):
-            print("\t... %d processed" % i)
+            print(f'\t... {i} processed')
 clusters.clear()
 
 # write MPS fasta and tsv files
@@ -109,7 +109,7 @@ with cluster_seqs_path.open() as cluster_in_fh, mps_fasta_path.open('wt') as mps
         id = record.id
         if(id in mpss):
             mps = mpss[id]
-            mps_fasta_fh.write(">%s\n%s\n" % (id, str(record.seq)))
-            mps_tsv_fh.write("%s\t%s\t%d\t%f\n" % (id, mps['product'], mps['length'], mps['rds']))
-            mps_full_tsv_fh.write("%s\t%s\t%d\t%f\t%f\n" % (id, mps['product'], mps['length'], mps['p_value'], mps['rds']))
+            mps_fasta_fh.write(f'>{id}\n{record.seq}\n')
+            mps_tsv_fh.write(f"{id}\t{mps['product']}\t{mps['length']}\t{mps['rds']}\n" )
+            mps_full_tsv_fh.write(f"{id}\t{mps['product']}\t{mps['length']}\t{mps['p_value']}\t{mps['rds']}\n")
 print('\t...done')

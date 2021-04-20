@@ -59,7 +59,7 @@ with fasta_path.open(mode='wt') as fh_fasta, tsv_path.open(mode='wt') as fh_tsv:
 
                 # filter for bacterial or phage protein sequences
                 if(is_taxon_child(common_tax_id, '2', taxonomy) or is_taxon_child(rep_member_tax_id, '2', taxonomy) or 'phage' in rep_member_organism.lower()):
-                    # print("tax-id=%s" % tax_id)
+                    # print(f'tax-id={tax_id}')
                     uniref90_id = elem.attrib['id'][9:]  # remove 'UniRef90_' prefix
 
                     rep_member = elem.find('./{*}representativeMember')
@@ -71,8 +71,8 @@ with fasta_path.open(mode='wt') as fh_fasta, tsv_path.open(mode='wt') as fh_tsv:
                     is_seed = rep_member_dbref.find('./{*}property[@type="isSeed"]')
                     if(is_seed is not None):  # representative is seed sequence
                         seq = rep_member.find('./{*}sequence').text.upper()
-                        fh_fasta.write(">%s\n%s\n" % (uniref90_id, seq))
-                        fh_tsv.write("%s\t%s\t%i\n" % (uniref90_id, prot_name, len(seq)))
+                        fh_fasta.write(f'>{uniref90_id}\n{seq}\n')
+                        fh_tsv.write(f'{uniref90_id}\t{prot_name}\t{len(seq)}\n')
                     else:  # search for seed member
                         for member_dbref in elem.findall('./{*}member/{*}dbReference'):
                             if(member_dbref.find('./{*}property[@type="isSeed"]') is not None):
@@ -87,24 +87,24 @@ with fasta_path.open(mode='wt') as fh_fasta, tsv_path.open(mode='wt') as fh_tsv:
                                 if(seed_db_type == 'UniParc ID'):
                                     uniref90_uniparc_ids[seed_db_id] = (uniref90_id, prot_name)
                                 else:
-                                    print("detected additional seed type! UniRef90-id=%s, seed-type=%s, seed-id=%s" % (uniref90_id, seed_db_type, seed_db_id))
+                                    print(f'detected additional seed type! UniRef90-id={uniref90_id}, seed-type={seed_db_type}, seed-id={seed_db_id}')
                                 break
                             member_dbref.clear()
             i += 1
             if((i % 1000000) == 0):
-                print("%i..." % i)
+                print(f'{i}...')
             elem.clear()  # forstall out of memory errors
 
     print('Lookup non-representative seed sequences in:')
-    print("UniParc (%i)..." % len(uniref90_uniparc_ids))
+    print(f'UniParc ({len(uniref90_uniparc_ids)})...')
     i = 0
     with gzip.open(str(uniparc_path), mode='rt') as fh_uniparc, fasta_path.open(mode='at') as fh_fasta:
         for record in SeqIO.parse(fh_uniparc, 'fasta'):
             if(record.id in uniref90_uniparc_ids):
                 (uniref90_id, prot_name) = uniref90_uniparc_ids.get(record.id, None)
                 seq = str(record.seq).upper()
-                fh_fasta.write(">%s\n%s\n" % (uniref90_id, seq))
-                fh_tsv.write("%s\t%s\t%i\n" % (uniref90_id, prot_name, len(seq)))
+                fh_fasta.write(f'>{uniref90_id}\n{seq}\n')
+                fh_tsv.write(f'{uniref90_id}\t{prot_name}\t{len(seq)}\n')
                 uniref90_uniparc_ids.pop(record.id)
                 i += 1
-    print("\twritten UniParc seed sequences: %i" % i)
+    print('\twritten UniParc seed sequences: {i}')
