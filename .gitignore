@@ -6,6 +6,3 @@ __pycache__/
 # Python Setuptools
 dist/
 *.egg-info/
-
-# database directory for debugging purposes
-db/

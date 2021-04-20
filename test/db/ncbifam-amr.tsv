@@ -1,0 +1,13 @@
+NF000224.3	AAC_6p_Acine-NCBI	          225.000000	          225.000000	aac(6')-I	146	exception	1	AAC(6')-Ighjkrstuvwx family aminoglycoside N-acetyltransferase	core
+NF000165.3	AAC_6p_Entco-NCBI	          300.000000	          300.000000	aac(6')-I	178	exception	1	aminoglycoside N-acetyltransferase AAC(6')-Ii	core
+NF033078.2	AAC_6p_Ia_fam-NCBI	          265.000000	          265.000000	aac(6')	181	equivalog	1	AAC(6')-Ia family aminoglycoside 6'-N-acetyltransferase	core
+NF000021.4	AAC_6p_Serra-NCBI	          310.000000	          310.000000	aac(6')	146	exception	1	aminoglycoside 6'-N-acetyltransferase	core
+NF033075.0	AAC_6p_Steno-NCBI	          290.000000	          290.000000	aac(6')	148	equivalog	1	aminoglycoside 6'-N-acetyltransferase	core
+NF000225.3	AAC_6p_Strep-NCBI	          250.000000	          250.000000	aac(6')	156	exception	1	aminoglycoside 6'-N-acetyltransferase	core
+NF033076.0	AAC_6p_Yersi-NCBI	          290.000000	          290.000000	aac(6')	140	exception	1	aminoglycoside 6'-N-acetyltransferase	core
+NF012212.0	ANT_9-NCBI	          350.000000	          350.000000	ant(9)	248	subfamily	1	aminoglycoside nucleotidyltransferase ANT(9)	core
+NF000044.2	APH_2pp_IIIa-NCBI	          625.000000	          625.000000	aph(2'')-IIIa	306	exception	1	aminoglycoside O-phosphotransferase APH(2'')-IIIa	core
+NF000015.3	APH_2pp_IIa-NCBI	          625.000000	          625.000000	aph(2'')-IIa	299	exception	1	aminoglycoside O-phosphotransferase APH(2'')-IIa	core
+NF033692.1	APH_2pp_I_a_f_h-NCBI	          475.000000	          475.000000	aph(2'')-I	290	exception	1	APH(2'')-Ia/If/Ih family aminoglycoside O-phosphotransferase	core
+NF000508.1	APH_2pp_Ia-NCBI	          600.000000	          570.000000	aph(2'')-Ia	277	exception	1	aminoglycoside O-phosphotransferase APH(2'')-Ia	core
+NF000498.2	APH_2pp_If_Ih-NCBI	          600.000000	          600.000000	aph(2'')-I	297	exception	1	APH(2'')-If/Ih family aminoglycoside O-phosphotransferase	core
