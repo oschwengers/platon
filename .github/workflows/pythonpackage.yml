@@ -1,15 +1,21 @@
-name: Python package
-
-on: [push, pull_request]
-
+name: Lint (Flake8)
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+  pull_request:
+    types:
+      - opened
+    paths-ignore:
+      - 'README.md'
 jobs:
   build:
 
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-latest, macos-latest]
-        python-version: [3.6, 3.7, 3.8]
+        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, macos-latest]
+        python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
     - uses: actions/checkout@v2
