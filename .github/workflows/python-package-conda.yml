@@ -1,0 +1,45 @@
+name: CI (Conda/PyTest)
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+  pull_request:
+    types:
+      - opened
+    paths-ignore:
+      - 'README.md'
+jobs:
+  build:
+    name: test (${{ matrix.os }}, ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.8"]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        auto-update-conda: false
+        python-version: ${{ matrix.python-version }}
+        miniconda-version: "latest"
+        mamba-version: "*"
+        channels: conda-forge,bioconda
+        channel-priority: true
+        auto-activate-base: false
+        environment-file: environment.yml
+        activate-environment: platon
+    - name: Install PyTest
+      run: conda install pytest
+    - name: Conda info
+      run: |
+        conda info
+        conda list
+        conda config --show
+        printenv | sort
+    - name: Run PyTest
+      run: pytest
