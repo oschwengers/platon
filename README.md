@@ -75,51 +75,39 @@ All files are prefixed (`<prefix>`) as the input genome fasta file.
 
 ## Installation
 
-Platon can be installed in 2 different ways, though we advise to use Conda/BioConda.
-
-In all cases, the custom database must be downloaded which we provide for download:
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4066768.svg)](https://doi.org/10.5281/zenodo.4066768)
+Platon can be installed via BioConda and Pip.
+However, we encourage to use [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to automatically install all required 3rd party dependencies. In all cases a mandatory [database](#database_download) must be downloaded.
 
 ### BioConda
 
-1. install Platon via [Conda](https://conda.io/docs/install/quick.html) and the [Bioconda](https://bioconda.github.io/) channel
-2. download & extract the database
-
-Example:
-
 ```bash
 $ conda install -c conda-forge -c bioconda -c defaults platon
+```
+
+### Pip
+
+```bash
+$ python3 -m pip install --user platon
+```
+
+Platon requires the following 3rd party executables which must be installed & executable:
+
+- Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
+- Diamond (2.0.6) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
+- Blast+ (2.10.1) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
+- MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
+- HMMER (3.3.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3695513/> <http://hmmer.org/>
+- INFERNAL (1.1.4) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
+
+### Database download
+
+Platon requires a mandatory database which is publicly hosted at Zenodo: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4066768.svg)](https://doi.org/10.5281/zenodo.4066768)
+Further information is provided in the [database](#database) section below.
+
+```bash
 $ wget https://zenodo.org/record/4066768/files/db.tar.gz
 $ tar -xzf db.tar.gz
 $ rm db.tar.gz
-$ platon --db ./db genome.fasta
-```
-
-### GitHub/Pip
-
-1. clone the the repository
-2. install Platon & Python dependencies per pip
-3. download & extract the database
-
-Example:
-
-```bash
-$ git clone git@github.com:oschwengers/platon.git
-$ cd platon
-$ python3 -m pip install .
-$ cd ..
-$ wget https://zenodo.org/record/4066768/files/db.tar.gz
-$ tar -xzf db.tar.gz
-$ rm db.tar.gz
-$ platon/bin/platon --db ./db genome.fasta
-```
-
-Info: Just move the extracted database directory into the platon directory. Platon will automatically recognise it and thus, the database path doesn't need to be specified:
-
-```bash
-$ ...
-$ mv db/ platon
-$ platon/bin/platon genome.fasta
 ```
 
 ## Usage

@@ -44,7 +44,6 @@ def test_circularity(config, contig):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -119,7 +118,6 @@ def search_inc_type(config, contig):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -188,7 +186,6 @@ def search_rrnas(config, contig):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -241,7 +238,6 @@ def search_amr_genes(config, contigs, filteredProteinsPath):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -308,7 +304,6 @@ def search_reference_plasmids(config, contig):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -370,7 +365,6 @@ def search_orit_sequences(config, contig):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -478,7 +472,6 @@ def predict_orfs(config, contigs, filteredDraftGenomePath):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -527,7 +520,6 @@ def search_replication_genes(config, contigs, filteredProteinsPath):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -586,7 +578,6 @@ def search_mobilization_genes(config, contigs, filteredProteinsPath):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -645,7 +636,6 @@ def search_conjugation_genes(config, contigs, filteredProteinsPath):
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -692,9 +682,7 @@ def setup_configuration(args):
     """Test environment and build a runtime configuration."""
 
     config = {
-        'env': os.environ.copy(),
         'tmp': Path(tempfile.mkdtemp()),
-        'bundled-binaries': False,
         'args': {
             'mode': args.mode,
             'characterize': args.characterize,
@@ -704,14 +692,6 @@ def setup_configuration(args):
         }
     }
     base_dir = Path(__file__).parent.parent
-    share_dir = base_dir.joinpath('share')
-    log.debug('config: base-dir=%s', base_dir)
-    log.debug('config: share-dir=%s', share_dir)
-    if(os.access(str(share_dir), os.R_OK & os.X_OK)):
-        config['env']["PATH"] = str(share_dir) + ':' + config['env']["PATH"]
-        config['bundled-binaries'] = True
-    log.debug('config: bundled binaries=%s', config['bundled-binaries'])
-
     db_path = base_dir.joinpath('db')
     if(os.access(str(db_path), os.R_OK & os.X_OK)):
         config['db'] = db_path

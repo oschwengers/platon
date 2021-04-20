@@ -72,11 +72,9 @@ def main():
         config['db'] = db_path
     pf.test_database(config)
 
-    if('bundled-binaries' not in config):
-        pf.test_binaries()
+    pf.test_binaries()
 
     log.info('configuration: db-path=%s', config['db'])
-    log.info('configuration: bundled binaries=%s', config['bundled-binaries'])
     log.info('configuration: tmp-path=%s', config['tmp'])
     log.info('parameters: genome=%s', genome_path)
     log.info('parameters: mode=%s', args.mode)
@@ -87,7 +85,6 @@ def main():
     if(args.verbose):
         print('Options, parameters and arguments:')
         print('\tdb path: ' + str(config['db']))
-        print('\tuse bundled binaries: ' + str(config['bundled-binaries']))
         print('\tgenome path: ' + str(genome_path))
         print('\toutput path: ' + str(output_path))
         print('\tprefix: ' + prefix)
@@ -216,7 +213,6 @@ def main():
     proc = sp.run(
         cmd,
         cwd=str(config['tmp']),
-        env=config['env'],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
