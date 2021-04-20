@@ -9,6 +9,7 @@
 # Platon: identification and characterization of bacterial plasmid contigs from short-read draft assemblies.
 
 ## Contents
+
 - [Description](#description)
 - [Input/Output](#inputoutput)
 - [Installation](#installation)
@@ -23,6 +24,7 @@
 - [Issues](#issues)
 
 ## Description
+
 **TL;DR**
 Platon detects plasmid contigs within bacterial draft genomes from WGS short-read assemblies.
 Therefore, Platon analyzes the natural distribution biases of certain protein coding genes between
@@ -30,22 +32,10 @@ chromosomes and plasmids. This analysis is complemented by comprehensive contig 
 upon which several heuristics are applied.
 
 Platon conducts three analysis steps:
-1. It predicts and searches coding sequences against a custom and pre-computed
-database comprising marker protein sequences (**MPS**) and related replicon
-distribution scores (**RDS**). These scores express the empirically measured
-frequency biases of protein sequence distributions between plasmids and chromosomes
-pre-computed on complete NCBI RefSeq replicons. Platon calculates the mean RDS for
-each contig and either classifies them as chromosome if the RDS is below a
-sensitivity cutoff determined to 95% sensitivity or as plasmid if the RDS is
-above a specificity cutoff determined to 99.9% specificity.
-Exact values for these thresholds have been computed based on Monte Carlo simulations of
-artifical replicon fragments created from complete RefSeq chromosome and plasmid sequences.
-2. Contigs passing the sensitivity filter get comprehensivley characterized.
-Hereby, Platon tries to circularize the contig sequences, searches for rRNA,
-replication, mobilization and conjugation genes, oriT sequences, incompatibility group
-DNA probes and finally performs a BLAST+ search against the NCBI plasmid database.
-3. Finally, to increase the overall sensitivity, Platon classifies all remaining contigs based on the gathered information
-by several heuristics.
+
+1. It predicts and searches coding sequences against a custom and pre-computed database comprising marker protein sequences (**MPS**) and related replicon distribution scores (**RDS**). These scores express the empirically measured frequency biases of protein sequence distributions between plasmids and chromosomes pre-computed on complete NCBI RefSeq replicons. Platon calculates the mean RDS for each contig and either classifies them as chromosome if the RDS is below a sensitivity cutoff determined to 95% sensitivity or as plasmid if the RDS is above a specificity cutoff determined to 99.9% specificity. Exact values for these thresholds have been computed based on Monte Carlo simulations of artifical replicon fragments created from complete RefSeq chromosome and plasmid sequences.
+2. Contigs passing the sensitivity filter get comprehensivley characterized. Hereby, Platon tries to circularize the contig sequences, searches for rRNA, replication, mobilization and conjugation genes, oriT sequences, incompatibility group DNA probes and finally performs a BLAST+ search against the NCBI plasmid database.
+3. Finally, to increase the overall sensitivity, Platon classifies all remaining contigs based on the gathered information by several heuristics.
 
 | ![Replicon distribution and alignment hit frequencies of MPS](rds-ratio-counts.web.png?raw=true) |
 | -- |
@@ -54,45 +44,50 @@ by several heuristics.
 ## Input/Output
 
 ### Input
-Platon accepts draft assemblies in fasta format. If contigs have been assembled with
-SPAdes, Platon is able to extract the coverage information from the contig names.
+
+Platon accepts draft assemblies in fasta format. If contigs have been assembled with SPAdes, Platon is able to extract the coverage information from the contig names.
 
 ### Output
-For each contig classified as plasmid sequence the following columns are printed
-to `STDOUT` as tab separated values:
--   Contig ID
--   Length
--   Coverage
--   \# ORFs
--   RDS
--   Circularity
--   Incompatibility Type(s)
--   \# Replication Genes
--   \# Mobilization Genes
--   \# OriT Sequences
--   \# Conjugation Genes
--   \# rRNA Genes
--   \# Plasmid Database Hits
+
+For each contig classified as plasmid sequence the following columns are printed to `STDOUT` as tab separated values:
+
+- Contig ID
+- Length
+- Coverage
+- \# ORFs
+- RDS
+- Circularity
+- Incompatibility Type(s)
+- \# Replication Genes
+- \# Mobilization Genes
+- \# OriT Sequences
+- \# Conjugation Genes
+- \# rRNA Genes
+- \# Plasmid Database Hits
 
 In addition, Platon writes the following files into the output directory:
--   `<prefix>`.plasmid.fasta: contigs classified as plasmids or plasmodal origin
--   `<prefix>`.chromosome.fasta: contigs classified as chromosomal origin
--   `<prefix>`.tsv: dense information as printed to STDOUT (see above)
--   `<prefix>`.json: comprehensive results and information on each single plasmid contig.
+
+- `<prefix>`.plasmid.fasta: contigs classified as plasmids or plasmodal origin
+- `<prefix>`.chromosome.fasta: contigs classified as chromosomal origin
+- `<prefix>`.tsv: dense information as printed to STDOUT (see above)
+- `<prefix>`.json: comprehensive results and information on each single plasmid contig.
 All files are prefixed (`<prefix>`) as the input genome fasta file.
 
 ## Installation
+
 Platon can be installed in 2 different ways, though we advise to use Conda/BioConda.
 
 In all cases, the custom database must be downloaded which we provide for download:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4066768.svg)](https://doi.org/10.5281/zenodo.4066768)
 
 ### BioConda
-1.  install Platon via [Conda](https://conda.io/docs/install/quick.html) and the [Bioconda](https://bioconda.github.io/) channel
-2.  download & extract the database
+
+1. install Platon via [Conda](https://conda.io/docs/install/quick.html) and the [Bioconda](https://bioconda.github.io/) channel
+2. download & extract the database
 
 Example:
-```
+
+```bash
 $ conda install -c conda-forge -c bioconda -c defaults platon
 $ wget https://zenodo.org/record/4066768/files/db.tar.gz
 $ tar -xzf db.tar.gz
@@ -101,12 +96,14 @@ $ platon --db ./db genome.fasta
 ```
 
 ### GitHub/Pip
-1.  clone the the repository
-2.  install Platon & Python dependencies per pip
-3.  download & extract the database
+
+1. clone the the repository
+2. install Platon & Python dependencies per pip
+3. download & extract the database
 
 Example:
-```
+
+```bash
 $ git clone git@github.com:oschwengers/platon.git
 $ cd platon
 $ python3 -m pip install .
@@ -117,18 +114,19 @@ $ rm db.tar.gz
 $ platon/bin/platon --db ./db genome.fasta
 ```
 
-Info: Just move the extracted database directory into the platon directory.
-Platon will automatically recognise it and thus, the database path doesn't need
-to be specified:
-```
+Info: Just move the extracted database directory into the platon directory. Platon will automatically recognise it and thus, the database path doesn't need to be specified:
+
+```bash
 $ ...
 $ mv db/ platon
 $ platon/bin/platon genome.fasta
 ```
 
 ## Usage
+
 Usage:
-```
+
+```bash
 usage: platon [-h] [--db DB] [--mode {sensitivity,accuracy,specificity}]
               [--characterize] [--output OUTPUT] [--prefix PREFIX]
               [--threads THREADS] [--verbose] [--version]
@@ -160,84 +158,83 @@ optional arguments:
 ```
 
 ## Examples
+
 Simple:
-```
+
+```bash
 $ platon genome.fasta
 ```
 
 Expert: writing results to `results` directory with verbose output using 8 threads:
-```
+
+```bash
 $ platon -db ~/db --output results/ --verbose --threads 8 genome.fasta
 ```
 
 ## Mode
+
 Platon provides 3 different modi controlling which filters will be used.
 `Accuracy` mode is the preset default.
 
 ### Sensitivity
-In the `sensitivity` mode Platon will classifiy all contigs with an `RDS` value *below*
-the sensitivity threshold as chromosomal and all remaining contigs as plasmid.
-This threshold was defined to account for 95% sensitivity and computed via Monte Carlo
-simulations of artifical contigs resulting in an RDS=-7.9.
+
+In the `sensitivity` mode Platon will classifiy all contigs with an `RDS` value *below* the sensitivity threshold as chromosomal and all remaining contigs as plasmid. This threshold was defined to account for 95% sensitivity and computed via Monte Carlo simulations of artifical contigs resulting in an RDS=-7.9.
 -> use this mode to *exclude chromosomal* contigs.
 
 ### Specificity
-In the `specificity` mode Platon will classifiy all contigs with an `RDS` value *above*
-the specificity threshold as plasmid and all remaining contigs as chromosomal.
-This threshold was defined to account for 99.9% specificity and computed via Monte Carlo
-simulations of artifical contigs resulting in an RDS=0.7.
+
+In the `specificity` mode Platon will classifiy all contigs with an `RDS` value *above* the specificity threshold as plasmid and all remaining contigs as chromosomal. This threshold was defined to account for 99.9% specificity and computed via Monte Carlo simulations of artifical contigs resulting in an RDS=0.7.
 
 ### Accuracy (default)
-In the `accuracy` mode Platon will classifiy all contigs with:
-  - an `RDS` value *below* the sensitivity threshold as chromosomal
-  - an `RDS` value *above* the specificity threshold as plasmid
-and in addition all contigs as plasmid for which one of the following is true: it
-  - can be circularized
-  - has an incompatibility group sequence
-  - has a replication or mobilization HMM hit
-  - has an oriT hit
-  - has an RDS above the conservative score (0.1), a RefSeq plasmid hit and *no* rRNA hit
 
+In the `accuracy` mode Platon will classifiy all contigs with:
+
+- an `RDS` value *below* the sensitivity threshold as chromosomal
+- an `RDS` value *above* the specificity threshold as plasmid and in addition all contigs as plasmid for which one of the following is true: it
+- can be circularized
+- has an incompatibility group sequence
+- has a replication or mobilization HMM hit
+- has an oriT hit
+- has an RDS above the conservative score (0.1), a RefSeq plasmid hit and *no* rRNA hit
 
 ## Database
-Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database,
-PlasmidFinder db as well as manually curated MOB HMM models from MOBscan,
-custom conjugation and replication HMM models and oriT sequences from MOB-suite.
-This database based on UniProt UniRef90 release 202 can be downloaded here:
-(zipped 1.6 Gb, unzipped 2.8 Gb)
+
+Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database, PlasmidFinder db as well as manually curated MOB HMM models from MOBscan, custom conjugation and replication HMM models and oriT sequences from MOB-suite. This database based on UniProt UniRef90 release 202 can be downloaded here: (zipped 1.6 Gb, unzipped 2.8 Gb)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4066768.svg)](https://doi.org/10.5281/zenodo.4066768)
--   [https://zenodo.org/record/4066768/files/db.tar.gz](https://zenodo.org/record/4066768/files/db.tar.gz)
+[https://zenodo.org/record/4066768/files/db.tar.gz](https://zenodo.org/record/4066768/files/db.tar.gz)
 
 *Please make sure that you use the latest Platon version along with the most recent database version! Older software versions are **not** compatible with the latest database version*
 
 ## Dependencies
+
 Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
 
 Additionally, it depends on the following 3rd party executables:
--   Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
--   Diamond (2.0.4) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
--   Blast+ (2.7.1) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
--   MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
--   HMMER (3.2.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3695513/> <http://hmmer.org/>
--   INFERNAL (1.1.2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
+
+- Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
+- Diamond (2.0.4) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
+- Blast+ (2.7.1) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
+- MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
+- HMMER (3.2.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3695513/> <http://hmmer.org/>
+- INFERNAL (1.1.2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
 
 ## Citation
+
 > Schwengers O., Barth P., Falgenhauer L., Hain T., Chakraborty T., & Goesmann A. (2020). Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein sequence-based replicon distribution scores. Microbial Genomics, 95, 295. https://doi.org/10.1099/mgen.0.000398
 
 As Platon takes advantage of the inc groups, MOB HMMs and oriT sequences of the following databases, please also cite:
--  > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
 
--  > Garcillán-Barcia M. P., Redondo-Salvo S., Vielva L., de la Cruz F. (2020) MOBscan: Automated Annotation of MOB Relaxases. Methods in Molecular Biology, https://doi.org/10.1007/978-1-4939-9877-7_21
+- > Carattoli A., Zankari E., Garcia-Fernandez A., Voldby Larsen M., Lund O., Villa L., Aarestrup F.M., Hasman H. (2014) PlasmidFinder and pMLST: in silico detection and typing of plasmids. Antimicrobial Agents and Chemotherapy, https://doi.org/10.1128/AAC.02412-14
 
--  > Robertson J., Nash J. H. E. (2018) MOB-suite: Software Tools for Clustering, Reconstruction and Typing of Plasmids From Draft Assemblies. Microbial Genomics, https://doi.org/10.1099/mgen.0.000206
+- > Garcillán-Barcia M. P., Redondo-Salvo S., Vielva L., de la Cruz F. (2020) MOBscan: Automated Annotation of MOB Relaxases. Methods in Molecular Biology, https://doi.org/10.1007/978-1-4939-9877-7_21
 
+- > Robertson J., Nash J. H. E. (2018) MOB-suite: Software Tools for Clustering, Reconstruction and Typing of Plasmids From Draft Assemblies. Microbial Genomics, https://doi.org/10.1099/mgen.0.000206
 
 ## Issues
-If you run into any issues with Platon, we'd be happy to hear about it!
-Please, start the pipeline with `-v` (verbose) and do not hesitate
-to file an issue including as much of the following as possible:
+
+If you run into any issues with Platon, we'd be happy to hear about it! Please, start the pipeline with `-v` (verbose) and do not hesitate to file an issue including as much of the following as possible:
+
 - a detailed description of the issue
 - the platon cmd line output
 - the `<prefix>.json` file if possible
-- A reproducible example of the issue with a small dataset that you can share
-(helps us identify whether the issue is specific to a particular computer, operating system, and/or dataset).
+- A reproducible example of the issue with a small dataset that you can share (helps us identify whether the issue is specific to a particular computer, operating system, and/or dataset).
