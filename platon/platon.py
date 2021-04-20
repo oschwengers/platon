@@ -1,10 +1,6 @@
-
-import argparse
 import functools as ft
 import json
 import logging
-import multiprocessing as mp
-import os
 import re
 import sys
 import shutil
@@ -15,86 +11,64 @@ from pathlib import Path
 from Bio import SeqIO
 
 import platon
-import platon.functions as pf
+import platon.db as db
+import platon.config as cfg
 import platon.constants as pc
+import platon.functions as pf
+import platon.utils as pu
 
 
 def main():
     # parse arguments
-    parser = argparse.ArgumentParser(
-        prog='platon',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Identification and characterization of bacterial plasmid contigs from short-read draft assemblies.',
-        epilog=f'Citation:\n{pc.CITATION}\n\nGitHub:\nhttps://github.com/oschwengers/platon'
-    )
-    parser.add_argument('genome', metavar='<genome>', help='draft genome in fasta format')
-    parser.add_argument('--db', '-d', action='store', help='database path (default = <platon_path>/db)')
-    parser.add_argument('--mode', '-m', action='store', type=str, choices=['sensitivity', 'accuracy', 'specificity'], default='accuracy', help='applied filter mode: sensitivity: RDS only (>= 95%% sensitivity); specificity: RDS only (>=99.9%% specificity); accuracy: RDS & characterization heuristics (highest accuracy) (default = accuracy)')
-    parser.add_argument('--characterize', '-c', action='store_true', help='deactivate filters; characterize all contigs')
-    parser.add_argument('--output', '-o', help='output directory (default = current working directory)')
-    parser.add_argument('--prefix', '-p', action='store', default=None, help='file prefix (default = input file name)')
-    parser.add_argument('--threads', '-t', action='store', type=int, default=mp.cpu_count(), help='number of threads to use (default = number of available CPUs)')
-    parser.add_argument('--verbose', '-v', action='store_true', help='print verbose information')
-    parser.add_argument('--version', '-V', action='version', version='%(prog)s ' + platon.__version__)
-    args = parser.parse_args()
+    args = pu.parse_arguments()
+    
+    if(args.citation):  # print citation
+        print(pc.CITATION)
+        sys.exit()
 
-    # check input file
-    genome_path = Path(args.genome).resolve()
-    if(not os.access(str(genome_path), os.R_OK)):
-        sys.exit(f'ERROR: genome file ({genome_path}) not readable!')
-    if(genome_path.stat().st_size == 0):
-        sys.exit(f'ERROR: genome file ({genome_path}) is empty!')
-
-    # check output file
+    ############################################################################
+    # Setup logging
+    ############################################################################
+    cfg.prefix = args.prefix if args.prefix else Path(args.genome).stem
     try:
         output_path = Path(args.output) if args.output else Path.cwd()
         if(not output_path.exists()):
             output_path.mkdir(parents=True, exist_ok=True)
         output_path = output_path.resolve()
+        cfg.output_path = output_path
     except:
         sys.exit(f'ERROR: could not resolve or create output directory ({args.output})!')
-
-    # get file prefix
-    prefix = args.prefix if args.prefix else genome_path.stem
-
-    # setup logging
     logging.basicConfig(
-        filename=str(output_path.joinpath(f'{prefix}.log')),
+        filename=str(output_path.joinpath(f'{cfg.prefix}.log')),
         filemode='w',
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
         level=logging.DEBUG if args.verbose else logging.INFO
     )
-    log = logging.getLogger('main')
+    log = logging.getLogger('MAIN')
     log.info('version %s', platon.__version__)
+    log.info('command line: %s', ' '.join(sys.argv))
 
-    # check parameters and test/setup runtime configuration
-    config = pf.setup_configuration(args)
-
-    if(args.db):
-        db_path = Path(args.db).resolve()
-        config['db'] = db_path
-    pf.test_database(config)
-
-    pf.test_binaries()
-
-    log.info('configuration: db-path=%s', config['db'])
-    log.info('configuration: tmp-path=%s', config['tmp'])
-    log.info('parameters: genome=%s', genome_path)
-    log.info('parameters: mode=%s', args.mode)
-    log.info('parameters: output=%s', output_path)
-    log.info('parameters: prefix=%s', prefix)
-    log.info('options: characterize=%s', args.characterize)
-    log.info('options: threads=%d', args.threads)
-    if(args.verbose):
-        print('Options, parameters and arguments:')
-        print(f"\tdb path: {config['db']}")
-        print(f'\tgenome path: {genome_path}')
-        print(f'\toutput path: {output_path}')
-        print(f'\tprefix: {prefix}')
-        print(f'\tmode: {args.mode}')
-        print(f'\tcharacterize: {args.characterize}')
-        print(f"\ttmp path: {config['tmp']}")
-        print(f'\t# threads: {args.threads}')
+    ############################################################################
+    # Checks and configurations
+    # - check parameters and setup global configuration
+    # - test database
+    # - test binary dependencies
+    ############################################################################
+    cfg.setup(args)  # check parameters and prepare global configuration
+    db.check()  # test database
+    pu.test_dependencies()  # test dependencies
+    
+    if(cfg.verbose):
+        print(f'Platon v{platon.__version__}')
+        print('Options and arguments:')
+        print(f'\tinput: {cfg.genome_path}')
+        print(f"\tdb: {cfg.db_path}")
+        print(f'\toutput: {cfg.output_path}')
+        print(f'\tprefix: {cfg.prefix}')
+        print(f'\tmode: {cfg.mode}')
+        print(f'\tcharacterize: {cfg.characterize}')
+        print(f'\ttmp path: {cfg.tmp_path}')
+        print(f'\t# threads: {cfg.threads}')
 
     # parse draft genome
     if(args.verbose):
@@ -102,7 +76,7 @@ def main():
     contigs = {}
     raw_contigs = []
     try:
-        for record in SeqIO.parse(str(genome_path), 'fasta'):
+        for record in SeqIO.parse(str(cfg.genome_path), 'fasta'):
             length = len(record.seq)
             contig = {
                 'id': record.id,
@@ -175,7 +149,7 @@ def main():
     # predict ORFs
     if(args.verbose):
         print('predict ORFs...')
-    proteins_path = pf.predict_orfs(config, contigs, genome_path)
+    proteins_path = pf.predict_orfs(contigs, cfg.genome_path)
     if(proteins_path is None):
         sys.exit('Error: ORF prediction failed!')
     no_orfs = ft.reduce(lambda x, y: x + y, map(lambda k: len(contigs[k]['orfs']), contigs))
@@ -199,11 +173,11 @@ def main():
     # find marker genes
     if(args.verbose):
         print('search marker protein sequences (MPS)...')
-    tmp_output_path = config['tmp'].joinpath('diamond.tsv')
+    tmp_output_path = cfg.tmp_path.joinpath('diamond.tsv')
     cmd = [
         'diamond',
         'blastp',
-        '--db', str(config['db'].joinpath('mps.dmnd')),
+        '--db', str(cfg.db_path.joinpath('mps.dmnd')),
         '--query', str(proteins_path),
         '--out', str(tmp_output_path),
         '--max-target-seqs', '1',  # max 1 result per query
@@ -211,11 +185,11 @@ def main():
         '--query-cover', '80',  # min query cov 80%
         '--subject-cover', '80',  # min subjetc cov 80%
         '--threads', str(args.threads),  # threads
-        '--tmpdir', str(config['tmp'])
+        '--tmpdir', str(cfg.tmp_path)
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -252,7 +226,7 @@ def main():
     if(args.verbose):
         print('compute replicon distribution scores (RDS)...')
     marker_proteins = {}
-    with config['db'].joinpath('mps.tsv').open() as fh:
+    with cfg.db_path.joinpath('mps.tsv').open() as fh:
         for line in fh:
             cols = line.split('\t')
             marker_proteins[cols[0]] = {
@@ -294,38 +268,38 @@ def main():
             print('characterize contigs...')
 
     # extract proteins from potential plasmid contigs for subsequent analyses
-    filtered_proteins_path = config['tmp'].joinpath('proteins-filtered.faa')
+    filtered_proteins_path = cfg.tmp_path.joinpath('proteins-filtered.faa')
     with filtered_proteins_path.open(mode='w') as fh:
         for record in SeqIO.parse(str(proteins_path), 'fasta'):
             orf_name = str(record.id).split()[0]
             contig_id = orf_name.rsplit('_', 1)[0]
             if(contig_id in scored_contigs):
-                fh.write('>' + orf_name + '\n')
-                fh.write(str(record.seq) + '\n')
+                fh.write(f'>{orf_name}\n')
+                fh.write(f'{record.seq}\n')
 
     # write contig sequences to fasta files for subsequent parallel analyses
     for id, contig in scored_contigs.items():
-        contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
+        contig_path = cfg.tmp_path.joinpath(f"{contig['id']}.fasta")
         with contig_path.open(mode='w') as fh:
-            fh.write('>' + contig['id'] + '\n')
-            fh.write(contig['sequence'] + '\n')
+            fh.write(f">{contig['id']}\n")
+            fh.write(f"{contig['sequence']}\n")
 
     # init thread pool to parallize io bound analyses
     with ThreadPoolExecutor(max_workers=args.threads) as tpe:
         # start search for replication, mobilization and conjugation genes
         for fn in (pf.search_replication_genes, pf.search_mobilization_genes, pf.search_conjugation_genes, pf.search_amr_genes):
-            tpe.submit(fn, config, scored_contigs, filtered_proteins_path)
+            tpe.submit(fn, scored_contigs, filtered_proteins_path)
         # analyse contigs
         for id, contig in scored_contigs.items():
-            tpe.submit(pf.test_circularity, config, contig)
-            tpe.submit(pf.search_inc_type, config, contig)
-            tpe.submit(pf.search_rrnas, config, contig)
-            tpe.submit(pf.search_orit_sequences, config, contig)
-            tpe.submit(pf.search_reference_plasmids, config, contig)
+            tpe.submit(pf.test_circularity, contig)
+            tpe.submit(pf.search_inc_type, contig)
+            tpe.submit(pf.search_rrnas, contig)
+            tpe.submit(pf.search_orit_sequences, contig)
+            tpe.submit(pf.search_reference_plasmids, contig)
 
     # lookup AMR genes
     amr_genes = {}
-    with config['db'].joinpath('ncbifam-amr.tsv').open() as fh:
+    with cfg.db_path.joinpath('ncbifam-amr.tsv').open() as fh:
         for line in fh:
             cols = line.split('\t')
             amr_genes[cols[0]] = {
@@ -339,8 +313,8 @@ def main():
             hit['product'] = amr_gene['product']
 
     # remove tmp dir
-    shutil.rmtree(str(config['tmp']))
-    log.debug('removed tmp dir: %s', config['tmp'])
+    shutil.rmtree(str(cfg.tmp_path))
+    log.debug('removed tmp dir: %s', cfg.tmp_path)
 
     # filter contigs
     filtered_contigs = None
@@ -355,7 +329,7 @@ def main():
 
     # print results to tsv file and STDOUT
     print(pc.HEADER)
-    tmp_output_path = output_path.joinpath(prefix + '.tsv')
+    tmp_output_path = output_path.joinpath(f'{cfg.prefix}.tsv')
     log.debug('output: tsv=%s', tmp_output_path)
     with tmp_output_path.open(mode='w') as fh:
         fh.write(pc.HEADER + '\n')
@@ -372,7 +346,7 @@ def main():
             fh.write(f'{line}\n')
 
     # write comprehensive results to JSON file
-    tmp_output_path = output_path.joinpath(prefix + '.json')
+    tmp_output_path = output_path.joinpath(f'{cfg.prefix}.json')
     log.debug('output: json=%s', tmp_output_path)
     with tmp_output_path.open(mode='w') as fh:
         indent = '\t' if args.verbose else None
@@ -380,7 +354,7 @@ def main():
         json.dump(filtered_contigs, fh, indent=indent, separators=separators)
 
     # write chromosome contigs to fasta file
-    tmp_output_path = output_path.joinpath(prefix + '.chromosome.fasta')
+    tmp_output_path = output_path.joinpath(f'{cfg.prefix}.chromosome.fasta')
     log.debug('output: chromosomes=%s', tmp_output_path)
     with tmp_output_path.open(mode='w') as fh:
         for contig in raw_contigs:
@@ -388,7 +362,7 @@ def main():
                 fh.write(f">{contig['id']}\n{contig['sequence']}\n")
 
     # write plasmid contigs to fasta file
-    tmp_output_path = output_path.joinpath(prefix + '.plasmid.fasta')
+    tmp_output_path = output_path.joinpath(f'{cfg.prefix}.plasmid.fasta')
     log.debug('output: plasmids=%s', tmp_output_path)
     with tmp_output_path.open(mode='w') as fh:
         for contig in raw_contigs:

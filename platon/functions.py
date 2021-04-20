@@ -1,28 +1,26 @@
-
 import logging
-import os
-import sys
-import tempfile
 import subprocess as sp
 from pathlib import Path
 
+import platon.config as cfg
 import platon.constants as pc
+
 
 log = logging.getLogger('functions')
 
 
-def test_circularity(config, contig):
+def test_circularity(contig):
     """Test if this contig can be circularized."""
 
     contig_split_position = int(contig['length'] / 2)
 
-    contig_fragment_a_path = config['tmp'].joinpath(contig['id'] + '-a.fasta')
+    contig_fragment_a_path = cfg.tmp_path.joinpath(f"{contig['id']}-a.fasta")
     contig_fragment_a_seq = contig['sequence'][:contig_split_position]
     with contig_fragment_a_path.open(mode='w') as fh:
         fh.write('>a\n')
         fh.write(contig_fragment_a_seq + '\n ')
 
-    contig_fragment_b_path = config['tmp'].joinpath(contig['id'] + '-b.fasta')
+    contig_fragment_b_path = cfg.tmp_path.joinpath(f"{contig['id']}-b.fasta")
     contig_fragment_b_seq = contig['sequence'][contig_split_position:]
     with contig_fragment_b_path.open(mode='w') as fh:
         fh.write('>b\n')
@@ -43,7 +41,7 @@ def test_circularity(config, contig):
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -60,7 +58,7 @@ def test_circularity(config, contig):
         return
 
     has_match = False
-    with config['tmp'].joinpath(contig['id'] + '.delta').open() as fh:
+    with cfg.tmp_path.joinpath(f"{contig['id']}.delta").open() as fh:
         for line in fh:
             line = line.rstrip()
             if(line[0] == '>'):
@@ -99,15 +97,15 @@ def test_circularity(config, contig):
     return
 
 
-def search_inc_type(config, contig):
+def search_inc_type(contig):
     """Search for incompatibility motifs."""
 
-    contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
-    tmp_output_path = config['tmp'].joinpath(contig['id'] + '.inc.blast.out')
+    contig_path = cfg.tmp_path.joinpath(f"{contig['id']}.fasta")
+    tmp_output_path = cfg.tmp_path.joinpath(f"{contig['id']}.inc.blast.out")
 
     cmd = [
         'blastn',
-        '-query', str(config['db'].joinpath('inc-types.fasta')),
+        '-query', str(cfg.db_path.joinpath('inc-types.fasta')),
         '-subject', str(contig_path),
         '-num_threads', '1',
         '-perc_identity', '90',
@@ -117,7 +115,7 @@ def search_inc_type(config, contig):
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -168,11 +166,11 @@ def search_inc_type(config, contig):
     return
 
 
-def search_rrnas(config, contig):
+def search_rrnas(contig):
     """Search for ribosomal RNA sequences."""
 
-    contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
-    tmp_output_path = config['tmp'].joinpath(contig['id'] + '.rrna.cmscan.tsv')
+    contig_path = cfg.tmp_path.joinpath(f"{contig['id']}.fasta")
+    tmp_output_path = cfg.tmp_path.joinpath(f"{contig['id']}.rrna.cmscan.tsv")
 
     cmd = [
         'cmscan',
@@ -180,12 +178,12 @@ def search_rrnas(config, contig):
         '--cut_tc',
         '--cpu', '1',
         '--tblout', str(tmp_output_path),
-        str(config['db'].joinpath('rRNA')),
+        str(cfg.db_path.joinpath('rRNA')),
         str(contig_path)
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -222,22 +220,22 @@ def search_rrnas(config, contig):
     return
 
 
-def search_amr_genes(config, contigs, filteredProteinsPath):
+def search_amr_genes(contigs, filteredProteinsPath):
     """Search for AMR genes."""
 
-    tmp_output_path = config['tmp'].joinpath('amr.hmm.out')
+    tmp_output_path = cfg.tmp_path.joinpath('amr.hmm.out')
     cmd = [
         'hmmsearch',
         '--noali',
         '--cpu', '1',
         '--cut_tc',
         '--tblout', str(tmp_output_path),
-        str(config['db'].joinpath('ncbifam-amr')),
+        str(cfg.db_path.joinpath('ncbifam-amr')),
         str(filteredProteinsPath)
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -279,7 +277,7 @@ def search_amr_genes(config, contigs, filteredProteinsPath):
     return
 
 
-def search_reference_plasmids(config, contig):
+def search_reference_plasmids(contig):
     """Search for reference plasmid hits."""
 
     # Reduce blastn word size to overcome segmentation faults due to too many HSPs.
@@ -287,13 +285,13 @@ def search_reference_plasmids(config, contig):
     if(blast_word_size < 11):
         blast_word_size = 11
 
-    contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
-    tmp_output_path = config['tmp'].joinpath(contig['id'] + '.refplas.blast.out')
+    contig_path = cfg.tmp_path.joinpath(f"{contig['id']}.fasta")
+    tmp_output_path = cfg.tmp_path.joinpath(f"{contig['id']}.refplas.blast.out")
 
     cmd = [
         'blastn',
         '-query', str(contig_path),
-        '-db', str(config['db'].joinpath('refseq-plasmids')),
+        '-db', str(cfg.db_path.joinpath('refseq-plasmids')),
         '-num_threads', '1',
         '-culling_limit', '1',
         '-perc_identity', '80',
@@ -303,7 +301,7 @@ def search_reference_plasmids(config, contig):
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -345,16 +343,16 @@ def search_reference_plasmids(config, contig):
     return
 
 
-def search_orit_sequences(config, contig):
+def search_orit_sequences(contig):
     """Search for oriT sequence hits."""
 
-    contig_path = config['tmp'].joinpath(contig['id'] + '.fasta')
-    tmp_output_path = config['tmp'].joinpath(contig['id'] + '.orit.blast.out')
+    contig_path = cfg.tmp_path.joinpath(f"{contig['id']}.fasta")
+    tmp_output_path = cfg.tmp_path.joinpath(f"{contig['id']}.orit.blast.out")
 
     cmd = [
         'blastn',
         '-query', str(contig_path),
-        '-db', str(config['db'].joinpath('orit')),
+        '-db', str(cfg.db_path.joinpath('orit')),
         '-num_threads', '1',
         '-culling_limit', '1',
         '-perc_identity', '90',
@@ -364,7 +362,7 @@ def search_orit_sequences(config, contig):
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -449,11 +447,11 @@ def filter_contig(contig):
     return False
 
 
-def predict_orfs(config, contigs, filteredDraftGenomePath):
+def predict_orfs(contigs, filteredDraftGenomePath):
     """Predict open reading frames with Prodigal."""
 
-    proteins_path = config['tmp'].joinpath('proteins.faa')
-    gff_path = config['tmp'].joinpath('prodigal.gff')
+    proteins_path = cfg.tmp_path.joinpath('proteins.faa')
+    gff_path = cfg.tmp_path.joinpath('prodigal.gff')
     cmd = [
         'prodigal',
         '-i', str(filteredDraftGenomePath),
@@ -464,14 +462,14 @@ def predict_orfs(config, contigs, filteredDraftGenomePath):
     ]
 
     genome_size = sum([v['length'] for k, v in contigs.items()])
-    if(config['args']['characterize'] and genome_size < 50000):
+    if(cfg.characterize and genome_size < 50000):
         cmd.append('-p')
         cmd.append('meta')
-        log.info('ORFs: execute prodigal in meta mode! characterize=%s, genome-size=%d', config['args']['characterize'], genome_size)
+        log.info('ORFs: execute prodigal in meta mode! characterize=%s, genome-size=%d', cfg.characterize, genome_size)
 
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -504,22 +502,22 @@ def predict_orfs(config, contigs, filteredDraftGenomePath):
     return proteins_path
 
 
-def search_replication_genes(config, contigs, filteredProteinsPath):
+def search_replication_genes(contigs, filteredProteinsPath):
     """Search for replication genes, e.g. repA by custom HMMs."""
 
-    tmp_output_path = config['tmp'].joinpath('rep.hmm.out')
+    tmp_output_path = cfg.tmp_path.joinpath('rep.hmm.out')
     cmd = [
         'hmmsearch',
         '--noali',
         '--cpu', '1',
         '-E', '1E-100',
         '--tblout', str(tmp_output_path),
-        str(config['db'].joinpath('replication')),
+        str(cfg.db_path.joinpath('replication')),
         str(filteredProteinsPath)
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -562,22 +560,22 @@ def search_replication_genes(config, contigs, filteredProteinsPath):
     return
 
 
-def search_mobilization_genes(config, contigs, filteredProteinsPath):
+def search_mobilization_genes(contigs, filteredProteinsPath):
     """Search for mobilization genes, e.g. mob by custom HMMs."""
 
-    tmp_output_path = config['tmp'].joinpath('mob.hmm.out')
+    tmp_output_path = cfg.tmp_path.joinpath('mob.hmm.out')
     cmd = [
         'hmmsearch',
         '--noali',
         '--cpu', '1',
         '-E', '1E-10',
         '--tblout', str(tmp_output_path),
-        str(config['db'].joinpath('mobilization')),
+        str(cfg.db_path.joinpath('mobilization')),
         str(filteredProteinsPath)
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -620,22 +618,22 @@ def search_mobilization_genes(config, contigs, filteredProteinsPath):
     return
 
 
-def search_conjugation_genes(config, contigs, filteredProteinsPath):
+def search_conjugation_genes(contigs, filteredProteinsPath):
     """Search for conjugation genes by custom HMMs."""
 
-    tmp_output_path = config['tmp'].joinpath('conj.hmm.out')
+    tmp_output_path = cfg.tmp_path.joinpath('conj.hmm.out')
     cmd = [
         'hmmsearch',
         '--noali',
         '--cpu', '1',
         '-E', '1E-100',
         '--tblout', str(tmp_output_path),
-        str(config['db'].joinpath('conjugation')),
+        str(cfg.db_path.joinpath('conjugation')),
         str(filteredProteinsPath)
     ]
     proc = sp.run(
         cmd,
-        cwd=str(config['tmp']),
+        cwd=str(cfg.tmp_path),
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -675,162 +673,4 @@ def search_conjugation_genes(config, contigs, filteredProteinsPath):
                         contig['id'], hit['type'], hit['start'], hit['end'], hit['strand']
                     )
     log.info('conj genes: contig=%s, # conj-genes=%s', contig['id'], len(contig['conjugation_hits']))
-    return
-
-
-def setup_configuration(args):
-    """Test environment and build a runtime configuration."""
-
-    config = {
-        'tmp': Path(tempfile.mkdtemp()),
-        'args': {
-            'mode': args.mode,
-            'characterize': args.characterize,
-            'threads': args.threads,
-            'output': args.output,
-            'verbose': args.verbose
-        }
-    }
-    base_dir = Path(__file__).parent.parent
-    db_path = base_dir.joinpath('db')
-    if(os.access(str(db_path), os.R_OK & os.X_OK)):
-        config['db'] = db_path
-        log.debug('config: use bundled db, db-path=%s', db_path)
-    return config
-
-
-def test_database(config):
-    """Test if database directory exists, is accessible and contains necessary files."""
-
-    if('db' not in config):
-        log.error('database directory not detected!')
-        sys.exit('ERROR: database directory not detected! Please provide a valid path to the database directory.')
-
-    if(not os.access(str(config['db']), os.R_OK & os.X_OK)):
-        log.error('database directory (%s) not readable/accessible!', config['db'])
-        sys.exit(f"ERROR: database directory ({config['db']}) not readable/accessible!")
-
-    file_names = [
-        'conjugation.h3f',
-        'conjugation.h3i',
-        'conjugation.h3m',
-        'conjugation.h3p',
-        'mobilization.h3f',
-        'mobilization.h3i',
-        'mobilization.h3m',
-        'mobilization.h3p',
-        'orit.nhr',
-        'orit.nin',
-        'orit.nsq',
-        'replication.h3f',
-        'replication.h3i',
-        'replication.h3m',
-        'replication.h3p',
-        'ncbifam-amr.h3f',
-        'ncbifam-amr.h3i',
-        'ncbifam-amr.h3m',
-        'ncbifam-amr.h3p',
-        'ncbifam-amr.tsv',
-        'rRNA.i1f',
-        'rRNA.i1i',
-        'rRNA.i1m',
-        'rRNA.i1p',
-        'mps.tsv',
-        'mps.dmnd',
-        'refseq-plasmids.tsv',
-        'inc-types.fasta',
-        'refseq-plasmids.nhr',
-        'refseq-plasmids.nin',
-        'refseq-plasmids.nsq'
-    ]
-
-    for file_name in file_names:
-        path = config['db'].joinpath(file_name)
-        if(not os.access(str(path), os.R_OK) or not path.is_file()):
-            log.error('database file not readable! file=%s', file_name)
-            sys.exit(f'ERROR: database file ({file_name}) not readable!')
-    return
-
-
-def test_binaries():
-    """Test the proper installation of necessary 3rd party executables."""
-
-    # test prodigal
-    try:
-        sp.check_call(
-            ['prodigal', '-v'],
-            stdout=sp.DEVNULL,
-            stderr=sp.DEVNULL
-        )
-    except FileNotFoundError:
-        log.exception('prodigal not found!')
-        sys.exit('ERROR: \'prodigal\' not executable!')
-    except:
-        pass
-
-    # test diamond
-    try:
-        sp.check_call(
-            ['diamond', 'version'],
-            stdout=sp.DEVNULL,
-            stderr=sp.DEVNULL
-        )
-    except FileNotFoundError:
-        log.exception('diamond not found!')
-        sys.exit('ERROR: \'diamond\' not executable!')
-    except:
-        pass
-
-    # test blastn
-    try:
-        sp.check_call(
-            ['blastn', '-version'],
-            stdout=sp.DEVNULL,
-            stderr=sp.DEVNULL
-        )
-    except FileNotFoundError:
-        log.exception('blastn not found!')
-        sys.exit('ERROR: \'blastn\' not executable!')
-    except:
-        pass
-
-    # test hmmsearch
-    try:
-        sp.check_call(
-            ['hmmsearch', '-h'],
-            stdout=sp.DEVNULL,
-            stderr=sp.DEVNULL
-        )
-    except FileNotFoundError:
-        log.exception('hmmsearch not found!')
-        sys.exit('ERROR: \'hmmsearch\' not executable!')
-    except:
-        pass
-
-    # test nucmer
-    try:
-        sp.check_call(
-            ['nucmer', '-V'],
-            stdout=sp.DEVNULL,
-            stderr=sp.DEVNULL
-        )
-    except FileNotFoundError:
-        log.exception('nucmer not found!')
-        sys.exit('ERROR: \'nucmer\' not executable!')
-    except:
-        pass
-
-    # test cmscan
-    try:
-        sp.check_call(
-            ['cmscan', '-h'],
-            stdout=sp.DEVNULL,
-            stderr=sp.DEVNULL
-        )
-    except FileNotFoundError:
-        log.exception('cmscan not found!')
-        sys.exit('ERROR: \'cmscan\' not executable!')
-    except:
-        pass
-
     return
