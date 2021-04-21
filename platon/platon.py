@@ -21,10 +21,6 @@ import platon.utils as pu
 def main():
     # parse arguments
     args = pu.parse_arguments()
-    
-    if(args.citation):  # print citation
-        print(pc.CITATION)
-        sys.exit()
 
     ############################################################################
     # Setup logging

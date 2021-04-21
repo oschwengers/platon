@@ -50,8 +50,7 @@ def parse_arguments():
     arg_group_general.add_argument('--help', '-h', action='help', help='Show this help message and exit')
     arg_group_general.add_argument('--verbose', '-v', action='store_true', help='Print verbose information')
     arg_group_general.add_argument('--threads', '-t', action='store', type=int, default=mp.cpu_count(), help='Number of threads to use (default = number of available CPUs)')
-    arg_group_general.add_argument('--version', action='version', version='%(prog)s ' + platon.__version__)
-    arg_group_general.add_argument('--citation', action='store_true', help='Print citation')
+    arg_group_general.add_argument('--version', action='version', version=f'%(prog)s {platon.__version__}')
     return parser.parse_args()
 
 
