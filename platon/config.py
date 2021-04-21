@@ -86,6 +86,7 @@ def setup(args):
 
     tmp_path = Path(tempfile.mkdtemp())
     log.info('tmp-path=%s', tmp_path)
+    log.info('output-path=%s', output_path)
 
     # workflow configurations
     global mode, characterize

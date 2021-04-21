@@ -33,3 +33,10 @@ def test_database_failing(parameters, tmpdir):
     cmd_line = ['bin/platon', '--output', tmpdir] + parameters
     proc = run(cmd_line)
     assert proc.returncode != 0
+
+
+def test_output_failing():
+    # test database arguments
+    cmd_line = ['bin/platon', '--output', '/', 'test/data/draft-w-plasmids.fna']
+    proc = run(cmd_line)
+    assert proc.returncode != 0

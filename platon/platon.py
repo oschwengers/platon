@@ -1,6 +1,7 @@
 import functools as ft
 import json
 import logging
+import os
 import re
 import sys
 import shutil
@@ -30,6 +31,10 @@ def main():
         output_path = Path(args.output) if args.output else Path.cwd()
         if(not output_path.exists()):
             output_path.mkdir(parents=True, exist_ok=True)
+        elif(not os.access(str(output_path), os.X_OK)):
+            sys.exit(f'ERROR: output path ({output_path}) not accessible!')
+        elif(not os.access(str(output_path), os.W_OK)):
+            sys.exit(f'ERROR: output path ({output_path}) not writable!')
         output_path = output_path.resolve()
         cfg.output_path = output_path
     except:
