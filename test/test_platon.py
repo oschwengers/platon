@@ -16,7 +16,7 @@ FILES = [
 @pytest.mark.slow
 def test_platon_w_plasmids(tmpdir):
     # full test on draft assembly containing plasmid contigs
-    proc = run(["bin/platon", '--db', 'test/db', '--output', tmpdir, '--prefix', 'test', 'test/data/draft-w-plasmids.fna'])
+    proc = run(['bin/platon', '--db', 'test/db', '--output', tmpdir, '--prefix', 'test', 'test/data/draft-w-plasmids.fna'])
     assert proc.returncode == 0
 
     tmpdir_path = Path(tmpdir)
@@ -29,7 +29,7 @@ def test_platon_w_plasmids(tmpdir):
 @pytest.mark.slow
 def test_platon_wo_plasmids(tmpdir):
     # full test on draft assembly containing no plasmid contigs
-    proc = run(["bin/platon", '--db', 'test/db', '--output', tmpdir, '--prefix', 'test', 'test/data/draft-wo-plasmids.fna'])
+    proc = run(['bin/platon', '--db', 'test/db', '--output', tmpdir, '--prefix', 'test', 'test/data/draft-wo-plasmids.fna'])
     assert proc.returncode == 0
 
     tmpdir_path = Path(tmpdir)
