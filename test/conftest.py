@@ -1,6 +1,17 @@
 from _pytest.mark import Mark
 
 
+global FILES
+
+FILES = [
+    'test.log',
+    'test.json',
+    'test.chromosome.fasta',
+    'test.plasmid.fasta',
+    'test.tsv'
+]
+
+
 empty_mark = Mark('', [], {})
 
 

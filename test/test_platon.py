@@ -3,14 +3,7 @@ import pytest
 from pathlib import Path
 from subprocess import run
 
-
-FILES = [
-    'test.log',
-    'test.json',
-    'test.chromosome.fasta',
-    'test.plasmid.fasta',
-    'test.tsv'
-]
+from .conftest import FILES
 
 
 @pytest.mark.slow

@@ -7,14 +7,14 @@ from subprocess import run
 @pytest.mark.parametrize(
     'parameters',
     [
-        (['--db', 'test/db']),  # no parameter
-        (['--db', 'test/db', '']),  # empty argument
-        (['--db', 'test/db', 'foo.fasta'])  # argument not existing
+        ([]),  # no parameter
+        (['']),  # empty argument
+        (['foo.fasta'])  # argument not existing
     ]
 )
 def test_genome_failing(parameters, tmpdir):
     # test genome arguments
-    cmd_line = ['bin/platon', '--output', tmpdir] + parameters
+    cmd_line = ['bin/platon', '--db', 'test/db', '--output', tmpdir] + parameters
     proc = run(cmd_line)
     assert proc.returncode != 0
 
@@ -22,16 +22,35 @@ def test_genome_failing(parameters, tmpdir):
 @pytest.mark.parametrize(
     'parameters',
     [
-        (['test/data/draft-w-plasmids.fna']),  # no parameter
-        (['--db', 'test/data/draft-w-plasmids.fna']),  # missing argument
-        (['--db', '', 'test/data/draft-w-plasmids.fna']),  # empty argument
-        (['--db', 'test/foo', 'test/data/draft-w-plasmids.fna']),  # argument not existing
+        ([]),  # not provided
+        (['--db']),  # missing path
+        (['--db', '', ]),  # empty
+        (['--db', 'test/foo']),  # not existing
     ]
 )
-def test_database_failing(parameters, tmpdir):
+def test_database_failing_parameter(parameters, tmpdir):
     # test database arguments
-    cmd_line = ['bin/platon', '--output', tmpdir] + parameters
+
+    cmd_line = ['bin/platon', '--output', tmpdir] + parameters + ['test/data/draft-w-plasmids.fna']
     proc = run(cmd_line)
+    assert proc.returncode != 0
+
+
+@pytest.mark.parametrize(
+    'env_key,env_value',
+    [
+        ('foo', ''),  # not provided
+        ('PLATON_DB', ''),  # missing path
+        ('PLATON_DB', 'test/foo')  # not existing path
+    ]
+)
+def test_database_failing_environment(env_key, env_value, tmpdir):
+    # test database arguments
+
+    env = os.environ
+    env[env_key] = env_value
+    cmd_line = ['bin/platon', '--output', tmpdir, 'test/data/draft-w-plasmids.fna']
+    proc = run(cmd_line, env=env)
     assert proc.returncode != 0
 
 
