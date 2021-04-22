@@ -14,17 +14,21 @@ import platon.constants as pc
 log = logging.getLogger('UTILS')
 Version = collections.namedtuple('Version', ['major', 'minor', 'patch'], defaults=[0, 0]) # named tuple for version checking, defaults are zero for missing minor/patch
 
+def print_version(self):
+    return f'v{self.major}.{self.minor}.{self.patch}'
+
+Version.__str__ = print_version
 
 VERSION_MIN_DIGIT = -1
 VERSION_MAX_DIGIT = 1000000000000
 VERSION_REGEX = re.compile(r'(\d+)\.(\d+)(?:\.(\d+))?')  # regex to search for version number in tool output. Takes missing patch version into consideration.
 DEPENDENCIES = [  # List of dependencies: tuples for: min version, max version, tool name & command line parameter, dependency check exclusion options
-    (Version(2,6,3), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('prodigal', '-v'), ()),
-    (Version(2,0,4), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('diamond', 'help'), ()),
-    (Version(2,10,1), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('blastn', '-version'), ()),
-    (Version(3,3,1), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('hmmsearch', '-h'), ('')),
-    (Version(4,0,0), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('nucmer', '-V'), ('')),
-    (Version(1,1,2), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('cmscan', '-h'), ())
+    (Version(2,6,3), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('prodigal', '-v')),
+    (Version(2,0,4), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('diamond', 'help')),
+    (Version(2,10,1), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('blastn', '-version')),
+    (Version(3,3,1), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('hmmsearch', '-h')),
+    (Version(4,0,0), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('nucmer', '-V')),
+    (Version(1,1,2), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('cmscan', '-h'))
 ]
 
 
@@ -58,28 +62,27 @@ def read_tool_output(dependency):
         """Method for reading tool version with regex. Input: regex expression, tool command. Retursn: version number."""
         version_regex = dependency[2]
         command = dependency[3]
-        skip_options = dependency[4]
         try:
             tool_output = str(sp.check_output(command, stderr=sp.STDOUT)) # stderr must be added in case the tool output is not piped into stdout
         except FileNotFoundError:
             log.exception('dependency not found! tool=%s', command[0])
-            sys.exit(f"ERROR: {command[0]} not found or not executable! Please make sure {command[0]} is installed and executable or skip requiring workflow steps via via '{' '.join(skip_options)}'.")
+            sys.exit(f'ERROR: {command[0]} not found or not executable! Please make sure {command[0]} is installed and executable.')
         except sp.CalledProcessError:
             log.exception('dependency check failed! tool=%s', command[0])
-            sys.exit(f"ERROR: {command[0]} could not be executed! Please make sure {command[0]} is installed and executable or skip requiring workflow steps via via '{' '.join(skip_options)}'.")
+            sys.exit(f'ERROR: {command[0]} could not be executed! Please make sure {command[0]} is installed and executable.')
         version_match = re.search(version_regex, tool_output)
         
         try:
             if version_match is None:
                 log.error('no dependency version detected! no regex hit in dependency output: regex=%s, command=%s', version_regex, command)
-                sys.exit('ERROR: Could not detect/read %s version!', command[0])
+                sys.exit(f'ERROR: Could not detect/read {command[0]} version!')
 
             major = version_match.group(1)
             minor = version_match.group(2)
             patch = version_match.group(3)
             if major is None:
                 log.error('no dependency version detected! no regex hit in dependency output: regex=%s, command=%s', version_regex, command)
-                sys.exit('ERROR: Could not detect/read %s version!', command[0])
+                sys.exit(f'ERROR: Could not detect/read {command[0]} version!')
             elif minor is None:
                 version_output = Version(int(major))
             elif patch is None:
@@ -89,7 +92,7 @@ def read_tool_output(dependency):
             return version_output
         except:
             log.error('no dependency version detected! no regex hit in dependency output: regex=%s, command=%s', version_regex, command)
-            sys.exit('ERROR: Could not detect/read %s version!', command[0])
+            sys.exit(f'ERROR: Could not detect/read {command[0]} version!')
 
 
 def check_version(tool, min, max):
@@ -123,7 +126,7 @@ def test_dependencies():
         check_result = check_version(version, dependency[0], dependency[1])
         if (check_result == False):
             log.error('wrong dependency version for %s: installed=%s, minimum=%s', dependency[3][0], version, dependency[0])
-            sys.exit(f'ERROR: Wrong {dependency[2][0]} version installed. Please, either install {dependency[3][0]} version {dependency[0]} or skip {dependency[4]}!')
+            sys.exit(f'ERROR: Wrong {dependency[3][0]} version installed. Please, install {dependency[3][0]} version {dependency[0]}!')
         else:
             log.info('dependency check: tool=%s, version=%s', dependency[3][0], version)
 
