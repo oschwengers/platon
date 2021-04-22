@@ -2,7 +2,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/oschwengers/platon/blob/master/LICENSE)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/cb-platon.svg)
 ![GitHub release](https://img.shields.io/github/release/oschwengers/platon.svg)
-![PyPI](https://img.shields.io/pypi/v/cb-platon.svg)
+[![PyPI](https://img.shields.io/pypi/v/cb-platon.svg)](https://pypi.org/project/cb-platon)
 ![PyPI - Status](https://img.shields.io/pypi/status/cb-platon.svg)
 [![Conda](https://img.shields.io/conda/v/bioconda/platon.svg)](https://bioconda.github.io/recipes/platon/README.html)
 
