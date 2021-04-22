@@ -31,7 +31,7 @@ def test_genome_failing(parameters, tmpdir):
 def test_database_failing_parameter(parameters, tmpdir):
     # test database arguments
 
-    cmd_line = ['bin/platon', '--output', tmpdir] + parameters + ['test/data/draft-w-plasmids.fna']
+    cmd_line = ['bin/platon', '--output', tmpdir] + parameters + ['test/data/mock-sample.fna']
     proc = run(cmd_line)
     assert proc.returncode != 0
 
@@ -49,13 +49,13 @@ def test_database_failing_environment(env_key, env_value, tmpdir):
 
     env = os.environ
     env[env_key] = env_value
-    cmd_line = ['bin/platon', '--output', tmpdir, 'test/data/draft-w-plasmids.fna']
+    cmd_line = ['bin/platon', '--output', tmpdir, 'test/data/mock-sample.fna']
     proc = run(cmd_line, env=env)
     assert proc.returncode != 0
 
 
 def test_output_failing():
     # test database arguments
-    cmd_line = ['bin/platon', '--output', '/', 'test/data/draft-w-plasmids.fna']
+    cmd_line = ['bin/platon', '--output', '/', 'test/data/mock-sample.fna']
     proc = run(cmd_line)
     assert proc.returncode != 0
