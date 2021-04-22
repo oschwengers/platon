@@ -110,6 +110,21 @@ $ tar -xzf db.tar.gz
 $ rm db.tar.gz
 ```
 
+The db path can either be provided via parameter (`--db`) or environment variable (`PLATON_DB`):
+
+```bash
+$ platon --db <db-path> genome.fasta
+
+$ export PLATON_DB=<db-path>
+$ platon genome.fasta
+```
+
+Additionally, for a system-wide setup, the database can be copied to the Platon base directory:
+
+```bash
+$ cp -r db/ <platon-installation-dir>
+```
+
 ## Usage
 
 Usage:
