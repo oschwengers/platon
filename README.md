@@ -75,7 +75,7 @@ All files are prefixed (`<prefix>`) as the input genome fasta file.
 
 ## Installation
 
-Platon can be installed via BioConda and Pip.
+Platon can be installed via BioConda or Pip.
 However, we encourage to use [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to automatically install all required 3rd party dependencies. In all cases a mandatory [database](#database_download) must be downloaded.
 
 ### BioConda
@@ -87,7 +87,7 @@ $ conda install -c conda-forge -c bioconda -c defaults platon
 ### Pip
 
 ```bash
-$ python3 -m pip install --user platon
+$ python3 -m pip install --user cb-platon
 ```
 
 Platon requires the following 3rd party executables which must be installed & executable:
