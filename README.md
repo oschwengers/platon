@@ -171,7 +171,7 @@ $ platon genome.fasta
 Expert: writing results to `results` directory with verbose output using 8 threads:
 
 ```bash
-$ platon -db ~/db --output results/ --verbose --threads 8 genome.fasta
+$ platon --db ~/db --output results/ --verbose --threads 8 genome.fasta
 ```
 
 ## Mode
