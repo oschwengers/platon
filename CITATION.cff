@@ -1,0 +1,41 @@
+cff-version: 1.1.0
+message: "If you use Platon, please cite it using these metadata."
+authors: 
+  -
+    family-names: Schwengers
+    given-names: Oliver
+    orcid: https://orcid.org/0000-0003-4216-2721
+    affiliation: Bioinformatics and Systems Biology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Barth
+    given-names: Patrick
+    affiliation: Bioinformatics and Systems Biology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Falgenhauer
+    given-names: Linda
+    affiliation: Institute of Medical Microbiology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Hain
+    given-names: Torsten
+    affiliation: Institute of Medical Microbiology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Chakraborty
+    given-names: Trinad
+    affiliation: Institute of Medical Microbiology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Goesmann
+    given-names: Alexander
+    orcid: https://orcid.org/0000-0002-7086-2568
+    affiliation: Bioinformatics and Systems Biology, Justus Liebig University Giessen, Giessen, 35392, Germany
+title: "Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein sequence-based replicon distribution scores"
+version: 1.6
+keywords: 
+  - bioinformatics
+  - assembly
+  - NGS
+  - Microbiology
+  - bacteria
+  - WGS
+  - plasmids
+license: GPL-3.0
+
