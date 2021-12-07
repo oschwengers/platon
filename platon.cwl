@@ -69,7 +69,7 @@ s:author:
     s:email: mailto:oliver.schwengers@computational.bio.uni-giessen.de
     s:name: Oliver Schwengers
 
-# s:citation:
+s:citation: https://doi.org/10.1099/mgen.0.000398
 s:codeRepository: https://github.com/oschwengers/platon
 s:license: https://spdx.org/licenses/GNU GPL3
 s:programmingLanguage: Python
