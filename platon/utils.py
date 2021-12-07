@@ -49,6 +49,7 @@ def parse_arguments():
     arg_group_workflow = parser.add_argument_group('Workflow')
     arg_group_workflow.add_argument('--mode', '-m', action='store', type=str, choices=['sensitivity', 'accuracy', 'specificity'], default='accuracy', help='applied filter mode: sensitivity: RDS only (>= 95%% sensitivity); specificity: RDS only (>=99.9%% specificity); accuracy: RDS & characterization heuristics (highest accuracy) (default = accuracy)')
     arg_group_workflow.add_argument('--characterize', '-c', action='store_true', help='deactivate filters; characterize all contigs')
+    arg_group_workflow.add_argument('--meta', action='store_true', help='use metagenome gene prediction mode')
     
     arg_group_general = parser.add_argument_group('General')
     arg_group_general.add_argument('--help', '-h', action='help', help='Show this help message and exit')

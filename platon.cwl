@@ -39,6 +39,10 @@ inputs:
     inputBinding: {prefix: --mode}
     type: string
     default: 'accuracy'
+  - doc: Run in metagenome mode
+    id: metagenome
+    inputBinding: {prefix: --meta}
+    type: boolean
   - doc: Threads
     id: threads
     inputBinding: {prefix: --threads}

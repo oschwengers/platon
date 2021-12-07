@@ -6,7 +6,7 @@
 ![PyPI - Status](https://img.shields.io/pypi/status/cb-platon.svg)
 [![Conda](https://img.shields.io/conda/v/bioconda/platon.svg)](https://bioconda.github.io/recipes/platon/README.html)
 
-# Platon: identification and characterization of bacterial plasmid contigs from short-read draft assemblies.
+# Platon: identification and characterization of bacterial plasmid contigs from short-read draft assemblies
 
 ## Contents
 
@@ -26,14 +26,11 @@
 ## Description
 
 **TL;DR**
-Platon detects plasmid contigs within bacterial draft genomes from WGS short-read assemblies.
-Therefore, Platon analyzes the natural distribution biases of certain protein coding genes between
-chromosomes and plasmids. This analysis is complemented by comprehensive contig characterizations
-upon which several heuristics are applied.
+Platon detects plasmid-borne contigs within bacterial draft (meta) genomes assemblies. Therefore, Platon analyzes the distribution bias of protein-coding gene families among chromosomes and plasmids. This analysis is complemented by comprehensive contig characterizations follwoed by heuristic filters.
 
 Platon conducts three analysis steps:
 
-1. It predicts and searches coding sequences against a custom and pre-computed database comprising marker protein sequences (**MPS**) and related replicon distribution scores (**RDS**). These scores express the empirically measured frequency biases of protein sequence distributions between plasmids and chromosomes pre-computed on complete NCBI RefSeq replicons. Platon calculates the mean RDS for each contig and either classifies them as chromosome if the RDS is below a sensitivity cutoff determined to 95% sensitivity or as plasmid if the RDS is above a specificity cutoff determined to 99.9% specificity. Exact values for these thresholds have been computed based on Monte Carlo simulations of artifical replicon fragments created from complete RefSeq chromosome and plasmid sequences.
+1. It predicts and searches protein sequences against a custom and pre-computed database comprising marker protein sequences (**MPS**) and related replicon distribution scores (**RDS**). These scores express the empirically measured bias of protein sequence family distributions among plasmids and chromosomes pre-computed on complete NCBI RefSeq replicons. Platon calculates the mean RDS for each contig and either classifies them as chromosome if the RDS is below a sensitivity cutoff determined to 95% sensitivity or as plasmid if the RDS is above a specificity cutoff determined to 99.9% specificity. Exact values for these thresholds have been computed based on Monte Carlo simulations of artifical replicon fragments created from complete RefSeq chromosome and plasmid sequences.
 2. Contigs passing the sensitivity filter get comprehensivley characterized. Hereby, Platon tries to circularize the contig sequences, searches for rRNA, replication, mobilization and conjugation genes, oriT sequences, incompatibility group DNA probes and finally performs a BLAST+ search against the NCBI plasmid database.
 3. Finally, to increase the overall sensitivity, Platon classifies all remaining contigs based on the gathered information by several heuristics.
 
@@ -45,7 +42,7 @@ Platon conducts three analysis steps:
 
 ### Input
 
-Platon accepts draft assemblies in fasta format. If contigs have been assembled with SPAdes, Platon is able to extract the coverage information from the contig names.
+Platon accepts draft (meta) genome assemblies in fasta format. If contigs have been assembled with SPAdes, Platon is able to extract the coverage information from the contig names.
 
 ### Output
 
@@ -130,34 +127,30 @@ $ cp -r db/ <platon-installation-dir>
 Usage:
 
 ```bash
-usage: platon [-h] [--db DB] [--mode {sensitivity,accuracy,specificity}]
-              [--characterize] [--output OUTPUT] [--prefix PREFIX]
-              [--threads THREADS] [--verbose] [--version]
-              <genome>
+usage: platon [--db DB] [--prefix PREFIX] [--output OUTPUT] [--mode {sensitivity,accuracy,specificity}] [--characterize] [--meta] [--help] [--verbose] [--threads THREADS] [--version] <genome>
 
 Identification and characterization of bacterial plasmid contigs from short-read draft assemblies.
 
-positional arguments:
+Input / Output:
   <genome>              draft genome in fasta format
-
-optional arguments:
-  -h, --help            show this help message and exit
   --db DB, -d DB        database path (default = <platon_path>/db)
-  --mode {sensitivity,accuracy,specificity}, -m {sensitivity,accuracy,specificity}
-                        applied filter mode: sensitivity: RDS only (>= 95%
-                        sensitivity); specificity: RDS only (>=99.9%
-                        specificity); accuracy: RDS & characterization
-                        heuristics (highest accuracy) (default = accuracy)
-  --characterize, -c    deactivate filters; characterize all contigs
-  --output OUTPUT, -o OUTPUT
-                        output directory (default = current working directory)
   --prefix PREFIX, -p PREFIX
-                        file prefix (default = input file name)
+                        Prefix for output files
+  --output OUTPUT, -o OUTPUT
+                        Output directory (default = current working directory)
+
+Workflow:
+  --mode {sensitivity,accuracy,specificity}, -m {sensitivity,accuracy,specificity}
+                        applied filter mode: sensitivity: RDS only (>= 95% sensitivity); specificity: RDS only (>=99.9% specificity); accuracy: RDS & characterization heuristics (highest accuracy) (default = accuracy)
+  --characterize, -c    deactivate filters; characterize all contigs
+  --meta                use metagenome gene prediction mode
+
+General:
+  --help, -h            Show this help message and exit
+  --verbose, -v         Print verbose information
   --threads THREADS, -t THREADS
-                        number of threads to use (default = number of
-                        available CPUs)
-  --verbose, -v         print verbose information
-  --version, -V         show program's version number and exit
+                        Number of threads to use (default = number of available CPUs)
+  --version             show program's version number and exit
 ```
 
 ## Examples
