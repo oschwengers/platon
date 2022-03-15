@@ -38,7 +38,8 @@ process searchProts {
     errorStrategy 'retry'
     maxRetries 3
     cpus 1
-    memory '2.5 GB'
+    memory '4 GB'
+    conda 'prodigal=2.6.3 diamond=2.0.14'
 
     input:
     set val(type), val(id), val(subSequence) from chContigs
@@ -52,7 +53,7 @@ process searchProts {
     prodigal -i seq.fna -a cdss.faa -p meta
     if [ -s cdss.faa ]
     then
-        diamond blastp --query cdss.faa --db ${pcDb} --threads ${task.cpus} --out output.tsv --max-target-seqs 1 --id 90 --query-cover 80 --subject-cover 80
+        diamond blastp --query cdss.faa --db ${pcDb} --fast --threads ${task.cpus} --out output.tsv --max-target-seqs 1 --id 90 --query-cover 80 --subject-cover 80
     else
         touch output.tsv
     fi

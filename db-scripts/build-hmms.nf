@@ -19,6 +19,9 @@ process extractNRP {
 
     cache false
     errorStrategy 'ignore'
+    cpus 1
+    memory '1 GB'
+    conda 'hmmer=3.3.2 muscle=5.1'
 
     input:
     val(cluster) from chGeneCluster

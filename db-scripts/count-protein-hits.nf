@@ -29,6 +29,7 @@ process callORFs {
 
     errorStrategy 'retry'
     maxRetries 3
+    conda 'prodigal=2.6.3'
 
     input:
     set val(type), file('replicon.fna') from chInput
@@ -53,7 +54,8 @@ process searchProts {
     errorStrategy 'ignore'
     maxRetries 3
     cpus 2
-    memory '2.5 GB'
+    memory '4 GB'
+    conda 'diamond=2.0.14'
 
     input:
     set val(type), file(cdss) from chAA
@@ -65,7 +67,7 @@ process searchProts {
     cdss.size() > 0
 
     """
-    diamond blastp --query ${cdss} --db ${pcDb} --threads ${task.cpus} --out output.tsv --max-target-seqs 1 --id 90 --query-cover 80 --subject-cover 80
+    diamond blastp --query ${cdss} --db ${pcDb} --threads ${task.cpus} --fast --out output.tsv --max-target-seqs 1 --id 90 --query-cover 80 --subject-cover 80
     """
 }
 
