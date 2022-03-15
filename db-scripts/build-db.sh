@@ -20,7 +20,7 @@ rm -rf plasmidfinder_db inc-types-raw.fasta inc-types-mixed.fasta
 printf "\n2/13: download rRNA covariance models from Rfam...\n"
 mkdir Rfam
 cd Rfam
-wget -q -nH ftp://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/Rfam.tar.gz
+wget -q -nH https://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/Rfam.tar.gz
 tar -xzf Rfam.tar.gz
 cd ..
 cat Rfam/RF00001.cm >  rRNA
@@ -32,18 +32,18 @@ rm -r Rfam rRNA
 
 # download AMR HMMs from NCBIfams
 printf "\n3/13: download AMR HMMs from NCBIfams...\n"
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/hmm/NCBIfam-AMRFinder/latest/NCBIfam-AMRFinder.LIB
+wget -q -nH https://ftp.ncbi.nlm.nih.gov/hmm/NCBIfam-AMRFinder/latest/NCBIfam-AMRFinder.LIB
 mv NCBIfam-AMRFinder.LIB ncbifam-amr
 hmmpress ncbifam-amr
 rm ncbifam-amr
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/hmm/NCBIfam-AMRFinder/latest/NCBIfam-AMRFinder.tsv
+wget -q -nH https://ftp.ncbi.nlm.nih.gov/hmm/NCBIfam-AMRFinder/latest/NCBIfam-AMRFinder.tsv
 mv NCBIfam-AMRFinder.tsv ncbifam-amr.tsv
 
 
 # build HMMs
 printf "\n4/13: build HMMs...\n"
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/CLUSTERS/PCLA_clusters.txt
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/CLUSTERS/PCLA_proteins.txt
+wget -q -nH https://ftp.ncbi.nlm.nih.gov/genomes/CLUSTERS/PCLA_clusters.txt
+wget -q -nH https://ftp.ncbi.nlm.nih.gov/genomes/CLUSTERS/PCLA_proteins.txt
 touch clusters.lst
 for type in replication conjugation; do
     sh $PLATON_HOME/db-scripts/extract-${type}.sh PCLA_clusters.txt
@@ -51,8 +51,8 @@ for type in replication conjugation; do
 done
 grep -f clusters.lst PCLA_proteins.txt | cut -f2 > clusters-proteins.lst
 
-for i in {1..1169}; do
-    wget -nv ftp://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.nonredundant_protein.${i}.protein.faa.gz
+for i in {1..1473}; do
+    wget -nv https://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.nonredundant_protein.${i}.protein.faa.gz
     pigz -dc bacteria.nonredundant_protein.${i}.protein.faa.gz | seqtk seq -CU >> refseq-bacteria-nrp.trimmed.faa
     rm bacteria.nonredundant_protein.${i}.protein.faa.gz
 done
@@ -91,13 +91,13 @@ rm -r orit data.tar.gz data/
 
 # download RefSeq reference plasmids
 printf "\n7/15: download RefSeq reference plasmids...\n"
-wget -q -O refseq-plasmids-raw.tsv ftp://ftp.ncbi.nlm.nih.gov/genomes/GENOME_REPORTS/plasmids.txt
+wget -q -O refseq-plasmids-raw.tsv https://ftp.ncbi.nlm.nih.gov/genomes/GENOME_REPORTS/plasmids.txt
 grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f1,5,6,8,9,10,11,12,15 > refseq-plasmids.tsv
 grep 'Bacteria' refseq-plasmids-raw.tsv | cut -f3 refseq-plasmids.tsv > refseq-plasmids-ids.txt
 mkdir refseq-plasmids-dir
 cd refseq-plasmids-dir
-for i in {1..8}; do
-    wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/refseq/release/plasmid/plasmid.$i.1.genomic.fna.gz
+for i in {1..9}; do
+    wget -q -nH https://ftp.ncbi.nlm.nih.gov/refseq/release/plasmid/plasmid.$i.1.genomic.fna.gz
 done
 cd ..
 gzip -dc refseq-plasmids-dir/plasmid.*.1.genomic.fna.gz | seqtk subseq - refseq-plasmids-ids.txt | seqtk seq -CU > refseq-plasmids
@@ -109,7 +109,7 @@ rm -r refseq-plasmids-dir refseq-plasmids-raw.tsv refseq-plasmids-ids.txt
 # download RefSeq chromosomes
 printf "\n8/15: download RefSeq chromosomes...\n"
 mkdir nf-tmp
-wget -q -nH ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt
+wget -q -nH https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt
 nextflow run $PLATON_HOME/db-scripts/download-chromosomes.nf --assembly assembly_summary.txt
 rm -rf work/ .nextflow* assembly_summary.txt
 
@@ -125,8 +125,8 @@ cd ..
 
 # download UniProt UniRef90 clusters
 printf "\n10/15: download UniProt UniRef90 clusters...\n"
-wget -q -nv ftp://ftp.expasy.org/databases/uniprot/current_release/uniref/uniref90/uniref90.xml.gz
-wget -q -nv ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/uniparc/uniparc_active.fasta.gz
+wget -q -nv https://ftp.expasy.org/databases/uniprot/current_release/uniref/uniref90/uniref90.xml.gz
+wget -q -nv https://ftp.uniprot.org/pub/databases/uniprot/current_release/uniparc/uniparc_active.fasta.gz
 python3 $PLATON_HOME/db-scripts/uniref-extract-bacteria.py \
     --taxonomy taxonomy/nodes.dmp \
     --xml uniref90.xml.gz \
