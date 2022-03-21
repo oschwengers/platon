@@ -107,4 +107,4 @@ with fasta_path.open(mode='wt') as fh_fasta, tsv_path.open(mode='wt') as fh_tsv:
                 fh_tsv.write(f'{uniref90_id}\t{prot_name}\t{len(seq)}\n')
                 uniref90_uniparc_ids.pop(record.id)
                 i += 1
-    print('\twritten UniParc seed sequences: {i}')
+    print(f'\twritten UniParc seed sequences: {i}')

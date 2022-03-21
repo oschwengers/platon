@@ -49,4 +49,4 @@ chInput = chInputPlasmids.concat( chInputChromosomes )
         }
         return subsequences
     } )
-    .collectFile( sort: false, name: 'artificial-contigs.fna', storeDir: '.' , newLine: true )
+    .collectFile( sort: false, name: 'artificial-contigs.fna', storeDir: '.' , newLine: true, cache: false, tempDir: './tmp' )

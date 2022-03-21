@@ -35,9 +35,9 @@ Channel.fromPath( contigsPath )
 
 process searchProts {
 
-    errorStrategy 'retry'
+    errorStrategy 'ignore'
     maxRetries 3
-    cpus 1
+    cpus 4
     memory '4 GB'
     conda 'prodigal=2.6.3 diamond=2.0.14'
 

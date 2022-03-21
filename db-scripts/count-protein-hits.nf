@@ -27,7 +27,7 @@ chInput = chInputPlasmids.concat( chInputChromosomes )
 
 process callORFs {
 
-    errorStrategy 'retry'
+    errorStrategy 'ignore'
     maxRetries 3
     conda 'prodigal=2.6.3'
 
@@ -53,8 +53,8 @@ process searchProts {
 
     errorStrategy 'ignore'
     maxRetries 3
-    cpus 2
-    memory '4 GB'
+    cpus 4
+    memory '12 GB'
     conda 'diamond=2.0.14'
 
     input:
@@ -72,31 +72,38 @@ process searchProts {
 }
 
 
-chProteinPlasmidHits = Channel.create()
-chProteinChromosomeHits = Channel.create()
-
+chProteinHits = Channel.create()
+chResults = Channel.create()
 
 chSearchResults
-    .subscribe( onNext: {
+    .map( {
         def type = it[0]
         def resultFile = it[1]
+        def protIds = []
         Files.readAllLines( resultFile ).each( {
-            def cols = it.split( '\t' )
-            def protId = cols[1]
-            if( type == 'p' ) {
-                chProteinPlasmidHits << protId
-            } else {
-                chProteinChromosomeHits << protId
-            }
+            protIds << it.split( '\t' )[1]
         } )
-    },
-    onComplete: {
-        chProteinPlasmidHits.close()
-        chProteinChromosomeHits.close()
+        return [type, protIds]
     } )
+    .branch {
+        plasmids: it[0] == 'p'
+        chromosomes: it[0] == 'c'
+    }
+    .set { chProteinHits }
 
 
-chResults = Channel.create()
+chProteinHits.plasmids
+    .map( { it[1] } )
+    .flatten()
+    .countBy()
+    .set( { chProteinPlasmidHits } )
+
+
+chProteinHits.chromosomes
+    .map( { it[1] } )
+    .flatten()
+    .countBy()
+    .set( { chProteinChromosomeHits } )
 
 
 process mergeSearchResults {
@@ -105,23 +112,19 @@ process mergeSearchResults {
     executor 'local'
 
     input:
-    val valPlasmidHitCounts    from chProteinPlasmidHits.countBy()
-    val valChromosomeHitCounts from chProteinChromosomeHits.countBy()
+    val valPlasmidHitCounts    from chProteinPlasmidHits
+    val valChromosomeHitCounts from chProteinChromosomeHits
 
     exec:
-    def plasmidHitCounts = valPlasmidHitCounts // 'variable already defined' bug workaround
-    def chromosomeHitCounts = valChromosomeHitCounts // 'variable already defined' bug workaround
-
     def protIds = [].toSet()
-    protIds.addAll( plasmidHitCounts.keySet() )
-    protIds.addAll( chromosomeHitCounts.keySet() )
-    println( "# plasmid protein hits: ${plasmidHitCounts.size()}" )
-    println( "# chromosome protein hits: ${chromosomeHitCounts.size()}" )
+    protIds.addAll( valPlasmidHitCounts.keySet() )
+    protIds.addAll( valChromosomeHitCounts.keySet() )
+    println( "# plasmid protein hits: ${valPlasmidHitCounts.size()}" )
+    println( "# chromosome protein hits: ${valChromosomeHitCounts.size()}" )
     println( "# distinct proteins: ${protIds.size()}" )
     protIds.each( { protId ->
-        int plasmidHits = plasmidHitCounts[ protId ] ?: 0
-        int chromosomeHits = chromosomeHitCounts[ protId ] ?: 0
-        // clusterId \t plasmidHits \t chromosomeHits
+        int plasmidHits = valPlasmidHitCounts[ protId ] ?: 0
+        int chromosomeHits = valChromosomeHitCounts[ protId ] ?: 0
         chResults << "${protId}\t${plasmidHits}\t${chromosomeHits}"
     } )
     chResults.close()

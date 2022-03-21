@@ -17,7 +17,7 @@ process download {
 
     cache false
     maxForks 4
-    errorStrategy 'retry'
+    errorStrategy 'ignore'
     maxRetries 3
 
     input:

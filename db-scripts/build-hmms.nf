@@ -33,7 +33,7 @@ process extractNRP {
     """
     grep ${cluster} ${nrpcMappingPath} | cut -f2 > cluster-proteins.txt
     seqtk subseq ${nrpPath} cluster-proteins.txt > cluster-proteins.faa
-    muscle -diags -quiet -in cluster-proteins.faa -out msa.fasta
+    muscle -align cluster-proteins.faa -output msa.fasta
     hmmbuild -n ${geneClass}_${cluster} --amino --cpu ${task.cpus} ${geneClass}_${cluster}.hmm msa.fasta
     """
 }

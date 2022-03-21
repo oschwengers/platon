@@ -165,6 +165,7 @@ rm uniref90.*
 # create artificial contigs
 printf "\n14/15: create artificial contigs...\n"
 export NXF_OPTS="-Xms256G -Xmx512G"
+mkdir tmp
 nextflow run $PLATON_HOME/db-scripts/generate-artificial-contigs.nf \
     --plasmids refseq-plasmids.fna \
     --chromosomes refseq-chromosomes.fna
