@@ -25,7 +25,7 @@ VERSION_REGEX = re.compile(r'(\d+)\.(\d+)(?:\.(\d+))?')  # regex to search for v
 DEPENDENCIES = [  # List of dependencies: tuples for: min version, max version, tool name & command line parameter, dependency check exclusion options
     (Version(2,6,3), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('prodigal', '-v')),
     (Version(2,0,14), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('diamond', 'help')),
-    (Version(2,12,1), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('blastn', '-version')),
+    (Version(2,12,0), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('blastn', '-version')),
     (Version(3,3,1), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('hmmsearch', '-h')),
     (Version(4,0,0), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('nucmer', '-V')),
     (Version(1,1,2), Version(VERSION_MAX_DIGIT, VERSION_MAX_DIGIT, VERSION_MAX_DIGIT), VERSION_REGEX, ('cmscan', '-h'))
