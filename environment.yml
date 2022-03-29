@@ -10,4 +10,4 @@ dependencies:
   - blast>=2.12.0
   - hmmer>=3.3.1
   - infernal>=1.1.4
-  - mummer4>=4.0.0beta2
+  - mummer4>=4.0.0rc1
