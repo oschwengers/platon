@@ -1,6 +1,5 @@
 import logging
 import subprocess as sp
-from pathlib import Path
 
 import platon.config as cfg
 import platon.constants as pc
@@ -116,6 +115,7 @@ def search_inc_type(contig):
     proc = sp.run(
         cmd,
         cwd=str(cfg.tmp_path),
+        env=cfg.env,
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -281,7 +281,7 @@ def search_reference_plasmids(contig):
     """Search for reference plasmid hits."""
 
     # Reduce blastn word size to overcome segmentation faults due to too many HSPs.
-    blast_word_size = int(contig['length'] / 100)
+    blast_word_size = int(contig['length'] / 1000)
     if(blast_word_size < 11):
         blast_word_size = 11
 
@@ -302,6 +302,7 @@ def search_reference_plasmids(contig):
     proc = sp.run(
         cmd,
         cwd=str(cfg.tmp_path),
+        env=cfg.env,
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True
@@ -363,6 +364,7 @@ def search_orit_sequences(contig):
     proc = sp.run(
         cmd,
         cwd=str(cfg.tmp_path),
+        env=cfg.env,
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         universal_newlines=True

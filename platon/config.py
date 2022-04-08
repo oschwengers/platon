@@ -28,6 +28,8 @@ def setup(args):
     """Test environment and build a runtime configuration."""
     # runtime configurations
     global env, threads, verbose
+    env['BLAST_USAGE_REPORT'] = 'false'  # prevent BLAST from contacting NCBI
+    
     threads = args.threads
     log.info('threads=%i', threads)
     verbose = args.verbose
