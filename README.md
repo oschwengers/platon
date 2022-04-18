@@ -26,7 +26,7 @@
 ## Description
 
 **TL;DR**
-Platon detects plasmid-borne contigs within bacterial draft (meta) genomes assemblies. Therefore, Platon analyzes the distribution bias of protein-coding gene families among chromosomes and plasmids. This analysis is complemented by comprehensive contig characterizations follwoed by heuristic filters.
+Platon detects plasmid-borne contigs within bacterial draft (meta) genomes assemblies. Therefore, Platon analyzes the distribution bias of protein-coding gene families among chromosomes and plasmids. This analysis is complemented by comprehensive contig characterizations followed by heuristic filters.
 
 Platon conducts three analysis steps:
 
