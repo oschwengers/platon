@@ -329,22 +329,26 @@ def main():
         filtered_contigs = {k: v for (k, v) in scored_contigs.items() if pf.filter_contig(v)}
 
     # print results to tsv file and STDOUT
-    print(pc.HEADER)
-    tmp_output_path = output_path.joinpath(f'{cfg.prefix}.tsv')
-    log.debug('output: tsv=%s', tmp_output_path)
-    with tmp_output_path.open(mode='w') as fh:
-        fh.write(pc.HEADER + '\n')
-        for id in sorted(filtered_contigs, key=lambda k: -filtered_contigs[k]['length']):
-            c = filtered_contigs[id]
-            cov = 'NA' if c['coverage'] == 0 else f"{c['coverage']:4.1f}"
-            circ = 'yes' if c['is_circular'] else 'no'
-            line = f"{c['id']}\t{c['length']}\t{cov}\t{len(c['orfs'])}\t{c['protein_score']:3.1f}\t{circ}\t{len(c['inc_types'])}\t{len(c['replication_hits'])}\t{len(c['mobilization_hits'])}\t{len(c['orit_hits'])}\t{len(c['conjugation_hits'])}\t{len(c['amr_hits'])}\t{len(c['rrnas'])}\t{len(c['plasmid_hits'])}"
-            print(line)
-            log.info(
-                'plasmid: id=%s, len=%d, cov=%s, ORFs=%d, RDS=%f, circ=%s, incs=%s, # rep=%d, # mob=%d, #oriT=%d, # con=%d, # AMRs=%d, # rRNAs=%d, # refs=%d',
-                c['id'], c['length'], cov, len(c['orfs']), c['protein_score'], c['is_circular'], len(c['inc_types']), len(c['replication_hits']), len(c['mobilization_hits']), len(c['orit_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits'])
-            )
-            fh.write(f'{line}\n')
+    if(len(filtered_contigs) > 0):
+        print(pc.HEADER)
+        tmp_output_path = output_path.joinpath(f'{cfg.prefix}.tsv')
+        log.debug('output: tsv=%s', tmp_output_path)
+        with tmp_output_path.open(mode='w') as fh:
+            fh.write(pc.HEADER + '\n')
+            for id in sorted(filtered_contigs, key=lambda k: -filtered_contigs[k]['length']):
+                c = filtered_contigs[id]
+                cov = 'NA' if c['coverage'] == 0 else f"{c['coverage']:4.1f}"
+                circ = 'yes' if c['is_circular'] else 'no'
+                line = f"{c['id']}\t{c['length']}\t{cov}\t{len(c['orfs'])}\t{c['protein_score']:3.1f}\t{circ}\t{len(c['inc_types'])}\t{len(c['replication_hits'])}\t{len(c['mobilization_hits'])}\t{len(c['orit_hits'])}\t{len(c['conjugation_hits'])}\t{len(c['amr_hits'])}\t{len(c['rrnas'])}\t{len(c['plasmid_hits'])}"
+                print(line)
+                log.info(
+                    'plasmid: id=%s, len=%d, cov=%s, ORFs=%d, RDS=%f, circ=%s, incs=%s, # rep=%d, # mob=%d, #oriT=%d, # con=%d, # AMRs=%d, # rRNAs=%d, # refs=%d',
+                    c['id'], c['length'], cov, len(c['orfs']), c['protein_score'], c['is_circular'], len(c['inc_types']), len(c['replication_hits']), len(c['mobilization_hits']), len(c['orit_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits'])
+                )
+                fh.write(f'{line}\n')
+    else:
+        print('No potential plasmid contigs found!')
+        print(pc.HEADER)
 
     # write comprehensive results to JSON file
     tmp_output_path = output_path.joinpath(f'{cfg.prefix}.json')
