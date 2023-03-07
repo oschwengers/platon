@@ -329,12 +329,12 @@ def main():
         filtered_contigs = {k: v for (k, v) in scored_contigs.items() if pf.filter_contig(v)}
 
     # print results to tsv file and STDOUT
-    if(len(filtered_contigs) > 0):
-        print(pc.HEADER)
-        tmp_output_path = output_path.joinpath(f'{cfg.prefix}.tsv')
-        log.debug('output: tsv=%s', tmp_output_path)
-        with tmp_output_path.open(mode='w') as fh:
-            fh.write(pc.HEADER + '\n')
+    tmp_output_path = output_path.joinpath(f'{cfg.prefix}.tsv')
+    log.debug('output: tsv=%s', tmp_output_path)
+    with tmp_output_path.open(mode='w') as fh:
+        fh.write(pc.HEADER + '\n')
+        if(len(filtered_contigs) > 0):
+            print(pc.HEADER)
             for id in sorted(filtered_contigs, key=lambda k: -filtered_contigs[k]['length']):
                 c = filtered_contigs[id]
                 cov = 'NA' if c['coverage'] == 0 else f"{c['coverage']:4.1f}"
@@ -346,9 +346,9 @@ def main():
                     c['id'], c['length'], cov, len(c['orfs']), c['protein_score'], c['is_circular'], len(c['inc_types']), len(c['replication_hits']), len(c['mobilization_hits']), len(c['orit_hits']), len(c['conjugation_hits']), len(c['amr_hits']), len(c['rrnas']), len(c['plasmid_hits'])
                 )
                 fh.write(f'{line}\n')
-    else:
-        print('No potential plasmid contigs found!')
-        print(pc.HEADER)
+        else:
+            print('No potential plasmid contigs found!')
+            print(pc.HEADER)
 
     # write comprehensive results to JSON file
     tmp_output_path = output_path.joinpath(f'{cfg.prefix}.json')
