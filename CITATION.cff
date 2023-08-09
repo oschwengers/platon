@@ -29,7 +29,7 @@ authors:
     affiliation: Bioinformatics and Systems Biology, Justus Liebig University Giessen, Giessen, 35392, Germany
 title: "Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein sequence-based replicon distribution scores"
 doi: "10.1099/mgen.0.000398"
-version: 1.6
+version: 1.7
 keywords: 
   - bioinformatics
   - assembly
