@@ -17,7 +17,7 @@ hints:
   SoftwareRequirement:
     packages:
       platon:
-      version: [ "1.3.0" ]
+      version: [ "1.7.0" ]
 
 requirements:
   ResourceRequirement:

@@ -6,7 +6,6 @@ from subprocess import run
 from .conftest import FILES
 
 
-@pytest.mark.slow
 def test_platon_db_parameter(tmpdir):
     # full test on draft assembly containing plasmid contigs
     proc = run(['bin/platon', '--db', 'test/db', '--output', tmpdir, '--prefix', 'test', 'test/data/mock-sample.fna'])
@@ -18,7 +17,6 @@ def test_platon_db_parameter(tmpdir):
         assert Path.exists(output_path)
 
 
-@pytest.mark.slow
 def test_platon_db_env(tmpdir):
     # full test on draft assembly containing plasmid contigs
 
@@ -33,7 +31,6 @@ def test_platon_db_env(tmpdir):
         assert Path.exists(output_path)
 
 
-@pytest.mark.slow
 def test_platon_w_plasmids(tmpdir):
     # full test on draft assembly containing plasmid contigs
     proc = run(['bin/platon', '--db', 'test/db', '--output', tmpdir, '--prefix', 'test', 'test/data/draft-w-plasmids.fna'])
@@ -46,7 +43,6 @@ def test_platon_w_plasmids(tmpdir):
         assert output_path.stat().st_size > 0
 
 
-@pytest.mark.slow
 def test_platon_wo_plasmids(tmpdir):
     # full test on draft assembly containing no plasmid contigs
     proc = run(['bin/platon', '--db', 'test/db', '--output', tmpdir, '--prefix', 'test', 'test/data/draft-wo-plasmids.fna'])
