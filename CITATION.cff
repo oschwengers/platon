@@ -42,30 +42,32 @@ license: GPL-3.0
 preferred-citation:
   type: article
   authors:
-    -
-      family-names: Schwengers
-      given-names: Oliver
-      orcid: https://orcid.org/0000-0003-4216-2721
-    -
-      family-names: Jelonek
-      given-names: Lukas
-      orcid: https://orcid.org/0000-0002-9973-0374
-    -
-      family-names: Dieckmann
-      given-names: Marius Alfred
-      orcid: https://orcid.org/0000-0001-5130-546X
-    -
-      family-names: Sebastian
-      given-names: Beyvers
-      orcid: https://orcid.org/0000-0002-9747-7096
-    -
-      family-names: Blom
-      given-names: Jochen
-      orcid: https://orcid.org/0000-0001-6455-3622
-    -
-      family-names: Goesmann
-      given-names: Alexander
-      orcid: https://orcid.org/0000-0002-7086-2568
+  -
+    family-names: Schwengers
+    given-names: Oliver
+    orcid: https://orcid.org/0000-0003-4216-2721
+    affiliation: Bioinformatics and Systems Biology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Barth
+    given-names: Patrick
+    affiliation: Bioinformatics and Systems Biology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Falgenhauer
+    given-names: Linda
+    affiliation: Institute of Medical Microbiology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Hain
+    given-names: Torsten
+    affiliation: Institute of Medical Microbiology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Chakraborty
+    given-names: Trinad
+    affiliation: Institute of Medical Microbiology, Justus Liebig University Giessen, Giessen, 35392, Germany
+  -
+    family-names: Goesmann
+    given-names: Alexander
+    orcid: https://orcid.org/0000-0002-7086-2568
+    affiliation: Bioinformatics and Systems Biology, Justus Liebig University Giessen, Giessen, 35392, Germany
   journal: "Microbial Genomics"
   title: "Platon: identification and characterization of bacterial plasmid contigs in short-read draft assemblies exploiting protein sequence-based replicon distribution scores"
   year: 2020
