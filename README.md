@@ -22,6 +22,7 @@
 - [Dependencies](#dependencies)
 - [Citation](#citation)
 - [Issues](#issues)
+- [deNBI](#denbi)
 
 ## Description
 
@@ -234,3 +235,7 @@ If you run into any issues with Platon, we'd be happy to hear about it! Please, 
 - the platon cmd line output
 - the `<prefix>.json` file if possible
 - A reproducible example of the issue with a small dataset that you can share (helps us identify whether the issue is specific to a particular computer, operating system, and/or dataset).
+
+## deNBI
+
+The maintenance of Platon is supported by [deNBI](https://www.denbi.de). To monitor the quality of this service, please find a service monitoring survey [here](https://www.surveymonkey.de/r/denbi-service?sc=bigi&tool=platon).
