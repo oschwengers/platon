@@ -21,8 +21,7 @@
 - [Database](#database)
 - [Dependencies](#dependencies)
 - [Citation](#citation)
-- [Issues](#issues)
-- [deNBI](#denbi)
+- [Feedback](#feedback)
 
 ## Description
 
@@ -227,15 +226,15 @@ As Platon takes advantage of the inc groups, MOB HMMs and oriT sequences of the 
 
 - > Robertson J., Nash J. H. E. (2018) MOB-suite: Software Tools for Clustering, Reconstruction and Typing of Plasmids From Draft Assemblies. Microbial Genomics, https://doi.org/10.1099/mgen.0.000206
 
-## Issues
+## Feedback
 
-If you run into any issues with Platon, we'd be happy to hear about it! Please, start the pipeline with `-v` (verbose) and do not hesitate to file an issue including as much of the following as possible:
+We highly wellcome and appreciate feedback of all kind!
+
+So, if you run into any issues with Platon, we'd be happy to hear about it! Please, start the pipeline with `-v` (verbose) and do not hesitate to file an issue here on GitHub including as much of the following as possible:
 
 - a detailed description of the issue
 - the platon cmd line output
 - the `<prefix>.json` file if possible
 - A reproducible example of the issue with a small dataset that you can share (helps us identify whether the issue is specific to a particular computer, operating system, and/or dataset).
 
-## deNBI
-
-The maintenance of Platon is supported by [deNBI](https://www.denbi.de). To monitor the quality of this service, please find a service monitoring survey [here](https://www.surveymonkey.de/r/denbi-service?sc=bigi&tool=platon).
+The maintenance of Platon is supported by [de.NBI](https://www.denbi.de). If you would like to provide (non-technical) feedback, please find a service monitoring survey [here](https://www.surveymonkey.de/r/denbi-service?sc=bigi&tool=platon).
