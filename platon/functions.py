@@ -453,8 +453,8 @@ def filter_contig(contig):
 def predict_orfs(contigs, filteredDraftGenomePath):
     """Predict open reading frames with Prodigal."""
 
-    proteins_path = Path("/home/jhahnfel/work/platon/foo/").joinpath('proteins.faa')
-    gff_path = Path("/home/jhahnfel/work/platon/foo/").joinpath('prodigal.gff')
+    proteins_path = cfg.tmp_path.joinpath('proteins.faa')
+    gff_path = cfg.tmp_path.joinpath('prodigal.gff')
     cmd = [
         'pyrodigal',
         '-i', str(filteredDraftGenomePath),
