@@ -1,5 +1,6 @@
 import logging
 import subprocess as sp
+from pathlib import Path
 
 import platon.config as cfg
 import platon.constants as pc
@@ -452,8 +453,8 @@ def filter_contig(contig):
 def predict_orfs(contigs, filteredDraftGenomePath):
     """Predict open reading frames with Prodigal."""
 
-    proteins_path = cfg.tmp_path.joinpath('proteins.faa')
-    gff_path = cfg.tmp_path.joinpath('prodigal.gff')
+    proteins_path = Path("/home/jhahnfel/work/platon/foo/").joinpath('proteins.faa')
+    gff_path = Path("/home/jhahnfel/work/platon/foo/").joinpath('prodigal.gff')
     cmd = [
         'pyrodigal',
         '-i', str(filteredDraftGenomePath),
@@ -491,7 +492,7 @@ def predict_orfs(contigs, filteredDraftGenomePath):
         for line in fh:
             if(line[0] != '#'):
                 cols = line.split('\t')
-                orf_id = cols[8].split(';')[0].split('=')[1].split('_')[1]
+                orf_id = cols[8].split(';')[0].split('=')[1].split('_')[-1]
                 orf = {
                     'start': int(cols[3]),
                     'end': int(cols[4]),
