@@ -1,7 +1,5 @@
 import logging
 import subprocess as sp
-from pathlib import Path
-
 import platon.config as cfg
 import platon.constants as pc
 
