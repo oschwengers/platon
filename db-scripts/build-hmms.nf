@@ -21,7 +21,7 @@ process extractNRP {
     errorStrategy 'ignore'
     cpus 1
     memory '1 GB'
-    conda 'seqtk=1.3 muscle=5.1 hmmer=3.3.2'
+    conda 'seqtk=1.5 muscle=5.3 hmmer=3.4.0'
 
     input:
     val(cluster) from chGeneCluster

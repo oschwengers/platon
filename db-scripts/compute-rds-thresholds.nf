@@ -39,7 +39,7 @@ process searchProts {
     maxRetries 3
     cpus 4
     memory '4 GB'
-    conda 'prodigal=2.6.3 diamond=2.0.14'
+    conda 'pyrodigal=3.7.1 diamond=2.2.0'
 
     input:
     set val(type), val(id), val(subSequence) from chContigs
@@ -50,7 +50,7 @@ process searchProts {
     script:
     """
     echo '>${id}\n${subSequence}' > seq.fna
-    prodigal -i seq.fna -a cdss.faa -p meta
+    pyrodigal -i seq.fna -a cdss.faa -p meta
     if [ -s cdss.faa ]
     then
         diamond blastp --query cdss.faa --db ${pcDb} --fast --threads ${task.cpus} --out output.tsv --max-target-seqs 1 --id 90 --query-cover 80 --subject-cover 80

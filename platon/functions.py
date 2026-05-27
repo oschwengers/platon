@@ -455,7 +455,7 @@ def predict_orfs(contigs, filteredDraftGenomePath):
     proteins_path = cfg.tmp_path.joinpath('proteins.faa')
     gff_path = cfg.tmp_path.joinpath('prodigal.gff')
     cmd = [
-        'prodigal',
+        'pyrodigal',
         '-i', str(filteredDraftGenomePath),
         '-a', str(proteins_path),
         '-c',  # closed ends

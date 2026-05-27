@@ -29,7 +29,7 @@ process callORFs {
 
     errorStrategy 'ignore'
     maxRetries 3
-    conda 'prodigal=2.6.3'
+    conda 'pyrodigal=3.7.1'
 
     input:
     set val(type), file('replicon.fna') from chInput
@@ -40,11 +40,11 @@ process callORFs {
     script:
     if( type == 'p' )
         """
-        prodigal -i replicon.fna -a cdss.faa -p meta
+        pyrodigal -i replicon.fna -a cdss.faa -p meta
         """
     else
         """
-        prodigal -i replicon.fna -a cdss.faa
+        pyrodigal -i replicon.fna -a cdss.faa
         """
 }
 
@@ -55,7 +55,7 @@ process searchProts {
     maxRetries 3
     cpus 4
     memory '12 GB'
-    conda 'diamond=2.0.14'
+    conda 'diamond=2.2.0'
 
     input:
     set val(type), file(cdss) from chAA
