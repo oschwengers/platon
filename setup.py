@@ -26,7 +26,8 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'biopython >= 1.87'
+        'biopython >= 1.87',
+        'pyrodigal >= 3.7.1'
     ],
     entry_points={
         'console_scripts': [
