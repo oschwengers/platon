@@ -1,6 +1,5 @@
 import logging
 import subprocess as sp
-
 import platon.config as cfg
 import platon.constants as pc
 
@@ -455,7 +454,7 @@ def predict_orfs(contigs, filteredDraftGenomePath):
     proteins_path = cfg.tmp_path.joinpath('proteins.faa')
     gff_path = cfg.tmp_path.joinpath('prodigal.gff')
     cmd = [
-        'prodigal',
+        'pyrodigal',
         '-i', str(filteredDraftGenomePath),
         '-a', str(proteins_path),
         '-c',  # closed ends
@@ -491,7 +490,7 @@ def predict_orfs(contigs, filteredDraftGenomePath):
         for line in fh:
             if(line[0] != '#'):
                 cols = line.split('\t')
-                orf_id = cols[8].split(';')[0].split('=')[1].split('_')[1]
+                orf_id = cols[8].split(';')[0].split('=')[1].split('_')[-1]
                 orf = {
                     'start': int(cols[3]),
                     'end': int(cols[4]),
