@@ -90,7 +90,6 @@ $ python3 -m pip install --user cb-platon
 Platon requires the following 3rd party executables which must be installed & executable:
 
 - Pyrodigal (3.7.1) <https://doi.org/10.21105/joss.04296> <https://github.com/althonos/pyrodigal>
-- Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
 - Diamond (2.2.0) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
 - Blast+ (2.17.0) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
 - MUMmer (4.0.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
@@ -204,16 +203,16 @@ Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database, 
 
 ## Dependencies
 
-Platon was developed and tested in Python 3.5 and depends on BioPython (>=1.71).
+Platon was developed and tested in Python 3.10 and depends on BioPython (>=1.87).
 
 Additionally, it depends on the following 3rd party executables:
 
-- Prodigal (2.6.3) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2848648> <https://github.com/hyattpd/Prodigal>
-- Diamond (2.0.6) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
-- Blast+ (2.10.1) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
-- MUMmer (4.0.0-beta2) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
-- HMMER (3.3.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3695513/> <http://hmmer.org/>
-- INFERNAL (1.1.4) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
+- Pyrodigal (3.7.1) <https://doi.org/10.21105/joss.04296> <https://github.com/althonos/pyrodigal>
+- Diamond (2.2.0) <https://pubmed.ncbi.nlm.nih.gov/25402007> <http://www.diamondsearch.org>
+- Blast+ (2.17.0) <https://www.ncbi.nlm.nih.gov/pubmed/2231712> <https://blast.ncbi.nlm.nih.gov>
+- MUMmer (4.0.1) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC395750/> <https://github.com/gmarcais/mummer>
+- HMMER (3.4) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3695513/> <http://hmmer.org/>
+- INFERNAL (1.1.5) <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3810854> <http://eddylab.org/infernal>
 
 ## Citation
 
