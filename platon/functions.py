@@ -459,7 +459,8 @@ def predict_orfs(contigs, filteredDraftGenomePath):
         '-a', str(proteins_path),
         '-c',  # closed ends
         '-f', 'gff',  # GFF output
-        '-o', str(gff_path)  # prodigal output
+        '-o', str(gff_path),  # prodigal output
+        '-j', str(cfg.threads)
     ]
 
     genome_size = sum([v['length'] for k, v in contigs.items()])
